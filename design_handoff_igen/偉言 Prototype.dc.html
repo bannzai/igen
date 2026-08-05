@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#05060f;font-family:'Zen Kaku Gothic New',sans-serif}
+a{color:#e8c97a;text-decoration:none}a:hover{color:#f5dfa4}
+@keyframes igenReveal{from{opacity:0;filter:blur(6px);transform:translateY(10px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
+@keyframes igenTwinkle{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes igenPulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes igenGlow{0%,100%{box-shadow:0 0 18px rgba(232,201,122,.25)}50%{box-shadow:0 0 34px rgba(232,201,122,.5)}}
+@keyframes igenFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+</style>
+<script src="./igen-data.js"></script>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;background:radial-gradient(1200px 800px at 50% -10%, #141238 0%, #05060f 60%)">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="460,940">
+<div style="position:relative;width:100%;height:100%;overflow:hidden;background:linear-gradient(180deg,#070a1c 0%,#0d1130 45%,#191243 78%,#231650 100%);font-family:'Zen Kaku Gothic New',sans-serif;color:#ece7f4">
+<canvas ref="{{ starRef }}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas>
+<div style="position:absolute;top:58px;left:0;right:0;bottom:0">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:14px 22px 26px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:20px;letter-spacing:.35em;color:#f5dfa4;text-shadow:0 0 16px rgba(232,201,122,.45)">偉言</div>
+    <div style="display:flex;gap:8px">
+      <button onClick="{{ goAtlas }}" style="font-family:inherit;font-size:11px;padding:7px 13px;border-radius:999px;border:1px solid rgba(232,201,122,.32);background:rgba(20,18,58,.55);color:#e8d9b0;cursor:pointer">星図</button>
+      <button onClick="{{ goHistory }}" style="font-family:inherit;font-size:11px;padding:7px 13px;border-radius:999px;border:1px solid rgba(232,201,122,.32);background:rgba(20,18,58,.55);color:#e8d9b0;cursor:pointer">記録</button>
+    </div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px">
+    <div style="align-self:center;width:7px;height:7px;border-radius:50%;background:#f5dfa4;box-shadow:0 0 14px 4px rgba(245,223,164,.55);animation:igenPulse 3.4s ease-in-out infinite"></div>
+    <h1 style="margin:0;font-family:'Shippori Mincho',serif;font-weight:600;font-size:22px;line-height:1.8;text-align:center;letter-spacing:.06em;text-wrap:pretty">きょうのできごと・<br>お悩みを どうぞ</h1>
+    <p style="margin:0;font-size:12px;line-height:1.8;text-align:center;color:rgba(236,231,244,.6)">書き終えたら、ふさわしい偉人が<br>出典つきの返書を届けます</p>
+    <div style="background:rgba(16,15,48,.72);border:1px solid rgba(232,201,122,.26);border-radius:18px;padding:14px 16px 12px;backdrop-filter:blur(6px);box-shadow:0 8px 32px rgba(3,4,14,.5)">
+      <textarea value="{{ draft }}" onChange="{{ onDraft }}" rows="5" placeholder="例: 最近、眠る前に考えごとが止まらない…" style="width:100%;box-sizing:border-box;background:transparent;border:none;outline:none;resize:none;font-family:inherit;font-size:15px;line-height:1.9;color:#ece7f4"></textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+        <button onClick="{{ toggleMic }}" aria-label="音声入力" style="width:44px;height:44px;border-radius:50%;border:1px solid {{ micBorder }};background:{{ micBg }};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+          <div style="width:9px;height:14px;border-radius:5px;border:1.5px solid #e8d9b0"></div>
+          <div style="width:15px;height:7px;border:1.5px solid #e8d9b0;border-top:none;border-radius:0 0 9px 9px"></div>
+        </button>
+        <sc-if value="{{ listening }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;color:#e8c97a;animation:igenPulse 1.4s ease-in-out infinite">聞いています…</span></sc-if>
+        <span style="font-size:11px;color:rgba(236,231,244,.4)">{{ draftLen }}文字</span>
+      </div>
+    </div>
+    <button onClick="{{ submit }}" style="height:52px;border:none;border-radius:26px;background:linear-gradient(135deg,#e8c97a,#c9a24d);color:#241650;font-family:'Shippori Mincho',serif;font-weight:700;font-size:17px;letter-spacing:.2em;cursor:pointer;opacity:{{ submitOpacity }};animation:igenGlow 4s ease-in-out infinite">偉人に聞く</button>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+    <span style="font-size:11px;color:rgba(236,231,244,.5)">きょうの返書 のこり {{ remaining }}通(無料)</span>
+    <button onClick="{{ goPaywall }}" style="background:none;border:none;font-family:inherit;font-size:11px;color:#e8c97a;cursor:pointer;text-decoration:underline;text-underline-offset:3px">聞き放題プランをみる</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isRitual }}" hint-placeholder-val="{{ false }}">{{ ritualEl }}</sc-if>
+
+<sc-if value="{{ isLetter }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;flex:none">
+    <button onClick="{{ closeLetter }}" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid rgba(236,231,244,.22);background:rgba(20,18,58,.55);color:rgba(236,231,244,.8);cursor:pointer">とじる</button>
+    <span style="font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.3em;color:#e8d9b0">あなたへの返書</span>
+    <button onClick="{{ goShare }}" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid rgba(232,201,122,.4);background:rgba(232,201,122,.12);color:#e8c97a;cursor:pointer">共有</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:8px 24px 44px">
+    <div style="text-align:center;font-size:11px;color:rgba(236,231,244,.45);letter-spacing:.1em;animation:igenReveal .8s ease both">{{ letter.date }}</div>
+    <sc-if value="{{ hasPerson }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:14px;animation:igenReveal .9s ease .15s both">
+        {{ letterAvatar }}
+        <div style="font-family:'Shippori Mincho',serif;font-size:20px;font-weight:600;letter-spacing:.15em">{{ personName }}</div>
+        <div style="font-size:11px;color:rgba(236,231,244,.55)">{{ personTitle }} — {{ personEra }}</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isDiagram }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:16px;border:1px solid rgba(232,201,122,.3);border-radius:16px;padding:18px;background:rgba(16,15,48,.7);animation:igenReveal .9s ease .15s both">
+        <div style="font-size:10px;letter-spacing:.25em;color:#e8c97a;text-align:center;margin-bottom:14px">図解 — ことばのしくみ</div>
+        <div style="display:flex;flex-direction:column;align-items:stretch;gap:0">
+          <div style="border:1px solid rgba(236,231,244,.16);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;background:rgba(35,22,80,.4)">
+            <span style="font-size:10px;letter-spacing:.2em;color:#e8c97a">たとえ</span>
+            <span style="font-size:13px;line-height:1.8">{{ letter.diagram.metaphor.text }}</span>
+          </div>
+          <div style="align-self:center;width:1px;height:16px;background:linear-gradient(180deg,rgba(232,201,122,.6),rgba(232,201,122,.15))"></div>
+          <div style="border:1px solid rgba(232,201,122,.35);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;background:rgba(45,32,96,.5)">
+            <span style="font-size:10px;letter-spacing:.2em;color:#e8c97a">意味</span>
+            <span style="font-size:13px;line-height:1.8;font-family:'Shippori Mincho',serif">{{ letter.diagram.meaning.text }}</span>
+          </div>
+          <div style="align-self:center;width:1px;height:16px;background:linear-gradient(180deg,rgba(232,201,122,.6),rgba(232,201,122,.15))"></div>
+          <div style="border:1px solid rgba(236,231,244,.16);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;background:rgba(35,22,80,.4)">
+            <span style="font-size:10px;letter-spacing:.2em;color:#e8c97a">使いどころ</span>
+            <span style="font-size:13px;line-height:1.8">{{ letter.diagram.usage.text }}</span>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+    <p style="margin:22px 0 0;font-size:14px;line-height:2.1;text-wrap:pretty;animation:igenReveal .9s ease .3s both">{{ letter.oneliner }}</p>
+    <div style="margin:20px 0;padding:24px 8px;border-top:1px solid rgba(232,201,122,.25);border-bottom:1px solid rgba(232,201,122,.25);animation:igenReveal 1s ease .45s both">
+      <div style="font-family:'Shippori Mincho',serif;font-weight:600;font-size:24px;line-height:2;text-align:center;letter-spacing:.04em;text-wrap:pretty;text-shadow:0 0 24px rgba(232,201,122,.25)">{{ letter.quote }}</div>
+    </div>
+    <sc-if value="{{ hasOriginal }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1px solid rgba(236,231,244,.16);border-radius:12px;background:rgba(12,12,40,.65);padding:14px 16px;display:flex;flex-direction:column;gap:10px;animation:igenReveal 1s ease .55s both">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:10px;letter-spacing:.2em;color:#e8c97a">原文({{ letter.origLang }})</span>
+          <span style="font-family:Georgia,'Shippori Mincho',serif;font-style:italic;font-size:15px;line-height:1.8;color:#f2eddd">{{ letter.original }}</span>
+        </div>
+        <div style="height:1px;background:rgba(236,231,244,.12)"></div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:10px;letter-spacing:.2em;color:#e8c97a">日本語訳</span>
+          <span style="font-size:13px;line-height:1.8">{{ letter.quote }}</span>
+        </div>
+      </div>
+    </sc-if>
+    <div style="margin-top:22px;animation:igenReveal 1s ease .65s both">
+      <div style="font-size:10px;letter-spacing:.25em;color:#e8c97a;margin-bottom:8px">意味と文脈</div>
+      <p style="margin:0;font-size:14px;line-height:2.1;text-wrap:pretty;color:rgba(236,231,244,.92)">{{ letter.meaning }}</p>
+    </div>
+    <div style="margin-top:22px;animation:igenReveal 1s ease .75s both">
+      <p style="margin:0;font-family:'Shippori Mincho',serif;font-size:15px;line-height:2.2;text-wrap:pretty">{{ letter.closing }}</p>
+      <div style="text-align:right;margin-top:8px;font-family:'Shippori Mincho',serif;font-size:13px;color:#e8d9b0">— {{ signName }} より</div>
+    </div>
+    <div style="margin-top:26px;border:1px solid rgba(232,201,122,.35);border-radius:12px;overflow:hidden;animation:igenReveal 1s ease .85s both">
+      <div style="padding:8px 14px;background:rgba(232,201,122,.12);font-size:11px;letter-spacing:.25em;color:#e8c97a">出典</div>
+      <div style="padding:12px 14px;display:grid;grid-template-columns:72px 1fr;gap:8px 10px;font-size:12px;line-height:1.7">
+        <span style="color:rgba(236,231,244,.5)">出典</span><span>{{ letter.source.work }} {{ letter.source.detail }}</span>
+        <sc-if value="{{ hasOrigTitle }}" hint-placeholder-val="{{ false }}"><span style="color:rgba(236,231,244,.5)">原題</span><span style="font-family:Georgia,serif;font-style:italic">{{ letter.source.origTitle }}</span></sc-if>
+        <span style="color:rgba(236,231,244,.5)">原文言語</span><span>{{ letter.source.lang }}</span>
+        <span style="color:rgba(236,231,244,.5)">成立</span><span>{{ letter.source.year }}</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:26px">
+      <button onClick="{{ goShare }}" style="height:48px;border-radius:24px;border:none;background:linear-gradient(135deg,#e8c97a,#c9a24d);color:#241650;font-family:'Shippori Mincho',serif;font-weight:700;font-size:15px;letter-spacing:.15em;cursor:pointer">共有カードを作る</button>
+      <button onClick="{{ closeLetter }}" style="height:44px;border-radius:22px;border:1px solid rgba(236,231,244,.25);background:transparent;color:rgba(236,231,244,.75);font-family:inherit;font-size:13px;cursor:pointer">とじる</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;flex:none">
+    <button onClick="{{ goHome }}" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid rgba(236,231,244,.22);background:rgba(20,18,58,.55);color:rgba(236,231,244,.8);cursor:pointer">ホーム</button>
+    <span style="font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.3em;color:#e8d9b0">返書の記録</span>
+    <span style="width:58px"></span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:6px 20px 32px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ history }}" as="h" hint-placeholder-count="4">
+      <button onClick="{{ h.open }}" style="text-align:left;font-family:inherit;border:1px solid rgba(232,201,122,.2);border-radius:14px;background:rgba(16,15,48,.6);padding:14px 16px;display:flex;flex-direction:column;gap:7px;cursor:pointer;color:#ece7f4">
+        <span style="font-size:10px;letter-spacing:.15em;color:rgba(236,231,244,.45)">{{ h.date }}</span>
+        <span style="font-size:13px;line-height:1.7;color:rgba(236,231,244,.85);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ h.concern }}</span>
+        <span style="display:flex;align-items:baseline;gap:8px;min-width:0">
+          <span style="flex:none;font-size:10px;padding:3px 9px;border-radius:999px;border:1px solid rgba(232,201,122,.35);color:#e8c97a">✦ {{ h.speaker }}</span>
+          <span style="font-family:'Shippori Mincho',serif;font-size:12px;color:rgba(236,231,244,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ h.quote }}</span>
+        </span>
+      </button>
+    </sc-for>
+    <p style="margin:14px 0 0;text-align:center;font-size:11px;line-height:1.9;color:rgba(236,231,244,.4)">あの日の自分への返書を、<br>いつでも読み返せます</p>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAtlas }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;flex:none">
+    <button onClick="{{ goHome }}" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid rgba(236,231,244,.22);background:rgba(20,18,58,.55);color:rgba(236,231,244,.8);cursor:pointer">ホーム</button>
+    <span style="font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.3em;color:#e8d9b0">あなたの星図</span>
+    <span style="width:58px"></span>
+  </div>
+  <p style="margin:2px 24px 0;text-align:center;font-size:11px;line-height:1.8;color:rgba(236,231,244,.5);flex:none">相談を通じて出会った偉人が、<br>星座としてあなたの夜空に増えていきます</p>
+  <div style="flex:1;position:relative;margin:8px 6px">{{ atlasEl }}</div>
+  <div style="flex:none;text-align:center;padding:0 0 18px;font-size:11px;letter-spacing:.15em;color:rgba(236,231,244,.55)">出会った偉人 <span style="color:#e8c97a;font-size:14px">4</span> / 24</div>
+  <sc-if value="{{ profileOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:10px;right:10px;bottom:10px;border-radius:20px;border:1px solid rgba(232,201,122,.35);background:rgba(12,11,38,.94);backdrop-filter:blur(10px);padding:18px 20px;animation:igenReveal .4s ease both;box-shadow:0 -12px 40px rgba(3,4,14,.6)">
+      <div style="display:flex;gap:14px;align-items:center">
+        {{ profileAvatar }}
+        <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+          <span style="font-family:'Shippori Mincho',serif;font-size:17px;font-weight:600">{{ profile.name }}</span>
+          <span style="font-size:10px;color:rgba(236,231,244,.5)">{{ profile.kana }}</span>
+          <span style="font-size:11px;color:rgba(236,231,244,.65)">{{ profile.title }} — {{ profile.era }}</span>
+        </div>
+        <button onClick="{{ closeProfile }}" aria-label="閉じる" style="margin-left:auto;align-self:flex-start;width:28px;height:28px;border-radius:50%;border:1px solid rgba(236,231,244,.25);background:transparent;color:rgba(236,231,244,.7);cursor:pointer;font-size:12px">✕</button>
+      </div>
+      <p style="margin:12px 0 0;font-size:12px;line-height:1.9;color:rgba(236,231,244,.75)">{{ profile.bio }}</p>
+      <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(232,201,122,.08);border:1px solid rgba(232,201,122,.2)">
+        <div style="font-size:9px;letter-spacing:.2em;color:#e8c97a;margin-bottom:4px">もらった言葉</div>
+        <div style="font-family:'Shippori Mincho',serif;font-size:13px;line-height:1.8">{{ profileQuote }}</div>
+      </div>
+      <button onClick="{{ readProfileLetter }}" style="margin-top:12px;width:100%;height:40px;border-radius:20px;border:1px solid rgba(232,201,122,.45);background:rgba(232,201,122,.12);color:#e8c97a;font-family:inherit;font-size:12px;cursor:pointer">返書を読む</button>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isShare }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;flex:none">
+    <button onClick="{{ closeShare }}" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid rgba(236,231,244,.22);background:rgba(20,18,58,.55);color:rgba(236,231,244,.8);cursor:pointer">もどる</button>
+    <span style="font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.3em;color:#e8d9b0">共有カード</span>
+    <span style="width:58px"></span>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 24px">
+    <div style="width:236px;border-radius:18px;overflow:hidden;border:1px solid rgba(232,201,122,.4);background:linear-gradient(180deg,#0a0d24 0%,#141040 55%,#221551 100%),radial-gradient(2px 2px at 20% 20%,#fff,transparent);box-shadow:0 16px 48px rgba(3,4,14,.7),0 0 32px rgba(232,201,122,.15);display:flex;flex-direction:column;align-items:center;padding:22px 18px 16px;animation:igenFloat 6s ease-in-out infinite">
+      <div style="font-family:'Shippori Mincho',serif;font-size:11px;letter-spacing:.4em;color:#e8c97a">偉言</div>
+      <div style="margin-top:10px">{{ shareAvatar }}</div>
+      <div style="font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.15em;margin-top:4px">{{ sharePersonName }}</div>
+      <div style="font-family:'Shippori Mincho',serif;font-weight:600;font-size:15px;line-height:2;text-align:center;margin-top:12px;text-wrap:pretty">{{ letter.quote }}</div>
+      <sc-if value="{{ hasOriginal }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:Georgia,serif;font-style:italic;font-size:10px;color:rgba(236,231,244,.65);text-align:center;margin-top:8px;line-height:1.7">{{ letter.original }}</div>
+      </sc-if>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(232,201,122,.25);width:100%;text-align:center;font-size:9px;color:rgba(236,231,244,.55);line-height:1.6">{{ letter.source.work }} {{ letter.source.detail }}</div>
+      <div style="margin-top:8px;font-size:8px;letter-spacing:.25em;color:rgba(232,201,122,.6)">IGEN — 偉人からの返書</div>
+    </div>
+    <p style="margin:0;font-size:11px;color:rgba(236,231,244,.5)">悩みの本文はカードに含まれません</p>
+    <div style="display:flex;gap:10px;width:100%">
+      <button onClick="{{ saveShare }}" style="flex:1;height:46px;border-radius:23px;border:none;background:linear-gradient(135deg,#e8c97a,#c9a24d);color:#241650;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer">画像を保存</button>
+      <button onClick="{{ saveShare }}" style="flex:1;height:46px;border-radius:23px;border:1px solid rgba(232,201,122,.45);background:rgba(232,201,122,.1);color:#e8c97a;font-family:inherit;font-size:13px;cursor:pointer">シェア</button>
+    </div>
+  </div>
+  <div style="height:24px;flex:none"></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPaywall }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;background:rgba(5,6,18,.55)">
+  <div style="display:flex;justify-content:flex-end;padding:14px 18px 0;flex:none">
+    <button onClick="{{ goHome }}" aria-label="閉じる" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(236,231,244,.25);background:rgba(20,18,58,.6);color:rgba(236,231,244,.75);cursor:pointer;font-size:13px">✕</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:4px 24px 30px;display:flex;flex-direction:column;gap:14px">
+    <div style="text-align:center;margin-top:6px">
+      <div style="font-family:'Shippori Mincho',serif;font-weight:600;font-size:22px;letter-spacing:.1em;text-shadow:0 0 20px rgba(232,201,122,.3)">夜空を、聞き放題に。</div>
+      <p style="margin:10px 0 0;font-size:12px;line-height:1.9;color:rgba(236,231,244,.65)">無料の返書は 1日1通。<br>もっと話したい夜のために。</p>
+    </div>
+    <div style="border:1px solid rgba(232,201,122,.55);border-radius:18px;padding:18px;background:rgba(28,20,68,.75);box-shadow:0 0 28px rgba(232,201,122,.18);position:relative">
+      <div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:.2em;padding:3px 12px;border-radius:999px;background:linear-gradient(135deg,#e8c97a,#c9a24d);color:#241650;font-weight:700">いちばん人気</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span style="font-family:'Shippori Mincho',serif;font-size:17px;font-weight:600">聞き放題「星読み」</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:4px;margin-top:8px">
+        <span style="font-size:26px;font-weight:700;color:#f5dfa4">¥480</span><span style="font-size:12px;color:rgba(236,231,244,.6)">/ 月</span>
+        <span style="margin-left:10px;font-size:10px;color:rgba(236,231,244,.5)">年払い ¥3,800(約34%お得)</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:12px;line-height:1.7;color:rgba(236,231,244,.85)">
+        <span>✦ 返書が毎日なんどでも</span>
+        <span>✦ 星図と記録を無制限に保存</span>
+        <span>✦ 新しい偉人の星座を先行解放</span>
+      </div>
+      <button onClick="{{ purchase }}" style="margin-top:14px;width:100%;height:48px;border-radius:24px;border:none;background:linear-gradient(135deg,#e8c97a,#c9a24d);color:#241650;font-family:'Shippori Mincho',serif;font-weight:700;font-size:15px;letter-spacing:.15em;cursor:pointer">星読みをはじめる</button>
+    </div>
+    <div style="border:1px solid rgba(236,231,244,.18);border-radius:18px;padding:16px 18px;background:rgba(16,15,48,.6)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <span style="font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600">相談チケット「ひとしずく」</span>
+        <span><span style="font-size:20px;font-weight:700;color:#f5dfa4">¥160</span><span style="font-size:11px;color:rgba(236,231,244,.6)"> / 1通</span></span>
+      </div>
+      <p style="margin:8px 0 0;font-size:11px;line-height:1.7;color:rgba(236,231,244,.6)">今夜だけ、もう一通。必要なときに1通ずつ。</p>
+      <button onClick="{{ purchase }}" style="margin-top:12px;width:100%;height:42px;border-radius:21px;border:1px solid rgba(232,201,122,.45);background:transparent;color:#e8c97a;font-family:inherit;font-size:13px;cursor:pointer">チケットを買う</button>
+    </div>
+    <div style="text-align:center;display:flex;flex-direction:column;gap:8px;margin-top:4px">
+      <div style="display:flex;justify-content:center;gap:18px;font-size:11px"><a href="#">購入の復元</a><a href="#">利用規約</a><a href="#">プライバシー</a></div>
+      <span style="font-size:10px;color:rgba(236,231,244,.4)">お支払いは App Store 経由。いつでも解約できます。</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSafety }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;background:rgba(4,5,14,.78)">
+  <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;padding:32px 28px;gap:0">
+    <div style="align-self:center;width:6px;height:6px;border-radius:50%;background:#dfe6ff;box-shadow:0 0 12px 3px rgba(223,230,255,.5)"></div>
+    <h2 style="margin:22px 0 0;font-family:'Shippori Mincho',serif;font-weight:600;font-size:18px;line-height:1.9;text-align:center;letter-spacing:.05em">たいせつなお話を、<br>ありがとうございます</h2>
+    <p style="margin:16px 0 0;font-size:13px;line-height:2.1;text-wrap:pretty;color:rgba(236,231,244,.85)">いま、とてもつらい気持ちの中にいらっしゃるように感じました。偉言は励ましのアプリで、専門の支援をお届けすることはできません。どうか、ひとりで抱えないでください。話を聴いてくれる窓口があります。</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
+      <a href="tel:0570-783-556" style="display:flex;flex-direction:column;gap:3px;border:1px solid rgba(236,231,244,.22);border-radius:14px;padding:13px 16px;background:rgba(20,22,48,.7);color:#ece7f4">
+        <span style="font-size:13px;font-weight:700">いのちの電話 <span style="color:#dfe6ff">0570-783-556</span></span>
+        <span style="font-size:11px;color:rgba(236,231,244,.55)">毎日対応・ナビダイヤル</span>
+      </a>
+      <a href="tel:0120-279-338" style="display:flex;flex-direction:column;gap:3px;border:1px solid rgba(236,231,244,.22);border-radius:14px;padding:13px 16px;background:rgba(20,22,48,.7);color:#ece7f4">
+        <span style="font-size:13px;font-weight:700">よりそいホットライン <span style="color:#dfe6ff">0120-279-338</span></span>
+        <span style="font-size:11px;color:rgba(236,231,244,.55)">24時間・通話無料</span>
+      </a>
+      <a href="#" style="display:flex;flex-direction:column;gap:3px;border:1px solid rgba(236,231,244,.22);border-radius:14px;padding:13px 16px;background:rgba(20,22,48,.7);color:#ece7f4">
+        <span style="font-size:13px;font-weight:700">まもろうよ こころ(厚生労働省)</span>
+        <span style="font-size:11px;color:rgba(236,231,244,.55)">SNS・チャット相談の窓口一覧</span>
+      </a>
+    </div>
+    <p style="margin:18px 0 0;text-align:center;font-size:10px;color:rgba(236,231,244,.4)">このご相談への返書はお送りしていません。</p>
+    <button onClick="{{ goHome }}" style="margin-top:16px;height:44px;border-radius:22px;border:1px solid rgba(236,231,244,.25);background:transparent;color:rgba(236,231,244,.8);font-family:inherit;font-size:13px;cursor:pointer">ホームにもどる</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:50%;bottom:38px;transform:translateX(-50%);padding:10px 20px;border-radius:999px;background:rgba(232,201,122,.95);color:#241650;font-size:12px;font-weight:700;white-space:nowrap;animation:igenReveal .3s ease both;box-shadow:0 8px 24px rgba(3,4,14,.5)">{{ toast }}</div>
+</sc-if>
+</div>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 520, &quot;height&quot;: 1010}, &quot;screen&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;home&quot;, &quot;ritual&quot;, &quot;letter&quot;, &quot;history&quot;, &quot;atlas&quot;, &quot;share&quot;, &quot;paywall&quot;, &quot;safety&quot;], &quot;default&quot;: &quot;home&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;プロトタイプ操作&quot;}, &quot;letterId&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;seneca&quot;, &quot;confucius&quot;, &quot;nietzsche&quot;, &quot;murasaki&quot;, &quot;proverb&quot;], &quot;default&quot;: &quot;seneca&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;プロトタイプ操作&quot;}, &quot;richMotion&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;モーション&quot;}}">
+class Component extends DCLogic {
+  state = { screen: 'home', draft: '', phase: 0, freeUsed: false, rituals: 0, scatter: [], letterId: 'seneca', from: 'home', profileId: null, toast: '', listening: false };
+  timers = [];
+  D() { return window.IGEN_DATA || { persons: {}, letters: {}, history: [], atlas: { met: [], unmet: [] } }; }
+  componentDidMount() {
+    this._poll = setInterval(() => { if (window.IGEN_DATA) { clearInterval(this._poll); this.forceUpdate(); } }, 120);
+  }
+  componentDidUpdate(prevProps) {
+    if (this.props.screen !== prevProps.screen && this.props.screen) this.setState({ screen: this.props.screen });
+    if (this.props.letterId !== prevProps.letterId && this.props.letterId) this.setState({ letterId: this.props.letterId });
+  }
+  componentWillUnmount() { this.timers.forEach(clearTimeout); clearInterval(this._poll); cancelAnimationFrame(this._raf); }
+  setStar = (el) => { if (el && el !== this.cv) { this.cv = el; this.initStars(el); } };
+  initStars(cv) {
+    cancelAnimationFrame(this._raf);
+    const ctx = cv.getContext('2d'); const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const fit = () => { const r = cv.getBoundingClientRect(); cv.width = r.width * dpr; cv.height = r.height * dpr; return r; };
+    let rect = fit();
+    const W = () => cv.width / dpr, H = () => cv.height / dpr;
+    const stars = Array.from({ length: 95 }, () => ({ x: Math.random(), y: Math.random(), r: 0.4 + Math.random() * 1.1, ph: Math.random() * 6.28, sp: 0.4 + Math.random() * 1.2, gold: Math.random() < 0.35 }));
+    const mist = Array.from({ length: 3 }, (_, i) => ({ x: Math.random(), y: 0.2 + 0.3 * i, r: 120 + Math.random() * 90, dx: (Math.random() - 0.5) * 0.00012 }));
+    let shoot = null, nextShoot = performance.now() + 3000 + Math.random() * 4000;
+    const loop = (t) => {
+      this._raf = requestAnimationFrame(loop);
+      if (!cv.isConnected) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W(), H());
+      mist.forEach(m => {
+        m.x += m.dx; if (m.x < -0.2) m.x = 1.2; if (m.x > 1.2) m.x = -0.2;
+        const g = ctx.createRadialGradient(m.x * W(), m.y * H(), 0, m.x * W(), m.y * H(), m.r);
+        g.addColorStop(0, 'rgba(130,100,210,0.055)'); g.addColorStop(1, 'rgba(130,100,210,0)');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W(), H());
+      });
+      stars.forEach(s => {
+        const a = 0.3 + 0.55 * (0.5 + 0.5 * Math.sin(t / 1000 * s.sp + s.ph));
+        ctx.beginPath(); ctx.arc(s.x * W(), s.y * H(), s.r, 0, 6.29);
+        ctx.fillStyle = s.gold ? `rgba(232,210,150,${a})` : `rgba(215,225,255,${a * 0.85})`;
+        ctx.fill();
+      });
+      if (!shoot && t > nextShoot && this.props.richMotion !== false) {
+        shoot = { x: Math.random() * 0.7 + 0.1, y: Math.random() * 0.25 + 0.05, vx: 2.6 + Math.random() * 1.6, vy: 1.4 + Math.random(), life: 1 };
+        nextShoot = t + 5000 + Math.random() * 6000;
+      }
+      if (shoot) {
+        shoot.x += shoot.vx * 0.004; shoot.y += shoot.vy * 0.004; shoot.life -= 0.022;
+        const sx = shoot.x * W(), sy = shoot.y * H(), tl = 42;
+        const g = ctx.createLinearGradient(sx - tl, sy - tl * 0.55, sx, sy);
+        g.addColorStop(0, 'rgba(245,223,164,0)'); g.addColorStop(1, `rgba(245,223,164,${Math.max(shoot.life, 0) * 0.9})`);
+        ctx.strokeStyle = g; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(sx - tl, sy - tl * 0.55); ctx.lineTo(sx, sy); ctx.stroke();
+        if (shoot.life <= 0) shoot = null;
+      }
+    };
+    this._raf = requestAnimationFrame(loop);
+  }
+  go(screen) { return () => this.setState({ screen, profileId: null }); }
+  submit = () => {
+    const t = this.state.draft.trim(); if (!t) return;
+    if (/死にたい|消えたい|自殺|傷つけ|リストカット|生きていたくない|死のう/.test(t)) { this.setState({ screen: 'safety' }); return; }
+    if (this.state.freeUsed) { this.setState({ screen: 'paywall' }); return; }
+    this.startRitual('seneca');
+  };
+  startRitual(id) {
+    this.timers.forEach(clearTimeout); this.timers = [];
+    const p = this.D().persons[id]; if (!p) { this.setState({ screen: 'letter', letterId: id, from: 'home' }); return; }
+    const scatter = p.points.map(() => [Math.random() * 130 - 15, Math.random() * 150 - 25]);
+    const quick = this.state.rituals > 0 || this.props.richMotion === false;
+    const T = quick ? [90, 1100, 2100, 3100] : [140, 2300, 4400, 6200];
+    this.setState({ screen: 'ritual', letterId: id, phase: 0, scatter, from: 'home' });
+    this.timers.push(setTimeout(() => this.setState({ phase: 1 }), T[0]));
+    this.timers.push(setTimeout(() => this.setState({ phase: 2 }), T[1]));
+    this.timers.push(setTimeout(() => this.setState({ phase: 3 }), T[2]));
+    this.timers.push(setTimeout(() => this.setState({ screen: 'letter', freeUsed: true, rituals: this.state.rituals + 1, draft: '', phase: 0 }), T[3]));
+  }
+  skipRitual = () => {
+    this.timers.forEach(clearTimeout); this.timers = [];
+    this.setState({ screen: 'letter', freeUsed: true, rituals: this.state.rituals + 1, draft: '', phase: 0 });
+  };
+  avatarSvg(person, size, animate) {
+    if (!person) return null;
+    const e = React.createElement;
+    const pts = person.points.map((pt, i) => e('circle', {
+      key: 'p' + i, cx: pt[0], cy: pt[1], r: 1.7, fill: '#f5dfa4',
+      style: animate ? { animation: `igenTwinkle ${2.4 + (i % 4) * 0.6}s ease-in-out ${(i % 5) * 0.35}s infinite` } : null
+    }));
+    const lns = person.lines.map((l, i) => {
+      const a = person.points[l[0]], b = person.points[l[1]];
+      return e('line', { key: 'l' + i, x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: 'rgba(190,205,255,0.65)', strokeWidth: 0.7 });
+    });
+    return e('svg', { viewBox: '0 0 100 100', width: size, height: size, style: { filter: 'drop-shadow(0 0 6px rgba(232,201,122,0.45))', overflow: 'visible' } }, lns, pts);
+  }
+  ritualEl() {
+    const e = React.createElement;
+    const p = this.D().persons[this.state.letterId]; if (!p) return null;
+    const { phase, scatter } = this.state;
+    const pts = p.points.map((pt, i) => {
+      const s = scatter[i] || pt;
+      const [x, y] = phase >= 1 ? pt : s;
+      return e('circle', {
+        key: 'p' + i, cx: 0, cy: 0, r: 1.8, fill: '#f5dfa4',
+        style: { transform: `translate(${x}px,${y}px)`, transition: `transform 1.9s cubic-bezier(.22,1,.36,1) ${(i % 7) * 0.09}s`, filter: 'drop-shadow(0 0 3px rgba(245,223,164,.9))' }
+      });
+    });
+    const lns = phase >= 1 ? p.lines.map((l, i) => {
+      const a = p.points[l[0]], b = p.points[l[1]];
+      const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      return e('line', {
+        key: 'l' + i, x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: 'rgba(190,205,255,0.75)', strokeWidth: 0.7,
+        style: { strokeDasharray: len, strokeDashoffset: phase >= 2 ? 0 : len, transition: `stroke-dashoffset .8s ease ${i * 0.13}s` }
+      });
+    }) : null;
+    return e('div', { style: { position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 26, background: 'rgba(5,6,18,0.45)' } },
+      e('svg', { viewBox: '0 0 100 100', width: 250, height: 250, style: { overflow: 'visible' } }, lns, pts),
+      phase >= 3
+        ? e('div', { style: { textAlign: 'center', animation: 'igenReveal .9s ease both' } },
+            e('div', { style: { fontFamily: "'Shippori Mincho',serif", fontSize: 24, fontWeight: 600, letterSpacing: '.2em', textShadow: '0 0 20px rgba(232,201,122,.5)' } }, p.name),
+            e('div', { style: { marginTop: 10, fontSize: 12, color: 'rgba(236,231,244,.65)' } }, `${p.name}が、あなたの空に現れました`))
+        : e('div', { style: { fontSize: 12, letterSpacing: '.2em', color: 'rgba(236,231,244,.6)', animation: 'igenPulse 1.8s ease-in-out infinite' } }, '星々が、ことばを探しています…'),
+      e('button', { onClick: this.skipRitual, style: { position: 'absolute', bottom: 30, fontFamily: 'inherit', fontSize: 11, padding: '7px 16px', borderRadius: 999, border: '1px solid rgba(236,231,244,.2)', background: 'transparent', color: 'rgba(236,231,244,.55)', cursor: 'pointer' } }, 'スキップ'));
+  }
+  atlasEl() {
+    const e = React.createElement; const D = this.D();
+    const met = (D.atlas.met || []).map((m, i) => {
+      const p = D.persons[m.person]; if (!p) return null;
+      return e('button', {
+        key: m.person, onClick: () => this.setState({ profileId: m.person }),
+        style: { position: 'absolute', left: m.x + '%', top: m.y + '%', width: 84 * m.s, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }
+      },
+        this.avatarSvg(p, 74 * m.s, true),
+        e('span', { style: { fontFamily: "'Zen Kaku Gothic New',sans-serif", fontSize: 10, letterSpacing: '.15em', color: '#e8c97a' } }, p.name));
+    });
+    const unmet = (D.atlas.unmet || []).map((u, i) =>
+      e('div', { key: 'u' + i, style: { position: 'absolute', left: u.x + '%', top: u.y + '%', width: 20, height: 22 } },
+        u.dots.map((d, j) => e('div', { key: j, style: { position: 'absolute', left: d[0], top: d[1], width: 3, height: 3, borderRadius: '50%', background: 'rgba(215,225,255,0.16)' } }))));
+    return e('div', { style: { position: 'absolute', inset: 0 } }, unmet, met);
+  }
+  toastMsg(t) { this.setState({ toast: t }); this.timers.push(setTimeout(() => this.setState({ toast: '' }), 1800)); }
+  renderVals() {
+    const D = this.D(); const s = this.state;
+    const L = D.letters[s.letterId] || { source: {} };
+    const person = L.person ? D.persons[L.person] : null;
+    const profile = s.profileId ? D.persons[s.profileId] : null;
+    const profLetter = s.profileId ? D.letters[s.profileId] : null;
+    return {
+      starRef: this.setStar,
+      isHome: s.screen === 'home', isRitual: s.screen === 'ritual', isLetter: s.screen === 'letter',
+      isHistory: s.screen === 'history', isAtlas: s.screen === 'atlas', isShare: s.screen === 'share',
+      isPaywall: s.screen === 'paywall', isSafety: s.screen === 'safety',
+      draft: s.draft, draftLen: s.draft.length,
+      onDraft: (ev) => this.setState({ draft: ev.target.value }),
+      submit: this.submit, submitOpacity: s.draft.trim() ? 1 : 0.45,
+      listening: s.listening,
+      toggleMic: () => this.setState({ listening: !s.listening }),
+      micBorder: s.listening ? '#e8c97a' : 'rgba(232,201,122,.35)',
+      micBg: s.listening ? 'rgba(232,201,122,.2)' : 'transparent',
+      remaining: s.freeUsed ? 0 : 1,
+      goHome: this.go('home'), goHistory: this.go('history'), goAtlas: this.go('atlas'),
+      goPaywall: this.go('paywall'), goShare: this.go('share'),
+      closeLetter: () => this.setState({ screen: s.from === 'history' ? 'history' : 'home' }),
+      closeShare: () => this.setState({ screen: 'letter' }),
+      ritualEl: s.screen === 'ritual' ? this.ritualEl() : null,
+      letter: { ...L, source: L.source || {} },
+      hasPerson: !!person, isDiagram: !!L.diagram, hasOriginal: !!L.original, hasOrigTitle: !!(L.source && L.source.origTitle),
+      personName: person ? person.name : '', personEra: person ? person.era : '', personTitle: person ? person.title : '',
+      signName: person ? person.name : '偉言',
+      letterAvatar: person ? this.avatarSvg(person, 130, true) : null,
+      shareAvatar: person ? this.avatarSvg(person, 100, true) : null,
+      sharePersonName: person ? person.name : 'ことわざ',
+      history: (D.history || []).map(id => {
+        const l = D.letters[id] || {}; const p = l.person ? D.persons[l.person] : null;
+        return { date: l.date, concern: l.concern, speaker: p ? p.name : 'ことわざ・図解', quote: l.quote, open: () => this.setState({ screen: 'letter', letterId: id, from: 'history' }) };
+      }),
+      atlasEl: s.screen === 'atlas' ? this.atlasEl() : null,
+      profileOpen: !!profile, profile: profile || {},
+      profileAvatar: profile ? this.avatarSvg(profile, 64, true) : null,
+      profileQuote: profLetter ? profLetter.quote : '',
+      closeProfile: () => this.setState({ profileId: null }),
+      readProfileLetter: () => this.setState({ screen: 'letter', letterId: s.profileId, from: 'history', profileId: null }),
+      purchase: () => this.toastMsg('プロトタイプのため購入は動作しません'),
+      saveShare: () => this.toastMsg('カードを保存しました(プロトタイプ)'),
+      toast: s.toast, toastOn: !!s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta charset="utf-8">
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0b0c18;font-family:'Zen Kaku Gothic New',system-ui,sans-serif}
+a{color:#e8c97a;text-decoration:none}a:hover{color:#f5dfa4}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(255,255,255,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#e8c97a;color:#241650;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 sans-serif;color:#ece7f4}
+.dv-group{font:600 11px/1.2 sans-serif;letter-spacing:.15em;color:#e8c97a;margin:26px 0 12px}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(255,255,255,.12);color:#ece7f4;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 sans-serif;color:rgba(236,231,244,.6)}
+.dv-card{max-width:100%;background:linear-gradient(180deg,#070a1c 0%,#10113a 55%,#1d1348 100%);border:1px solid rgba(232,201,122,.25);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.5);overflow:hidden;color:#ece7f4;position:relative}
+.dv-stars{position:absolute;inset:0;pointer-events:none;background:radial-gradient(1.5px 1.5px at 15% 20%,rgba(245,223,164,.8),transparent),radial-gradient(1px 1px at 70% 12%,rgba(215,225,255,.7),transparent),radial-gradient(1.5px 1.5px at 85% 45%,rgba(245,223,164,.5),transparent),radial-gradient(1px 1px at 30% 60%,rgba(215,225,255,.5),transparent),radial-gradient(1px 1px at 55% 80%,rgba(245,223,164,.45),transparent),radial-gradient(1.2px 1.2px at 90% 85%,rgba(215,225,255,.5),transparent)}
+.dv-next{margin:28px 0 0;font:12px/1.5 sans-serif;color:rgba(236,231,244,.5)}
+.lbl{font-size:10px;letter-spacing:.22em;color:#e8c97a}
+.dim{color:rgba(236,231,244,.6)}
+</style>
+<script src="./igen-data.js"></script>
+</helmet>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">偉言 — 初回探索(アバター画風 / 返書レイアウト / 図解カード / 入力UI / 英語版)。動くプロトタイプは「偉言 Prototype」参照</span></div>
+
+<div class="dv-group">A. 星座線アバターの画風(セネカで比較)</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>細線ミニマル — 星は小さく、線は静か</div><div class="dv-card" style="width:220px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:10px"><div class="dv-stars"></div>{{ avA }}<span style="font-family:'Shippori Mincho',serif;font-size:14px;letter-spacing:.2em">セネカ</span></div></div>
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>光とグロー — 現行プロトタイプの画風</div><div class="dv-card" style="width:220px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:10px"><div class="dv-stars"></div>{{ avB }}<span style="font-family:'Shippori Mincho',serif;font-size:14px;letter-spacing:.2em">セネカ</span></div></div>
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>古星図風 — 破線+等級のちがう星+環</div><div class="dv-card" style="width:220px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:10px"><div class="dv-stars"></div>{{ avC }}<span style="font-family:'Shippori Mincho',serif;font-size:14px;letter-spacing:.2em">セネカ</span></div></div>
+</div>
+
+<div class="dv-group">B. 返書カードのレイアウト</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1d"><div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>一枚の光のカード — 縦に流れる(現行)</div>
+<div class="dv-card" style="width:300px;padding:22px 22px 26px;display:flex;flex-direction:column;gap:14px"><div class="dv-stars"></div>
+<span style="text-align:center;font-size:10px;letter-spacing:.1em" class="dim">2026年8月5日</span>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px">{{ avSmall }}<span style="font-family:'Shippori Mincho',serif;font-size:16px;letter-spacing:.15em">セネカ</span><span style="font-size:10px" class="dim">ストア派の哲学者 — 前4頃–65</span></div>
+<p style="margin:0;font-size:12px;line-height:2">速さを競う世で、あなたは立ち止まって空を見上げました。それだけで、すでに賢明です。</p>
+<div style="padding:16px 4px;border-top:1px solid rgba(232,201,122,.3);border-bottom:1px solid rgba(232,201,122,.3);font-family:'Shippori Mincho',serif;font-weight:600;font-size:18px;line-height:2;text-align:center">人生は、使い方を知れば、長い。</div>
+<div style="border:1px solid rgba(236,231,244,.16);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:rgba(12,12,40,.6)"><span class="lbl">原文(ラテン語)</span><span style="font-family:Georgia,serif;font-style:italic;font-size:12px">Vita, si uti scias, longa est.</span></div>
+<div style="border:1px solid rgba(232,201,122,.35);border-radius:10px;overflow:hidden"><div style="padding:6px 12px;background:rgba(232,201,122,.12)" class="lbl">出典</div><div style="padding:8px 12px;font-size:11px;line-height:1.8">セネカ『人生の短さについて』第2章<br><span class="dim">De Brevitate Vitae, II — 紀元49年頃</span></div></div>
+</div></div>
+<div class="dv-opt" id="1e"><div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>章立てカード — 要素ごとに区切って読む</div>
+<div class="dv-card" style="width:300px;padding:18px;display:flex;flex-direction:column;gap:10px;background:transparent;border:none;box-shadow:none">
+<div class="dv-card" style="padding:16px;display:flex;align-items:center;gap:12px"><div class="dv-stars"></div>{{ avTiny }}<div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Shippori Mincho',serif;font-size:15px">セネカ</span><span style="font-size:10px" class="dim">ストア派の哲学者</span></div><span style="margin-left:auto;font-size:9px" class="dim">8/5</span></div>
+<div class="dv-card" style="padding:20px 16px;text-align:center"><div class="dv-stars"></div><span class="lbl">ことば</span><div style="margin-top:10px;font-family:'Shippori Mincho',serif;font-weight:600;font-size:18px;line-height:2">人生は、使い方を<br>知れば、長い。</div><div style="margin-top:8px;font-family:Georgia,serif;font-style:italic;font-size:11px" class="dim">Vita, si uti scias, longa est.</div></div>
+<div class="dv-card" style="padding:14px 16px"><div class="dv-stars"></div><span class="lbl">意味と文脈</span><p style="margin:6px 0 0;font-size:11.5px;line-height:1.9" class="dim">足りないのは時間ではなく、自分の時間として使う覚悟だ、とセネカは書きました。</p></div>
+<div class="dv-card" style="padding:14px 16px"><div class="dv-stars"></div><span class="lbl">出典</span><p style="margin:6px 0 0;font-size:11px;line-height:1.8">『人生の短さについて』第2章<br><span class="dim">De Brevitate Vitae — ラテン語・紀元49年頃</span></p></div>
+</div></div>
+<div class="dv-opt" id="1f"><div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>返書らしさ強め — 縦書きの格言を主役に</div>
+<div class="dv-card" style="width:300px;padding:24px 22px;display:flex;flex-direction:column;gap:14px"><div class="dv-stars"></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span class="lbl">返書 第一便</span><span style="font-size:10px" class="dim">2026年8月5日</span></div>
+<div style="display:flex;gap:18px;justify-content:center;align-items:stretch;padding:14px 0;border-top:1px solid rgba(232,201,122,.3);border-bottom:1px solid rgba(232,201,122,.3)">
+<div style="writing-mode:vertical-rl;font-family:'Shippori Mincho',serif;font-weight:600;font-size:19px;letter-spacing:.18em;line-height:2;height:220px">人生は、使い方を知れば、長い。</div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between">{{ avTiny2 }}<div style="writing-mode:vertical-rl;font-family:'Shippori Mincho',serif;font-size:12px;letter-spacing:.3em" class="dim">セネカ より</div></div>
+</div>
+<div style="font-family:Georgia,serif;font-style:italic;font-size:11px;text-align:center" class="dim">Vita, si uti scias, longa est.</div>
+<div style="font-size:10px;text-align:center" class="dim">出典: 『人生の短さについて』第2章(ラテン語・紀元49年頃)</div>
+</div></div>
+</div>
+
+<div class="dv-group">C. 図解カードのフォーマット(話者がいないことわざ用)</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1g"><div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>縦フロー — たとえ→意味→使いどころ(現行)</div>
+<div class="dv-card" style="width:280px;padding:18px"><div class="dv-stars"></div>
+<div style="text-align:center;font-family:'Shippori Mincho',serif;font-weight:600;font-size:16px;letter-spacing:.06em">案ずるより産むが易し</div>
+<div style="text-align:center;margin-top:4px;font-size:9px" class="dim">日本のことわざ・言い出した人物は特定されていません</div>
+<div style="display:flex;flex-direction:column;margin-top:14px">
+<div style="border:1px solid rgba(236,231,244,.16);border-radius:10px;padding:10px 12px;background:rgba(35,22,80,.4)"><span class="lbl">たとえ</span><div style="font-size:12px;line-height:1.8;margin-top:3px">出産を前にした尽きない心配</div></div>
+<div style="align-self:center;width:1px;height:14px;background:linear-gradient(180deg,rgba(232,201,122,.6),rgba(232,201,122,.15))"></div>
+<div style="border:1px solid rgba(232,201,122,.4);border-radius:10px;padding:10px 12px;background:rgba(45,32,96,.5)"><span class="lbl">意味</span><div style="font-family:'Shippori Mincho',serif;font-size:12px;line-height:1.8;margin-top:3px">実行前の不安は、実際の困難より大きく膨らむ</div></div>
+<div style="align-self:center;width:1px;height:14px;background:linear-gradient(180deg,rgba(232,201,122,.6),rgba(232,201,122,.15))"></div>
+<div style="border:1px solid rgba(236,231,244,.16);border-radius:10px;padding:10px 12px;background:rgba(35,22,80,.4)"><span class="lbl">使いどころ</span><div style="font-size:12px;line-height:1.8;margin-top:3px">始める前に足がすくんで動けないとき</div></div>
+</div></div></div>
+<div class="dv-opt" id="1h"><div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>ことばの星座 — 意味の構造を星座線で結ぶ</div>
+<div class="dv-card" style="width:280px;padding:18px;height:280px;box-sizing:border-box"><div class="dv-stars"></div>
+<div style="text-align:center;font-family:'Shippori Mincho',serif;font-weight:600;font-size:16px">案ずるより産むが易し</div>
+<div style="position:relative;height:200px;margin-top:10px">
+<div style="position:absolute;left:8px;top:14px;width:110px"><div style="width:6px;height:6px;border-radius:50%;background:#f5dfa4;box-shadow:0 0 8px 2px rgba(245,223,164,.5)"></div><span class="lbl" style="display:block;margin-top:5px">たとえ</span><span style="font-size:10.5px;line-height:1.6" class="dim">出産を前にした尽きない心配</span></div>
+<div style="position:absolute;right:8px;top:64px;width:110px;text-align:right"><div style="width:8px;height:8px;border-radius:50%;background:#f5dfa4;box-shadow:0 0 12px 3px rgba(245,223,164,.7);margin-left:auto"></div><span class="lbl" style="display:block;margin-top:5px">意味</span><span style="font-size:10.5px;line-height:1.6">実行前の不安は、実際の困難より大きい</span></div>
+<div style="position:absolute;left:22px;bottom:6px;width:120px"><div style="width:5px;height:5px;border-radius:50%;background:#dfe6ff;box-shadow:0 0 6px 2px rgba(223,230,255,.4)"></div><span class="lbl" style="display:block;margin-top:5px">使いどころ</span><span style="font-size:10.5px;line-height:1.6" class="dim">始める前に足がすくむとき</span></div>
+<div style="position:absolute;left:16px;top:22px;width:196px;height:1px;background:linear-gradient(90deg,rgba(190,205,255,.7),rgba(190,205,255,.2));transform:rotate(14deg);transform-origin:left center"></div>
+<div style="position:absolute;left:30px;bottom:34px;width:190px;height:1px;background:linear-gradient(90deg,rgba(190,205,255,.2),rgba(190,205,255,.7));transform:rotate(-26deg);transform-origin:left center"></div>
+</div></div></div>
+<div class="dv-opt" id="1i"><div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>対比二段 — 「案じる夜」と「産んだ朝」</div>
+<div class="dv-card" style="width:280px;padding:18px"><div class="dv-stars"></div>
+<div style="text-align:center;font-family:'Shippori Mincho',serif;font-weight:600;font-size:16px">案ずるより産むが易し</div>
+<div style="display:grid;grid-template-columns:1fr 24px 1fr;gap:6px;align-items:stretch;margin-top:14px">
+<div style="border:1px solid rgba(236,231,244,.18);border-radius:10px;padding:12px 10px;background:rgba(14,14,44,.7)"><span class="lbl" style="color:#aeb8e8">案じる夜</span><div style="font-size:11px;line-height:1.7;margin-top:5px" class="dim">不安は頭の中でどこまでも膨らむ</div></div>
+<div style="display:flex;align-items:center;justify-content:center;font-size:12px;color:#e8c97a">→</div>
+<div style="border:1px solid rgba(232,201,122,.45);border-radius:10px;padding:12px 10px;background:rgba(45,32,96,.55)"><span class="lbl">産んだ朝</span><div style="font-size:11px;line-height:1.7;margin-top:5px">やってみれば、案じたほどではない</div></div>
+</div>
+<div style="margin-top:12px;border-top:1px solid rgba(236,231,244,.12);padding-top:10px"><span class="lbl">使いどころ</span><span style="font-size:11px;margin-left:8px" class="dim">始める前に足がすくんで動けないとき</span></div>
+</div></div>
+</div>
+
+<div class="dv-group">D. ホームの入力UI</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1j"><div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a>中央の光カード(現行)</div>
+<div class="dv-card" style="width:280px;height:380px;padding:22px;display:flex;flex-direction:column;justify-content:center;gap:12px;box-sizing:border-box"><div class="dv-stars"></div>
+<div style="text-align:center;font-family:'Shippori Mincho',serif;font-size:17px;line-height:1.9">きょうのできごと・<br>お悩みを どうぞ</div>
+<div style="background:rgba(16,15,48,.75);border:1px solid rgba(232,201,122,.28);border-radius:14px;padding:12px;font-size:12px;line-height:1.9" class="dim">例: 最近、眠る前に考えごとが止まらない…</div>
+<div style="height:42px;border-radius:21px;background:linear-gradient(135deg,#e8c97a,#c9a24d);color:#241650;display:flex;align-items:center;justify-content:center;font-family:'Shippori Mincho',serif;font-weight:700;font-size:14px;letter-spacing:.2em">偉人に聞く</div>
+</div></div>
+<div class="dv-opt" id="1k"><div class="dv-olabel"><a class="dv-oid" href="#1k">1k</a>フリーライティング — 画面全体が便箋</div>
+<div class="dv-card" style="width:280px;height:380px;padding:26px 24px;display:flex;flex-direction:column;box-sizing:border-box"><div class="dv-stars"></div>
+<span class="lbl" style="text-align:center">こよい の そうだん</span>
+<div style="flex:1;margin-top:18px;font-family:'Shippori Mincho',serif;font-size:16px;line-height:2.4;background:repeating-linear-gradient(transparent 0,transparent 37px,rgba(236,231,244,.09) 38px);color:rgba(236,231,244,.45)">最近、仕事のスピードに<br>ついていけている自信が…<span style="display:inline-block;width:2px;height:18px;background:#e8c97a;vertical-align:-3px"></span></div>
+<div style="display:flex;justify-content:flex-end"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e8c97a,#c9a24d);display:flex;align-items:center;justify-content:center;color:#241650;font-size:11px;font-weight:700;box-shadow:0 0 20px rgba(232,201,122,.45)">聞く</div></div>
+</div></div>
+<div class="dv-opt" id="1l"><div class="dv-olabel"><a class="dv-oid" href="#1l">1l</a>星に投げる — 書いた言葉が星屑になる送信演出前提</div>
+<div class="dv-card" style="width:280px;height:380px;padding:22px;display:flex;flex-direction:column;box-sizing:border-box"><div class="dv-stars"></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#f5dfa4;box-shadow:0 0 24px 8px rgba(245,223,164,.5)"></div><span style="font-size:10px" class="dim">書き終えたら、上の星へ放ちます</span></div>
+<div style="background:rgba(16,15,48,.8);border:1px solid rgba(232,201,122,.3);border-radius:18px 18px 6px 18px;padding:14px;font-size:12px;line-height:1.9" class="dim">SNSを見ると自分だけ遅れている気がして…</div>
+<div style="display:flex;gap:8px;margin-top:10px"><div style="flex:1;height:40px;border-radius:20px;border:1px solid rgba(232,201,122,.4);display:flex;align-items:center;justify-content:center;font-size:11px;color:#e8c97a">声で話す</div><div style="flex:2;height:40px;border-radius:20px;background:linear-gradient(135deg,#e8c97a,#c9a24d);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#241650">星へ放つ ↑</div></div>
+</div></div>
+</div>
+
+<div class="dv-group">E. 英語モード(テキスト量 1.5倍の耐性チェック)</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1m"><div class="dv-olabel"><a class="dv-oid" href="#1m">1m</a>English letter — 1d と同じレイアウトに英文を流し込み</div>
+<div class="dv-card" style="width:300px;padding:22px 22px 26px;display:flex;flex-direction:column;gap:14px"><div class="dv-stars"></div>
+<span style="text-align:center;font-size:10px;letter-spacing:.1em" class="dim">August 5, 2026</span>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px">{{ avSmall2 }}<span style="font-family:'Shippori Mincho',serif;font-size:16px;letter-spacing:.1em">Seneca</span><span style="font-size:10px" class="dim">Stoic philosopher — c. 4 BC–AD 65</span></div>
+<p style="margin:0;font-size:12px;line-height:1.9">In a world that races, you stopped to look up at the sky. That alone is already an act of wisdom.</p>
+<div style="padding:16px 4px;border-top:1px solid rgba(232,201,122,.3);border-bottom:1px solid rgba(232,201,122,.3);font-family:Georgia,serif;font-weight:600;font-size:17px;line-height:1.8;text-align:center;text-wrap:pretty">Life is long, if you know how to use it.</div>
+<div style="border:1px solid rgba(236,231,244,.16);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:rgba(12,12,40,.6)"><span class="lbl">ORIGINAL (LATIN)</span><span style="font-family:Georgia,serif;font-style:italic;font-size:12px">Vita, si uti scias, longa est.</span></div>
+<p style="margin:0;font-size:11.5px;line-height:1.9" class="dim">Two thousand years ago in Rome, Seneca wrote this for people who complained that life was too short. What we lack is not time, he argued, but the resolve to spend it as our own. The speed of your era is not the measure of your worth.</p>
+<div style="border:1px solid rgba(232,201,122,.35);border-radius:10px;overflow:hidden"><div style="padding:6px 12px;background:rgba(232,201,122,.12)" class="lbl">SOURCE</div><div style="padding:8px 12px;font-size:11px;line-height:1.8">Seneca, <span style="font-style:italic">On the Shortness of Life</span>, ch. 2<br><span class="dim">De Brevitate Vitae, II — Latin, c. AD 49</span></div></div>
+</div></div>
+</div>
+
+<p class="dv-next">Try next: 「<a class="dv-oid" href="#1c">1c</a>の画風をプロトタイプ全体に反映して」 · 「<a class="dv-oid" href="#1f">1f</a>の縦書き格言と<a class="dv-oid" href="#1d">1d</a>を合成」 · 「<a class="dv-oid" href="#1h">1h</a>で別のことわざも見たい」</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() { this._poll = setInterval(() => { if (window.IGEN_DATA) { clearInterval(this._poll); this.forceUpdate(); } }, 120); }
+  componentWillUnmount() { clearInterval(this._poll); }
+  av(style, size) {
+    const D = window.IGEN_DATA; if (!D) return null;
+    const p = D.persons.seneca; const e = React.createElement;
+    const lns = p.lines.map((l, i) => {
+      const a = p.points[l[0]], b = p.points[l[1]];
+      return e('line', { key: 'l' + i, x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: style.line, strokeWidth: style.lw, strokeDasharray: style.dash || null });
+    });
+    const pts = p.points.map((pt, i) => e('circle', {
+      key: 'p' + i, cx: pt[0], cy: pt[1], r: style.vary ? (i % 3 === 0 ? style.r * 1.5 : i % 3 === 1 ? style.r : style.r * 0.65) : style.r, fill: style.star
+    }));
+    const extra = style.ring ? [
+      e('circle', { key: 'ring', cx: 50, cy: 50, r: 48, fill: 'none', stroke: 'rgba(232,201,122,.25)', strokeWidth: 0.4, strokeDasharray: '1 3' }),
+      e('circle', { key: 'd1', cx: 14, cy: 30, r: 0.7, fill: 'rgba(215,225,255,.4)' }),
+      e('circle', { key: 'd2', cx: 84, cy: 62, r: 0.7, fill: 'rgba(215,225,255,.4)' }),
+      e('circle', { key: 'd3', cx: 22, cy: 74, r: 0.5, fill: 'rgba(215,225,255,.35)' })
+    ] : null;
+    return e('svg', { viewBox: '0 0 100 100', width: size, height: size, style: { overflow: 'visible', filter: style.glow ? `drop-shadow(0 0 ${style.glow}px rgba(232,201,122,.5))` : null } }, extra, lns, pts);
+  }
+  renderVals() {
+    const A = { line: 'rgba(190,205,255,.45)', lw: 0.45, r: 1.1, star: '#e9e4d2', glow: 0 };
+    const B = { line: 'rgba(190,205,255,.7)', lw: 0.8, r: 2, star: '#f5dfa4', glow: 7 };
+    const C = { line: 'rgba(200,212,255,.55)', lw: 0.55, r: 1.4, star: '#f2e6c0', dash: '2 2', ring: true, vary: true, glow: 3 };
+    return {
+      avA: this.av(A, 150), avB: this.av(B, 150), avC: this.av(C, 150),
+      avSmall: this.av(B, 96), avSmall2: this.av(B, 96), avTiny: this.av(B, 48), avTiny2: this.av(A, 60)
+    };
+  }
+}
+</script>
+</body>
+</html>
