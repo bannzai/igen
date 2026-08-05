@@ -2,7 +2,7 @@
 
 出典: https://github.com/bannzai/IdeaMemo/issues/180#issuecomment-5191091074 （2026-08-05 作成）
 
-依頼の実行と成果物の受領はオーナーが行う。受領したデザインのプロジェクトへの反映は、ロードマップの子 issue で対応する。
+**成果物は受領済み**（2026-08-06 マージの PR https://github.com/bannzai/igen/pull/1 ）。実体は [design_handoff_igen/](../../design_handoff_igen/)（全 8 画面 + 演出の High-fidelity プロトタイプ。実装時は同ディレクトリの README を SSOT とする）。プロジェクトへの反映はロードマップの子 issue https://github.com/bannzai/igen/issues/15 で対応する。以下は依頼時のプロンプト原文。
 
 ---
 
