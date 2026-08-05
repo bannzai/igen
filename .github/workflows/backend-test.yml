@@ -1,0 +1,44 @@
+# backend/ (Firebase Functions) の PR チェック。実行コマンドは CLAUDE.md の「バックエンド」検証方法と一致させる。
+# iOS 側の CI は用意しない (private リポジトリの macOS ランナーは高額なため、ローカルの xcodebuild 検証のみ)。
+name: Backend Tests
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-test.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/functions/package-lock.json
+
+      # Firestore Emulator の実行に Java が必要
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: backend/functions
+
+      - name: Lint (Biome)
+        run: npm run lint
+        working-directory: backend/functions
+
+      - name: Build (tsc)
+        run: npm run build
+        working-directory: backend/functions
+
+      - name: Test (Vitest on Firestore Emulator)
+        run: npm test
+        working-directory: backend/functions
