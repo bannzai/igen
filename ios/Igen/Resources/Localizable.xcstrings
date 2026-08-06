@@ -1,0 +1,16 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Tell me about your day, or what's on your mind" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "きょうのできごと・お悩みを どうぞ"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
