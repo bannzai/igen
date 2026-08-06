@@ -461,6 +461,206 @@
         }
       }
     },
+    "See the unlimited plan" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "聞き放題プランをみる"
+          }
+        }
+      }
+    },
+    "Your night sky, unlimited." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "夜空を、聞き放題に。"
+          }
+        }
+      }
+    },
+    "Free letters arrive once a day. For the nights you want to talk more." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無料の返書は 1日1通。もっと話したい夜のために。"
+          }
+        }
+      }
+    },
+    "Most popular" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いちばん人気"
+          }
+        }
+      }
+    },
+    "Unlimited — 'Hoshiyomi'" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "聞き放題「星読み」"
+          }
+        }
+      }
+    },
+    "Yearly: ¥3,800 (save about 34%)" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "年払いは ¥3,800（約34%お得）"
+          }
+        }
+      }
+    },
+    "Unlimited letters" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返書無制限"
+          }
+        }
+      }
+    },
+    "Unlimited star atlas & archive — every great figure you meet stays in your sky" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星図・記録の無制限保存 — 出会った偉人はあなたの夜空に残りつづけます"
+          }
+        }
+      }
+    },
+    "Early access to new great figures" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新偉人の先行解放"
+          }
+        }
+      }
+    },
+    "Start Hoshiyomi" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星読みをはじめる"
+          }
+        }
+      }
+    },
+    "Ticket — 'Hitoshizuku'" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相談チケット「ひとしずく」"
+          }
+        }
+      }
+    },
+    "Just one more letter, for tonight." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今夜だけ、もう一通。"
+          }
+        }
+      }
+    },
+    "Buy a ticket" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チケットを買う"
+          }
+        }
+      }
+    },
+    "Restore purchases" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入の復元"
+          }
+        }
+      }
+    },
+    "Terms of Service" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "利用規約"
+          }
+        }
+      }
+    },
+    "Privacy Policy" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プライバシーポリシー"
+          }
+        }
+      }
+    },
+    "Payment is processed by the App Store. You can cancel anytime." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お支払いは App Store 経由。いつでも解約できます。"
+          }
+        }
+      }
+    },
+    "The purchase could not be completed. Please try again later." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入を完了できませんでした。しばらくしてからもう一度お試しください。"
+          }
+        }
+      }
+    },
+    "Purchases are not available yet. Please check back soon." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入はただいま準備中です。もうしばらくお待ちください。"
+          }
+        }
+      }
+    },
+    "Your purchases have been restored." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入情報を確認しました。"
+          }
+        }
+      }
+    },
     "A Letter for You" : {
       "localizations" : {
         "ja" : {

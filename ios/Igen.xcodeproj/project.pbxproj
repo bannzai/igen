@@ -10,6 +10,7 @@
 		A10000000000000000000023 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000021 /* FirebaseAuth */; };
 		A10000000000000000000024 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000022 /* FirebaseAnalytics */; };
 		A10000000000000000000027 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000026 /* FirebaseFirestore */; };
+		A1000000000000000000002A /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000029 /* RevenueCat */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,6 +94,7 @@
 				A10000000000000000000021 /* FirebaseAuth */,
 				A10000000000000000000022 /* FirebaseAnalytics */,
 				A10000000000000000000026 /* FirebaseFirestore */,
+				A10000000000000000000029 /* RevenueCat */,
 			);
 			productName = Igen;
 			productReference = A10000000000000000000003 /* Igen.app */;
@@ -176,6 +178,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				A10000000000000000000020 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				A10000000000000000000028 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A10000000000000000000008 /* Products */;
@@ -197,6 +200,7 @@
 				A10000000000000000000023 /* FirebaseAuth in Frameworks */,
 				A10000000000000000000024 /* FirebaseAnalytics in Frameworks */,
 				A10000000000000000000027 /* FirebaseFirestore in Frameworks */,
+				A1000000000000000000002A /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -543,6 +547,14 @@
 				minimumVersion = 12.0.0;
 			};
 		};
+		A10000000000000000000028 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -560,6 +572,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A10000000000000000000020 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		A10000000000000000000029 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000000000000000000028 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

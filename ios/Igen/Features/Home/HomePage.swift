@@ -9,7 +9,7 @@ struct HomePage: View {
   @State var listening = false
   @State var speechRecognizer = SpeechRecognizer()
   @State var sendErrorAlertIsPresented = false
-  @State var freeQuotaAlertIsPresented = false
+  @State var paywallSheetIsPresented = false
   @State var speechPermissionAlertIsPresented = false
   @State var speechUnavailableAlertIsPresented = false
   @State var safetyNoticeIsPresented = false
@@ -85,6 +85,17 @@ struct HomePage: View {
 
           askButton
 
+          Button {
+            Analytics.logEvent("home_paywall_link_pressed", parameters: nil)
+            paywallSheetIsPresented = true
+          } label: {
+            // ja: 聞き放題プランをみる
+            Text("See the unlimited plan")
+              .font(.system(size: 11))
+              .underline()
+              .foregroundStyle(Color.igenText.opacity(0.6))
+          }
+
           Spacer()
         }
         .padding(.horizontal, 24)
@@ -104,8 +115,9 @@ struct HomePage: View {
       }
       // ja: 返書をお届けできませんでした しばらくしてからもう一度お試しください
       .alert("The letter could not be delivered. Please try again later.", isPresented: $sendErrorAlertIsPresented) {}
-      // ja: きょうの無料の返書はお届け済みです
-      .alert("Today's free letter has already been delivered.", isPresented: $freeQuotaAlertIsPresented) {}
+      .sheet(isPresented: $paywallSheetIsPresented) {
+        PaywallPage()
+      }
       // ja: マイクまたは音声認識が許可されていません 設定アプリから許可してください
       .alert("Microphone or speech recognition is not allowed. Please allow them in the Settings app.", isPresented: $speechPermissionAlertIsPresented) {}
       // ja: いま音声入力を開始できませんでした キーボードでの入力をお試しください
@@ -191,7 +203,8 @@ struct HomePage: View {
         safetyNoticeIsPresented = true
       }
     } catch IgenAPI.APIError.freeQuotaExceeded {
-      freeQuotaAlertIsPresented = true
+      // 無料枠超過はペイウォールへ誘導する (チケット購入 or サブスク訴求)
+      paywallSheetIsPresented = true
     } catch {
       sendErrorAlertIsPresented = true
     }
