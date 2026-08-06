@@ -10,7 +10,7 @@ struct ShareCardView: View {
     VStack(spacing: 12) {
       // ja: 偉言
       Text("IGEN")
-        .font(.system(size: 12, weight: .bold, design: .serif))
+        .font(.igenSerif(size: 12, weight: .bold))
         .tracking(6)
         .foregroundStyle(Color.igenGoldBright)
 
@@ -19,21 +19,20 @@ struct ShareCardView: View {
 
       if let person = letter.person {
         Text(person.name.localized(letter.language))
-          .font(.system(size: 13, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 13, weight: .semibold))
           .tracking(2)
           .foregroundStyle(Color.igenText)
       }
 
       Text(letter.quote.text.localized(letter.language))
-        .font(.system(size: 15, weight: .semibold, design: .serif))
+        .font(.igenSerif(size: 15, weight: .semibold))
         .multilineTextAlignment(.center)
         .lineSpacing(7)
         .foregroundStyle(Color.igenGoldBright)
 
       if letter.quote.originalLanguage != letter.language {
         Text(letter.quote.original)
-          .font(.system(size: 10, design: .serif))
-          .italic()
+          .font(.igenOriginalText(size: 10))
           .multilineTextAlignment(.center)
           .foregroundStyle(Color.igenText.opacity(0.8))
       }

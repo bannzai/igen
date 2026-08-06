@@ -10,11 +10,11 @@ struct PaywallTicketPlanCard: View {
     VStack(spacing: 8) {
       // ja: 相談チケット「ひとしずく」
       Text("Ticket — 'Hitoshizuku'")
-        .font(.system(size: 15, weight: .semibold, design: .serif))
+        .font(.igenSerif(size: 15, weight: .semibold))
         .foregroundStyle(Color.igenText)
 
       Text(verbatim: "¥160 / 1通")
-        .font(.system(size: 18, weight: .semibold, design: .serif))
+        .font(.igenSerif(size: 18, weight: .semibold))
         .foregroundStyle(Color.igenGoldBright)
 
       // ja: 今夜だけ、もう一通。
@@ -27,7 +27,7 @@ struct PaywallTicketPlanCard: View {
       } label: {
         // ja: チケットを買う
         Text("Buy a ticket")
-          .font(.system(size: 15, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 15, weight: .semibold))
           .tracking(2)
           .foregroundStyle(Color.igenTextGold)
           .frame(maxWidth: .infinity)

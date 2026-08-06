@@ -26,7 +26,7 @@ struct AtlasPage: View {
       VStack(spacing: 12) {
         // ja: あなたの星図
         Text("Your Star Atlas")
-          .font(.system(size: 16, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 16, weight: .semibold))
           .tracking(4)
           .foregroundStyle(Color.igenGoldBright)
           .padding(.vertical, 8)

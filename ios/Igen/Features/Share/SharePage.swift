@@ -15,7 +15,7 @@ struct SharePage: View {
       VStack(spacing: 16) {
         // ja: 共有カード
         Text("Share Card")
-          .font(.system(size: 15, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 15, weight: .semibold))
           .tracking(3)
           .foregroundStyle(Color.igenGoldBright)
           .padding(.vertical, 8)
@@ -35,7 +35,7 @@ struct SharePage: View {
           ) {
             // ja: シェア
             Text("Share")
-              .font(.system(size: 16, weight: .semibold, design: .serif))
+              .font(.igenSerif(size: 16, weight: .semibold))
               .tracking(3)
               .foregroundStyle(Color.igenButtonText)
               .frame(maxWidth: .infinity)

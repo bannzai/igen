@@ -19,11 +19,11 @@ struct PaywallUnlimitedPlanCard: View {
 
       // ja: 聞き放題「星読み」
       Text("Unlimited — 'Hoshiyomi'")
-        .font(.system(size: 17, weight: .semibold, design: .serif))
+        .font(.igenSerif(size: 17, weight: .semibold))
         .foregroundStyle(Color.igenText)
 
       Text(verbatim: "¥480 / 月")
-        .font(.system(size: 22, weight: .semibold, design: .serif))
+        .font(.igenSerif(size: 22, weight: .semibold))
         .foregroundStyle(Color.igenGoldBright)
       // ja: 年払いは ¥3,800 (約34%お得)
       Text("Yearly: ¥3,800 (save about 34%)")
@@ -46,7 +46,7 @@ struct PaywallUnlimitedPlanCard: View {
       } label: {
         // ja: 星読みをはじめる
         Text("Start Hoshiyomi")
-          .font(.system(size: 16, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 16, weight: .semibold))
           .tracking(2)
           .foregroundStyle(Color.igenButtonText)
           .frame(maxWidth: .infinity)

@@ -35,7 +35,7 @@ struct ArchiveLetterCard: View {
         )
 
         Text(letter.quote.text.localized(letter.language))
-          .font(.system(size: 12, design: .serif))
+          .font(.igenSerif(size: 12))
           .lineLimit(1)
           .foregroundStyle(Color.igenText.opacity(0.8))
       }

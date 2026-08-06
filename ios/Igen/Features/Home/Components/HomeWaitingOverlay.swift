@@ -10,7 +10,7 @@ struct HomeWaitingOverlay: View {
         .ignoresSafeArea()
       // ja: 星々が、ことばを探しています…
       Text("The stars are searching for words…")
-        .font(.system(size: 14, design: .serif))
+        .font(.igenSerif(size: 14))
         .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
         .opacity(pulsing ? 0.4 : 1)
         .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: pulsing)

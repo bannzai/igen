@@ -39,7 +39,7 @@ struct ReplyPage: View {
       VStack(spacing: 24) {
         // ja: あなたへの返書
         Text("A Letter for You")
-          .font(.system(size: 16, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 16, weight: .semibold))
           .tracking(4)
           .foregroundStyle(Color.igenGoldBright)
           .igenReveal(0)
@@ -54,7 +54,7 @@ struct ReplyPage: View {
             ConstellationAvatar(constellation: ConstellationData.constellation(for: person.id))
               .frame(width: 130, height: 130)
             Text(person.name.localized(letter.language))
-              .font(.system(size: 20, weight: .semibold, design: .serif))
+              .font(.igenSerif(size: 20, weight: .semibold))
               .tracking(3)
               .foregroundStyle(Color.igenText)
             HStack(spacing: 4) {
@@ -80,7 +80,7 @@ struct ReplyPage: View {
         VStack(spacing: 12) {
           goldHairline
           Text(letter.quote.text.localized(letter.language))
-            .font(.system(size: 24, weight: .semibold, design: .serif))
+            .font(.igenSerif(size: 24, weight: .semibold))
             .multilineTextAlignment(.center)
             .lineSpacing(12)
             .foregroundStyle(Color.igenGoldBright)
@@ -109,19 +109,19 @@ struct ReplyPage: View {
 
         VStack(spacing: 10) {
           Text(letter.closing)
-            .font(.system(size: 15, design: .serif))
+            .font(.igenSerif(size: 15))
             .lineSpacing(10)
             .foregroundStyle(Color.igenText)
           if let person = letter.person {
             // ja: — %@ より
             Text("— from \(person.name.localized(letter.language))")
-              .font(.system(size: 13, design: .serif))
+              .font(.igenSerif(size: 13))
               .foregroundStyle(Color.igenText.opacity(0.7))
               .frame(maxWidth: .infinity, alignment: .trailing)
           } else {
             // ja: — 偉言 より
             Text("— from IGEN")
-              .font(.system(size: 13, design: .serif))
+              .font(.igenSerif(size: 13))
               .foregroundStyle(Color.igenText.opacity(0.7))
               .frame(maxWidth: .infinity, alignment: .trailing)
           }
@@ -137,7 +137,7 @@ struct ReplyPage: View {
         } label: {
           // ja: 共有カードを作る
           Text("Create a share card")
-            .font(.system(size: 16, weight: .semibold, design: .serif))
+            .font(.igenSerif(size: 16, weight: .semibold))
             .tracking(3)
             .foregroundStyle(Color.igenButtonText)
             .frame(maxWidth: .infinity)

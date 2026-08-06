@@ -32,7 +32,7 @@ struct PaywallPage: View {
 
           // ja: 夜空を、聞き放題に。
           Text("Your night sky, unlimited.")
-            .font(.system(size: 22, weight: .semibold, design: .serif))
+            .font(.igenSerif(size: 22, weight: .semibold))
             .multilineTextAlignment(.center)
             .foregroundStyle(Color.igenGoldBright)
 

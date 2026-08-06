@@ -14,7 +14,7 @@ struct ArchivePage: View {
         VStack(spacing: 12) {
           // ja: 返書の記録
           Text("Your Letters")
-            .font(.system(size: 16, weight: .semibold, design: .serif))
+            .font(.igenSerif(size: 16, weight: .semibold))
             .tracking(4)
             .foregroundStyle(Color.igenGoldBright)
             .padding(.vertical, 8)

@@ -15,6 +15,7 @@ struct HomePage: View {
   @State var safetyNoticeIsPresented = false
   @State var archiveIsPresented = false
   @State var atlasIsPresented = false
+  @State var askButtonGlowPulsing = false
 
   var body: some View {
     NavigationStack {
@@ -25,7 +26,7 @@ struct HomePage: View {
           HStack {
             // ja: 偉言
             Text("IGEN")
-              .font(.system(size: 20, weight: .bold, design: .serif))
+              .font(.igenSerif(size: 20, weight: .bold))
               .tracking(8)
               .foregroundStyle(Color(red: 245 / 255, green: 223 / 255, blue: 164 / 255))
               .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.45), radius: 16)
@@ -60,43 +61,46 @@ struct HomePage: View {
           }
           .padding(.vertical, 8)
 
-          Spacer()
+          // キーボード表示時に入力カード・マイクが隠れないよう、中央ブロックはスクロール可能にする
+          ScrollView {
+            VStack(spacing: 16) {
+              // ja: きょうのできごと・お悩みを どうぞ
+              Text("Tell me about your day, or what's on your mind")
+                .font(.igenSerif(size: 22, weight: .semibold))
+                .multilineTextAlignment(.center)
+                .lineSpacing(8)
+                .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
 
-          // ja: きょうのできごと・お悩みを どうぞ
-          Text("Tell me about your day, or what's on your mind")
-            .font(.system(size: 22, weight: .semibold, design: .serif))
-            .multilineTextAlignment(.center)
-            .lineSpacing(8)
-            .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
+              // ja: 書き終えたら、ふさわしい偉人が出典つきの返書を届けます
+              Text("Write it down, and a fitting great figure will send you a letter of reply with its source")
+                .font(.system(size: 12))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255).opacity(0.6))
 
-          // ja: 書き終えたら、ふさわしい偉人が出典つきの返書を届けます
-          Text("Write it down, and a fitting great figure will send you a letter of reply with its source")
-            .font(.system(size: 12))
-            .multilineTextAlignment(.center)
-            .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255).opacity(0.6))
+              HomeInputCard(
+                draft: $draft,
+                listening: $listening,
+                onMicButtonPressed: {
+                  toggleListening()
+                }
+              )
 
-          HomeInputCard(
-            draft: $draft,
-            listening: $listening,
-            onMicButtonPressed: {
-              toggleListening()
+              askButton
+
+              Button {
+                Analytics.logEvent("home_paywall_link_pressed", parameters: nil)
+                paywallSheetIsPresented = true
+              } label: {
+                // ja: 聞き放題プランをみる
+                Text("See the unlimited plan")
+                  .font(.system(size: 11))
+                  .underline()
+                  .foregroundStyle(Color.igenText.opacity(0.6))
+              }
             }
-          )
-
-          askButton
-
-          Button {
-            Analytics.logEvent("home_paywall_link_pressed", parameters: nil)
-            paywallSheetIsPresented = true
-          } label: {
-            // ja: 聞き放題プランをみる
-            Text("See the unlimited plan")
-              .font(.system(size: 11))
-              .underline()
-              .foregroundStyle(Color.igenText.opacity(0.6))
+            .padding(.vertical, 40)
           }
-
-          Spacer()
+          .scrollIndicators(.hidden)
         }
         .padding(.horizontal, 24)
 
@@ -141,7 +145,7 @@ struct HomePage: View {
     } label: {
       // ja: 偉人に聞く
       Text("Ask the Greats")
-        .font(.system(size: 17, weight: .bold, design: .serif))
+        .font(.igenSerif(size: 17, weight: .bold))
         .tracking(4)
         .foregroundStyle(Color(red: 36 / 255, green: 22 / 255, blue: 80 / 255))
         .frame(maxWidth: .infinity)
@@ -157,10 +161,17 @@ struct HomePage: View {
           )
         )
         .clipShape(Capsule())
-        .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.4), radius: 18)
+        // グロー明滅 (デザイン指定: box-shadow 18→34px, 4s ease-in-out infinite)
+        .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.4), radius: askButtonGlowPulsing ? 34 : 18)
     }
     .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || sending)
     .opacity(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.45 : 1)
+    .onAppear {
+      // withAnimation でこの状態変化だけにアニメーションを閉じ、初回レイアウトを巻き込まない
+      withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
+        askButtonGlowPulsing = true
+      }
+    }
   }
 
   private func toggleListening() {

@@ -79,7 +79,7 @@ struct ReplyDiagramNode: View {
 
       if kind == .meaning {
         Text(text)
-          .font(.system(size: 14, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 14, weight: .semibold))
           .multilineTextAlignment(.center)
           .foregroundStyle(Color.igenText)
       } else {
