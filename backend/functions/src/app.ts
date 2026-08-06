@@ -138,7 +138,12 @@ export function createApp(deps: AppDeps): Express {
         language: letterLanguage,
         composition,
       });
-      res.json({ type: "letter", id: saved.id, letter: saved.letter });
+      // letter 内にも id を含める (クライアントの Codable が Letter 単体でデコードできるように)
+      res.json({
+        type: "letter",
+        id: saved.id,
+        letter: { id: saved.id, ...saved.letter },
+      });
     } catch (error) {
       await releaseFreeQuota(db, uid, date);
       // 相談本文はログに残さない (.claude/rules/firestore-rules.md「データ設計の決めごと」)
