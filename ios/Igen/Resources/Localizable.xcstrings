@@ -531,6 +531,36 @@
         }
       }
     },
+    "IGEN is an app of encouragement and cannot provide professional support. The services below are there to listen to you." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "偉言は励ましのアプリで、専門の支援をお届けすることはできません。下記の窓口が、あなたの話を聞いてくれます。"
+          }
+        }
+      }
+    },
+    "No letter has been sent for this consultation." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このご相談への返書はお送りしていません。"
+          }
+        }
+      }
+    },
+    "Back to Home" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホームにもどる"
+          }
+        }
+      }
+    },
     "Thank you for telling me something so important." : {
       "localizations" : {
         "ja" : {
