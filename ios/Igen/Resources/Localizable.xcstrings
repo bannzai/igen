@@ -281,6 +281,76 @@
         }
       }
     },
+    "Star Atlas" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星図"
+          }
+        }
+      }
+    },
+    "Your Star Atlas" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたの星図"
+          }
+        }
+      }
+    },
+    "Great figures you've met through your letters light up as constellations in your night sky" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相談を通じて出会った偉人が、星座としてあなたの夜空に増えていきます"
+          }
+        }
+      }
+    },
+    "Great figures you have met: %lld / %lld" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出会った偉人 %lld / %lld"
+          }
+        }
+      }
+    },
+    "Your star atlas could not be loaded. Please try again later." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星図を読み込めませんでした。しばらくしてからもう一度お試しください。"
+          }
+        }
+      }
+    },
+    "Words you received" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "もらった言葉"
+          }
+        }
+      }
+    },
+    "Read the letter" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返書を読む"
+          }
+        }
+      }
+    },
     "Archive" : {
       "localizations" : {
         "ja" : {
