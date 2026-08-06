@@ -1,5 +1,6 @@
 import FirebaseAuth
 import FirebaseCore
+import FirebaseFirestore
 import Foundation
 
 /// Firebase の初期化と匿名認証を担う。
@@ -8,6 +9,9 @@ import Foundation
 enum FirebaseSetup {
   /// Auth エミュレータのポート。backend/firebase.json の emulators.auth.port と揃える
   static let authEmulatorPort = 9299
+
+  /// Firestore エミュレータのポート。backend/firebase.json の emulators.firestore.port と揃える
+  static let firestoreEmulatorPort = 8282
 
   /// テストから Firebase の初期化結果 (どのプロジェクトで初期化されたか) を観測するためのプロパティ
   static var configuredProjectID: String? {
@@ -34,6 +38,11 @@ enum FirebaseSetup {
       options.apiKey = "AIzaSyDemoKey00000000000000000000000000"
       FirebaseApp.configure(options: options)
       Auth.auth().useEmulator(withHost: "127.0.0.1", port: authEmulatorPort)
+      // useEmulator だけでは SSL が無効にならず接続に失敗するため、settings で明示的に無効化する
+      let settings = Firestore.firestore().settings
+      settings.host = "127.0.0.1:\(firestoreEmulatorPort)"
+      settings.isSSLEnabled = false
+      Firestore.firestore().settings = settings
     }
   }
 
