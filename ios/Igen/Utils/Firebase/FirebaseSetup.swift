@@ -45,4 +45,11 @@ enum FirebaseSetup {
     let result = try await Auth.auth().signInAnonymously()
     return result.user.uid
   }
+
+  /// サインアウトして新しい匿名ユーザーでサインインし直す。
+  /// サーバーに認証を拒否された (無効なセッションが Keychain に残っている) 場合の回復に使う
+  static func resetAnonymousUser() async throws -> String {
+    try Auth.auth().signOut()
+    return try await Auth.auth().signInAnonymously().user.uid
+  }
 }
