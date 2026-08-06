@@ -25,8 +25,7 @@ enum IgenAPI {
   /// (FirebaseSetup の Emulator フォールバックと同じ判定。実プロジェクト作成後に本番 URL を設定する)
   static var baseURL: URL {
     if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
-      // Firebase 実プロジェクト作成後 (issue #4) にデプロイ先の URL へ差し替える
-      return URL(string: "https://asia-northeast1-igen.cloudfunctions.net/api")!
+      return URL(string: "https://asia-northeast1-igen-prod.cloudfunctions.net/api")!
     }
     return URL(string: "http://127.0.0.1:5201/demo-igen/asia-northeast1/api")!
   }

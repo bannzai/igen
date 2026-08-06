@@ -126,7 +126,12 @@ export function createApp(deps: AppDeps): Express {
     const date = localDate(new Date(), timeZone ?? "UTC");
     let accessGrant: AccessGrant = "free";
     if (!(await consumeFreeQuota(db, uid, date))) {
-      const entitlement = await deps.checkEntitlement(uid);
+      // 購入状態の確認に失敗しても 500 にせず「購入なし」として 429 に倒す
+      // (RevenueCat 障害・未設定時に返書機能全体を止めないため)
+      const entitlement = await deps.checkEntitlement(uid).catch((error) => {
+        logger.error("entitlement check failed", { uid, error: `${error}` });
+        return { unlimited: false, ticketsPurchased: 0 };
+      });
       if (entitlement.unlimited) {
         accessGrant = "unlimited";
       } else if (await consumeTicket(db, uid, entitlement.ticketsPurchased)) {
