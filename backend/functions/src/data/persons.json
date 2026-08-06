@@ -1,0 +1,68 @@
+[
+  {
+    "id": "seneca",
+    "name": { "ja": "セネカ", "en": "Seneca" },
+    "born": -4,
+    "died": 65,
+    "title": {
+      "ja": "ストア派の哲学者・政治家",
+      "en": "Stoic philosopher and statesman"
+    },
+    "bio": {
+      "ja": "古代ローマの哲学者。皇帝ネロの家庭教師・補佐役を務めた。『人生の短さについて』『倫理書簡集』などで知られる。",
+      "en": "Roman Stoic philosopher who served as tutor and adviser to Emperor Nero. Known for 'On the Shortness of Life' and his moral letters."
+    },
+    "publicDomain": { "confirmed": true }
+  },
+  {
+    "id": "confucius",
+    "name": { "ja": "孔子", "en": "Confucius" },
+    "born": -551,
+    "died": -479,
+    "title": { "ja": "儒家の祖・思想家", "en": "Founder of Confucianism" },
+    "bio": {
+      "ja": "春秋時代の中国の思想家。その言行は弟子たちによって『論語』にまとめられた。",
+      "en": "Chinese thinker of the Spring and Autumn period. His sayings were compiled by his disciples into the Analects."
+    },
+    "publicDomain": { "confirmed": true }
+  },
+  {
+    "id": "nietzsche",
+    "name": { "ja": "ニーチェ", "en": "Nietzsche" },
+    "born": 1844,
+    "died": 1900,
+    "title": { "ja": "哲学者", "en": "Philosopher" },
+    "bio": {
+      "ja": "ドイツの哲学者。『ツァラトゥストラはこう語った』『偶像の黄昏』などを著した。",
+      "en": "German philosopher, author of 'Thus Spoke Zarathustra' and 'Twilight of the Idols'."
+    },
+    "publicDomain": { "confirmed": true }
+  },
+  {
+    "id": "zeami",
+    "name": { "ja": "世阿弥", "en": "Zeami" },
+    "born": 1363,
+    "died": 1443,
+    "title": { "ja": "能楽師・能作者", "en": "Noh actor and playwright" },
+    "bio": {
+      "ja": "室町時代の能役者・能作者。能の理論書『風姿花伝』『花鏡』を残した。",
+      "en": "Noh actor and playwright of the Muromachi period. Author of the treatises 'Fushikaden' and 'Kakyo'."
+    },
+    "publicDomain": {
+      "confirmed": true,
+      "note": "生没年は諸説あり (没年は通説の 1443 年を採用)"
+    }
+  },
+  {
+    "id": "basho",
+    "name": { "ja": "松尾芭蕉", "en": "Matsuo Basho" },
+    "born": 1644,
+    "died": 1694,
+    "title": { "ja": "俳人", "en": "Haiku poet" },
+    "bio": {
+      "ja": "江戸前期の俳人。紀行文『おくのほそ道』で知られる。",
+      "en": "Haiku poet of the early Edo period, known for the travel narrative 'Oku no Hosomichi' (The Narrow Road to the Deep North)."
+    },
+    "publicDomain": { "confirmed": true }
+  }
+]
