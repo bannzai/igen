@@ -281,6 +281,66 @@
         }
       }
     },
+    "Archive" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録"
+          }
+        }
+      }
+    },
+    "Your Letters" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返書の記録"
+          }
+        }
+      }
+    },
+    "Your letters could not be loaded. Please try again later." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録を読み込めませんでした。しばらくしてからもう一度お試しください。"
+          }
+        }
+      }
+    },
+    "No letters yet. Write your first tonight." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まだ返書がありません。今夜、最初のお便りをどうぞ。"
+          }
+        }
+      }
+    },
+    "You can revisit the letters to your past self anytime" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あの日の自分への返書を、いつでも読み返せます"
+          }
+        }
+      }
+    },
+    "Proverb & diagram" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ことわざ・図解"
+          }
+        }
+      }
+    },
     "A Letter for You" : {
       "localizations" : {
         "ja" : {
