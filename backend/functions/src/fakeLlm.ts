@@ -8,7 +8,9 @@ export function createFakeLetterComposer(): ComposeLetterFn {
   return async (input) => {
     const quote =
       input.quotes.find((candidate) => input.concern.includes(candidate.id)) ??
-      input.quotes.find((candidate) => candidate.themes.some((theme) => input.concern.includes(theme))) ??
+      input.quotes.find((candidate) =>
+        candidate.themes.some((theme) => input.concern.includes(theme)),
+      ) ??
       input.quotes[0];
     const ja = input.language === "ja";
     return {
@@ -19,13 +21,19 @@ export function createFakeLetterComposer(): ComposeLetterFn {
       meaning: ja
         ? `「${quote.source.work.ja}」に残るこの言葉は、あなたの今夜の悩みにも通じています。`
         : `These words, preserved in "${quote.source.work.en}", speak to your worry tonight as well.`,
-      closing: ja ? "星のもとで、あなたの明日を見守っています。" : "Under the stars, I will be watching over your tomorrow.",
+      closing: ja
+        ? "星のもとで、あなたの明日を見守っています。"
+        : "Under the stars, I will be watching over your tomorrow.",
       diagram:
         quote.personId === null
           ? {
-              metaphor: ja ? "ことわざが描く情景" : "The image the proverb paints",
+              metaphor: ja
+                ? "ことわざが描く情景"
+                : "The image the proverb paints",
               meaning: ja ? "そこから伝わる教え" : "The lesson it carries",
-              usage: ja ? "こんな夜に思い出す言葉" : "A phrase to recall on nights like this",
+              usage: ja
+                ? "こんな夜に思い出す言葉"
+                : "A phrase to recall on nights like this",
             }
           : null,
       crisis: false,
