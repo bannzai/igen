@@ -26,6 +26,13 @@
 	<string>igen uses the microphone so you can speak your worries instead of typing them.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>igen converts your voice to text to fill in your consultation.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>ShipporiMincho-Regular.ttf</string>
+		<string>ShipporiMincho-Medium.ttf</string>
+		<string>ShipporiMincho-SemiBold.ttf</string>
+		<string>ShipporiMincho-Bold.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
