@@ -411,6 +411,56 @@
         }
       }
     },
+    "Create a share card" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共有カードを作る"
+          }
+        }
+      }
+    },
+    "Share Card" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共有カード"
+          }
+        }
+      }
+    },
+    "Share" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "シェア"
+          }
+        }
+      }
+    },
+    "Your worry is not included in the card" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "悩みの本文はカードに含まれません"
+          }
+        }
+      }
+    },
+    "IGEN — Letters from the Greats" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IGEN — 偉人からの返書"
+          }
+        }
+      }
+    },
     "A Letter for You" : {
       "localizations" : {
         "ja" : {

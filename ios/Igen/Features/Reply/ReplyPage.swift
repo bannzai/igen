@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import SwiftUI
 
 /// 返書画面。登場演出 (星座線アバター) → 各ブロックの stagger 出現で返書を表示する。
@@ -9,6 +10,7 @@ struct ReplyPage: View {
   /// 演出の実行回数。初回はリッチ、2 回目以降は短縮する (テンポを守る)
   @AppStorage("ritualCount") var ritualCount = 0
   @State var ritualFinished = false
+  @State var shareSheetIsPresented = false
   @Environment(\.dismiss) var dismiss
 
   var body: some View {
@@ -27,6 +29,9 @@ struct ReplyPage: View {
       }
     }
     .toolbar(.hidden, for: .navigationBar)
+    .sheet(isPresented: $shareSheetIsPresented) {
+      SharePage(letter: letter)
+    }
   }
 
   private var letterContent: some View {
@@ -127,6 +132,24 @@ struct ReplyPage: View {
           .igenReveal(7)
 
         Button {
+          Analytics.logEvent("reply_share_button_pressed", parameters: ["quote_id": letter.quoteId])
+          shareSheetIsPresented = true
+        } label: {
+          // ja: 共有カードを作る
+          Text("Create a share card")
+            .font(.system(size: 16, weight: .semibold, design: .serif))
+            .tracking(3)
+            .foregroundStyle(Color.igenButtonText)
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(
+              LinearGradient(colors: [Color.igenGold, Color.igenGoldDark], startPoint: .top, endPoint: .bottom)
+            )
+            .clipShape(Capsule())
+        }
+        .igenReveal(8)
+
+        Button {
           dismiss()
         } label: {
           // ja: とじる
@@ -139,7 +162,7 @@ struct ReplyPage: View {
               Capsule().stroke(Color.igenText.opacity(0.25), lineWidth: 1)
             )
         }
-        .igenReveal(8)
+        .igenReveal(9)
       }
       .padding(.horizontal, 24)
       .padding(.vertical, 24)
