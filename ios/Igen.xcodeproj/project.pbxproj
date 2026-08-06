@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A10000000000000000000023 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000021 /* FirebaseAuth */; };
+		A10000000000000000000024 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000022 /* FirebaseAnalytics */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		A10000000000000000000003 /* Igen.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Igen.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000004 /* IgenTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = IgenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,6 +77,7 @@
 			buildConfigurationList = A1000000000000000000000C /* Build configuration list for PBXNativeTarget "Igen" */;
 			buildPhases = (
 				A1000000000000000000000E /* Sources */,
+				A10000000000000000000025 /* Frameworks */,
 				A1000000000000000000000F /* Resources */,
 			);
 			buildRules = (
@@ -83,6 +89,8 @@
 			);
 			name = Igen;
 			packageProductDependencies = (
+				A10000000000000000000021 /* FirebaseAuth */,
+				A10000000000000000000022 /* FirebaseAnalytics */,
 			);
 			productName = Igen;
 			productReference = A10000000000000000000003 /* Igen.app */;
@@ -164,6 +172,9 @@
 			);
 			mainGroup = A10000000000000000000009;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A10000000000000000000020 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A10000000000000000000008 /* Products */;
 			projectDirPath = "";
@@ -175,6 +186,18 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000025 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000023 /* FirebaseAuth in Frameworks */,
+				A10000000000000000000024 /* FirebaseAnalytics in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A1000000000000000000000F /* Resources */ = {
@@ -507,6 +530,30 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A10000000000000000000020 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A10000000000000000000021 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000000000000000000020 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		A10000000000000000000022 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000000000000000000020 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A1000000000000000000000A /* Project object */;
 }
