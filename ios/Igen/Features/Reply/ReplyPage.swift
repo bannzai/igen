@@ -55,7 +55,7 @@ struct ReplyPage: View {
             HStack(spacing: 4) {
               Text(person.title.localized(letter.language))
               Text(verbatim: "—")
-              Text(verbatim: eraText(person))
+              Text(verbatim: person.eraText(language: letter.language))
             }
             .font(.system(size: 11))
             .foregroundStyle(Color.igenText.opacity(0.6))
@@ -150,23 +150,6 @@ struct ReplyPage: View {
     Rectangle()
       .fill(Color.igenGold.opacity(0.25))
       .frame(height: 1)
-  }
-
-  /// 生没年の表示 (紀元前は負数で保持している)
-  private func eraText(_ person: LetterPerson) -> String {
-    let died = formatYear(person.died)
-    if let born = person.born {
-      return "\(formatYear(born))–\(died)"
-    }
-    return "?–\(died)"
-  }
-
-  private func formatYear(_ year: Int) -> String {
-    if year < 0 {
-      // ja 表示は「前551」のような形式、en は BC 表記
-      return letter.language == "ja" ? "前\(-year)" : "\(-year) BC"
-    }
-    return "\(year)"
   }
 }
 

@@ -36,6 +36,21 @@ struct LetterPerson: Codable, Hashable {
   var died: Int
   var title: LocalizedText
   var bio: LocalizedText
+
+  /// 生没年の表示。紀元前は負数で保持しているため、言語に応じて「前551–前479」「551 BC–479 BC」の形にする
+  func eraText(language: String) -> String {
+    if let born {
+      return "\(Self.yearText(born, language: language))–\(Self.yearText(died, language: language))"
+    }
+    return "?–\(Self.yearText(died, language: language))"
+  }
+
+  private static func yearText(_ year: Int, language: String) -> String {
+    if year < 0 {
+      return language == "ja" ? "前\(-year)" : "\(-year) BC"
+    }
+    return "\(year)"
+  }
 }
 
 /// 話者が特定できない格言を説明する図解カード (例え → 意味 → 使いどころ)
