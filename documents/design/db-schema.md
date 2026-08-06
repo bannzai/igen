@@ -61,6 +61,7 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 | フィールド | 型 | 説明 |
 |---|---|---|
 | freeQuota | { date: string, count: number } | 無料枠（1 日 1 通）の消費状況。date は端末タイムゾーンでの YYYY-MM-DD。日付が変わると新しい date で上書きされる（日次リセット） |
+| ticketsUsed | number | 使用済みの相談チケット枚数。購入数（RevenueCat の non_subscriptions）との差分が残チケット |
 | createdAt / updatedAt | Timestamp | サーバータイムスタンプ |
 
 - 無料枠の消費・返却はトランザクションで行う（`backend/functions/src/quota.ts`）。LLM 失敗・危機判定で返書を返さなかった場合は返却する

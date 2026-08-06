@@ -10,6 +10,9 @@ const deps: AppDeps = {
   verifyIdToken: async () => {
     throw new Error("verifyIdToken must not be called");
   },
+  checkEntitlement: async () => {
+    throw new Error("checkEntitlement must not be called");
+  },
 };
 
 const app = createApp(deps);

@@ -17,6 +17,7 @@ function fakeDeps(overrides: Partial<AppDeps> = {}): AppDeps {
       }
       throw new Error("invalid token");
     },
+    checkEntitlement: async () => ({ unlimited: false, ticketsPurchased: 0 }),
     ...overrides,
   };
 }
@@ -225,6 +226,63 @@ describe("POST /letters", () => {
     expect(second.status).toBe(200);
     const secondSnapshot = await encounterRef.get();
     expect(secondSnapshot.data()?.createdAt).toEqual(firstCreatedAt);
+  });
+
+  it("聞き放題 (unlimited) のユーザーは無料枠を超えても返書を受け取れる", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        checkEntitlement: async () => ({
+          unlimited: true,
+          ticketsPurchased: 0,
+        }),
+      }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-8")
+      .send({ text: "1 通目 (無料枠)" });
+    expect(first.status).toBe(200);
+
+    const second = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-8")
+      .send({ text: "2 通目 (聞き放題)" });
+    expect(second.status).toBe(200);
+    expect(second.body.type).toBe("letter");
+  });
+
+  it("購入済みチケットがあれば無料枠超過後も 1 枚につき 1 通送れる", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        checkEntitlement: async () => ({
+          unlimited: false,
+          ticketsPurchased: 1,
+        }),
+      }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-9")
+      .send({ text: "1 通目 (無料枠)" });
+    expect(first.status).toBe(200);
+
+    const second = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-9")
+      .send({ text: "2 通目 (チケット)" });
+    expect(second.status).toBe(200);
+
+    const third = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-9")
+      .send({ text: "3 通目 (チケット切れ)" });
+    expect(third.status).toBe(429);
+    expect(third.body.error.code).toBe("free_quota_exceeded");
+
+    const user = await db.collection("users").doc("letter-user-9").get();
+    expect(user.data()?.ticketsUsed).toBe(1);
   });
 
   it("人物のいないことわざは person が null で図解カードが付く", async () => {

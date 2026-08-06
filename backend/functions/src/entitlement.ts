@@ -1,0 +1,65 @@
+// RevenueCat の購入状態をサーバー側で確認し、無料枠 (1 日 1 通) 超過時の利用可否判定に使う
+// (documents/PROJECT.md「マネタイズ」。購入状態の真実は RevenueCat 側にある)
+
+// RevenueCat の entitlement 識別子。RevenueCat プロジェクト設定 (#16 公開前チェックリスト) と揃える
+export const UNLIMITED_ENTITLEMENT_ID = "unlimited";
+
+// 相談チケット (consumable) のストア商品 id。ASC の IAP 登録 (#16) と揃える
+export const TICKET_PRODUCT_ID = "igen_ticket_1";
+
+/** uid の購入状態。unlimited はサブスク、ticketsPurchased は購入済みチケットの累計 */
+export interface Entitlement {
+  unlimited: boolean;
+  ticketsPurchased: number;
+}
+
+/** 購入状態を確認する関数。実装は RevenueCat REST API、テストではモックする */
+export type CheckEntitlementFn = (uid: string) => Promise<Entitlement>;
+
+/** 購入機能が未設定の間に使う、常に「購入なし」を返すチェッカー。 */
+export function createNoEntitlementChecker(): CheckEntitlementFn {
+  return async () => ({ unlimited: false, ticketsPurchased: 0 });
+}
+
+/**
+ * RevenueCat REST API (GET /v1/subscribers/{uid}) で購入状態を確認するチェッカーを作る。
+ * appUserID には Firebase 匿名認証の uid を使う (ADR 0001)
+ */
+export function createRevenueCatEntitlementChecker(options: {
+  apiKey: string;
+}): CheckEntitlementFn {
+  return async (uid) => {
+    const response = await fetch(
+      `https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(uid)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${options.apiKey}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    if (!response.ok) {
+      throw new Error(
+        `revenuecat subscriber lookup failed: status=${response.status}`,
+      );
+    }
+    const body = (await response.json()) as {
+      subscriber?: {
+        entitlements?: Record<string, { expires_date: string | null }>;
+        non_subscriptions?: Record<string, unknown[]>;
+      };
+    };
+    const entitlement =
+      body.subscriber?.entitlements?.[UNLIMITED_ENTITLEMENT_ID];
+    // expires_date が null (買い切り等) または未来ならアクティブ
+    const unlimited =
+      entitlement !== undefined &&
+      (entitlement.expires_date === null ||
+        new Date(entitlement.expires_date) > new Date());
+    return {
+      unlimited,
+      ticketsPurchased:
+        body.subscriber?.non_subscriptions?.[TICKET_PRODUCT_ID]?.length ?? 0,
+    };
+  };
+}

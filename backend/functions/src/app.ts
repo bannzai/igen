@@ -1,10 +1,17 @@
 import express, { type Express, type Request, type Response } from "express";
 import { logger } from "firebase-functions";
 import { detectCrisis } from "./crisis";
+import type { CheckEntitlementFn } from "./entitlement";
 import { db } from "./firestore";
 import type { ComposeLetterFn, LetterLanguage } from "./letter";
 import { MAX_CONCERN_CHARS } from "./openai";
-import { consumeFreeQuota, localDate, releaseFreeQuota } from "./quota";
+import {
+  consumeFreeQuota,
+  consumeTicket,
+  localDate,
+  releaseFreeQuota,
+  releaseTicket,
+} from "./quota";
 import { quotes } from "./quotesDb";
 import { saveLetter } from "./store";
 
@@ -14,7 +21,12 @@ export interface AppDeps {
   composeLetter: ComposeLetterFn;
   /** Firebase ID トークンを検証して uid を返す。実装は firebase-admin の verifyIdToken */
   verifyIdToken: (idToken: string) => Promise<{ uid: string }>;
+  /** RevenueCat の購入状態を確認する。実装は entitlement.ts */
+  checkEntitlement: CheckEntitlementFn;
 }
+
+/** 今回の返書の利用枠がどこから来たか。失敗時の返却先を揃えるために持ち回る */
+type AccessGrant = "free" | "unlimited" | "ticket";
 
 /** 共通エラー形状でレスポンスを返す。 */
 function sendError(
@@ -110,16 +122,35 @@ export function createApp(deps: AppDeps): Express {
       return;
     }
 
+    // 無料枠 → サブスク (聞き放題) → 購入済みチケットの順に利用枠を確保する
     const date = localDate(new Date(), timeZone ?? "UTC");
+    let accessGrant: AccessGrant = "free";
     if (!(await consumeFreeQuota(db, uid, date))) {
-      sendError(
-        res,
-        429,
-        "free_quota_exceeded",
-        "free letters for today are used up",
-      );
-      return;
+      const entitlement = await deps.checkEntitlement(uid);
+      if (entitlement.unlimited) {
+        accessGrant = "unlimited";
+      } else if (await consumeTicket(db, uid, entitlement.ticketsPurchased)) {
+        accessGrant = "ticket";
+      } else {
+        sendError(
+          res,
+          429,
+          "free_quota_exceeded",
+          "free letters for today are used up",
+        );
+        return;
+      }
     }
+
+    // 返書を返さずに終わる場合に、消費した利用枠を元へ戻す
+    // (関数宣言だと uid の null 除去の narrowing が効かないためアロー関数にする)
+    const refundAccess = async (): Promise<void> => {
+      if (accessGrant === "free") {
+        await releaseFreeQuota(db, uid, date);
+      } else if (accessGrant === "ticket") {
+        await releaseTicket(db, uid);
+      }
+    };
 
     try {
       const composition = await deps.composeLetter({
@@ -127,9 +158,9 @@ export function createApp(deps: AppDeps): Express {
         language: letterLanguage,
         quotes,
       });
-      // LLM 側の危機判定 (キーワード判定の取りこぼしを補完)。返書は返さず、無料枠を戻す
+      // LLM 側の危機判定 (キーワード判定の取りこぼしを補完)。返書は返さず、利用枠を戻す
       if (composition.crisis) {
-        await releaseFreeQuota(db, uid, date);
+        await refundAccess();
         res.json({ type: "safety" });
         return;
       }
@@ -145,7 +176,7 @@ export function createApp(deps: AppDeps): Express {
         letter: { id: saved.id, ...saved.letter },
       });
     } catch (error) {
-      await releaseFreeQuota(db, uid, date);
+      await refundAccess();
       // 相談本文はログに残さない (.claude/rules/firestore-rules.md「データ設計の決めごと」)
       logger.error("letter composition failed", { uid, error: `${error}` });
       sendError(res, 502, "generation_failed", "failed to compose the letter");

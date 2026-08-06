@@ -3,12 +3,17 @@ import { getAuth } from "firebase-admin/auth";
 import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
 import { createApp } from "./app";
+import {
+  createNoEntitlementChecker,
+  createRevenueCatEntitlementChecker,
+} from "./entitlement";
 import { createFakeLetterComposer } from "./fakeLlm";
 // firebase-admin の初期化を先に済ませる (getAuth が初期化済みの app を要求するため)
 import "./firestore";
 import { createOpenAILetterComposer } from "./openai";
 
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
+const revenuecatApiKey = defineSecret("REVENUECAT_API_KEY");
 
 // シークレット (OPENAI_API_KEY) はハンドラ実行時にしか読めないため、
 // アプリはコールドスタート後の初回リクエストで一度だけ組み立てる
@@ -21,12 +26,20 @@ export const api = onRequest(
   {
     region: "asia-northeast1",
     timeoutSeconds: 300,
-    secrets: [openaiApiKey],
+    secrets: [openaiApiKey, revenuecatApiKey],
     invoker: "public",
     maxInstances: 10,
   },
   (req, res) => {
     if (app === undefined) {
+      // Emulator では secret が未設定のことがあるため、取得できなければ購入なし扱いにする
+      const revenuecatKey = (() => {
+        try {
+          return revenuecatApiKey.value();
+        } catch {
+          return "";
+        }
+      })();
       app = createApp({
         // IGEN_FAKE_LLM=1 は Emulator でのローカル開発用 (実 API キーなしで E2E を完結させる)
         composeLetter:
@@ -38,6 +51,10 @@ export const api = onRequest(
                 model: process.env.OPENAI_MODEL ?? "gpt-5.6",
               }),
         verifyIdToken: (idToken) => getAuth().verifyIdToken(idToken),
+        checkEntitlement:
+          revenuecatKey === ""
+            ? createNoEntitlementChecker()
+            : createRevenueCatEntitlementChecker({ apiKey: revenuecatKey }),
       });
     }
     app(req, res);

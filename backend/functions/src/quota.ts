@@ -50,6 +50,53 @@ export async function consumeFreeQuota(
 }
 
 /**
+ * 購入済みチケット (consumable) を 1 枚消費する。使用済み枚数が購入数に達していれば false。
+ * 使用済み枚数は users/{uid}.ticketsUsed で管理し、購入数 (RevenueCat) との差分が残チケットになる
+ */
+export async function consumeTicket(
+  firestore: Firestore,
+  uid: string,
+  ticketsPurchased: number,
+): Promise<boolean> {
+  const userRef = firestore.collection("users").doc(uid);
+  return firestore.runTransaction(async (transaction) => {
+    const ticketsUsed =
+      (await transaction.get(userRef)).data()?.ticketsUsed ?? 0;
+    if (ticketsUsed >= ticketsPurchased) {
+      return false;
+    }
+    transaction.set(
+      userRef,
+      { ticketsUsed: ticketsUsed + 1, updatedAt: FieldValue.serverTimestamp() },
+      { merge: true },
+    );
+    return true;
+  });
+}
+
+/**
+ * 消費したチケットを戻す。返書生成の失敗・LLM 危機判定で返書を返さなかったときに使う。
+ */
+export async function releaseTicket(
+  firestore: Firestore,
+  uid: string,
+): Promise<void> {
+  const userRef = firestore.collection("users").doc(uid);
+  await firestore.runTransaction(async (transaction) => {
+    const ticketsUsed =
+      (await transaction.get(userRef)).data()?.ticketsUsed ?? 0;
+    if (ticketsUsed <= 0) {
+      return;
+    }
+    transaction.set(
+      userRef,
+      { ticketsUsed: ticketsUsed - 1, updatedAt: FieldValue.serverTimestamp() },
+      { merge: true },
+    );
+  });
+}
+
+/**
  * 消費した無料枠を戻す。返書生成の失敗・LLM 危機判定で返書を返さなかったときに使う。
  */
 export async function releaseFreeQuota(
