@@ -1,8 +1,18 @@
 import request from "supertest";
 import { describe, expect, it } from "vitest";
-import { createApp } from "./app";
+import { type AppDeps, createApp } from "./app";
 
-const app = createApp();
+// health はどの依存も使わないため、呼ばれたら失敗するモックを渡す
+const deps: AppDeps = {
+  composeLetter: async () => {
+    throw new Error("composeLetter must not be called");
+  },
+  verifyIdToken: async () => {
+    throw new Error("verifyIdToken must not be called");
+  },
+};
+
+const app = createApp(deps);
 
 describe("GET /health", () => {
   it("200 で status ok を返す", async () => {
