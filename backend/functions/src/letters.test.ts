@@ -193,6 +193,40 @@ describe("POST /letters", () => {
     expect(letters.size).toBe(0);
   });
 
+  it("返書生成で図鑑の出会い (encounters) が記録され、再度の出会いでも createdAt が保持される", async () => {
+    const app = createApp(
+      fakeDeps({ composeLetter: async () => fakeComposition() }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-7")
+      .send({ text: "挑戦が怖い" });
+    expect(first.status).toBe(200);
+
+    const encounterRef = db
+      .collection("users")
+      .doc("letter-user-7")
+      .collection("encounters")
+      .doc("seneca");
+    const firstSnapshot = await encounterRef.get();
+    expect(firstSnapshot.exists).toBe(true);
+    expect(firstSnapshot.data()?.person.name.ja).toBe("セネカ");
+    const firstCreatedAt = firstSnapshot.data()?.createdAt;
+
+    // 無料枠 (1 日 1 通) を Admin SDK でリセットして同日 2 通目を送れるようにする
+    await db
+      .collection("users")
+      .doc("letter-user-7")
+      .set({ freeQuota: { date: "1970-01-01", count: 0 } }, { merge: true });
+    const second = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-7")
+      .send({ text: "また挑戦の悩み" });
+    expect(second.status).toBe(200);
+    const secondSnapshot = await encounterRef.get();
+    expect(secondSnapshot.data()?.createdAt).toEqual(firstCreatedAt);
+  });
+
   it("人物のいないことわざは person が null で図解カードが付く", async () => {
     const app = createApp(
       fakeDeps({

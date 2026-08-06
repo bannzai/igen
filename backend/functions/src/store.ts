@@ -1,7 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import type { Firestore } from "firebase-admin/firestore";
 import type { LetterComposition, LetterLanguage } from "./letter";
-import { findPerson, findQuote } from "./quotesDb";
+import { type Person, findPerson, findQuote } from "./quotesDb";
 
 /**
  * 相談と返書を users/{uid}/letters へ保存し、保存したドキュメントの内容を返す。
@@ -49,5 +49,43 @@ export async function saveLetter(
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
+  if (letter.personId !== null && letter.person !== null) {
+    await recordEncounter(
+      firestore,
+      uid,
+      letter.personId,
+      letter.person,
+      quote.id,
+    );
+  }
   return { id: ref.id, letter };
+}
+
+/**
+ * 偉人図鑑 (星図) の出会い状態を users/{uid}/encounters/{personId} に記録する。
+ * 既に出会っている場合は createdAt (初回の出会い) を保持したまま更新する (冪等)
+ */
+async function recordEncounter(
+  firestore: Firestore,
+  uid: string,
+  personId: string,
+  person: Person,
+  quoteId: string,
+): Promise<void> {
+  const encounterRef = firestore
+    .collection("users")
+    .doc(uid)
+    .collection("encounters")
+    .doc(personId);
+  const snapshot = await encounterRef.get();
+  await encounterRef.set(
+    {
+      personId,
+      person,
+      lastQuoteId: quoteId,
+      ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp() }),
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
 }
