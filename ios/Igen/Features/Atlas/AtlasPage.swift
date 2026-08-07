@@ -3,7 +3,6 @@ import SwiftUI
 /// 偉人図鑑 (星図)。相談を通じて出会った偉人が星座として夜空に灯り、未出会いは暗い星のみ表示する
 struct AtlasPage: View {
   @State var encounters: [Encounter]?
-  @State var letters: [Letter] = []
   @State var loadFailed = false
   @State var selectedEncounter: Encounter?
   /// 「新しい星座が夜空に灯る」演出を一度だけ流すための、表示済み人物 id (カンマ区切り)
@@ -85,7 +84,6 @@ struct AtlasPage: View {
     .task {
       do {
         let fetched = try await EncountersStore.fetchEncounters()
-        letters = (try? await LettersStore.fetchLetters()) ?? []
         let seen = Set(atlasSeenPersonIds.split(separator: ",").map(String.init))
         newlyMetPersonIds = Set(fetched.map(\.personId)).subtracting(seen)
         encounters = fetched
@@ -95,10 +93,8 @@ struct AtlasPage: View {
       }
     }
     .sheet(item: $selectedEncounter) { encounter in
-      AtlasProfileSheet(
-        encounter: encounter,
-        letters: letters.filter { $0.personId == encounter.personId }
-      )
+      // その偉人の返書はシート側で personId 指定で取得する (星図を開くだけで全返書を読まない)
+      AtlasProfileSheet(encounter: encounter)
     }
   }
 }
@@ -111,13 +107,15 @@ struct AtlasMetConstellation: View {
   var onPressed: () -> Void
 
   @State var start = Date.now
+  /// 点灯演出が完了したか。完了後は TimelineView を止め、毎フレームの再評価を続けない
+  @State var revealFinished = false
 
   var body: some View {
     Button {
       onPressed()
     } label: {
       VStack(spacing: 4) {
-        if reveals {
+        if reveals && !revealFinished {
           TimelineView(.animation) { timeline in
             let elapsed = timeline.date.timeIntervalSince(start)
             ConstellationAvatar(
@@ -126,6 +124,11 @@ struct AtlasMetConstellation: View {
               lineProgress: min(max((elapsed - 0.6) / 1.6, 0), 1)
             )
             .frame(width: 74 * scale, height: 74 * scale)
+          }
+          .task {
+            // 線の描き上がり (0.6s 遅延 + 1.6s) が終わったら静的表示へ切り替える
+            try? await Task.sleep(for: .seconds(2.4))
+            revealFinished = true
           }
         } else {
           ConstellationAvatar(constellation: ConstellationData.constellation(for: encounter.personId))
