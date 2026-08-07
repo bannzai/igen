@@ -53,15 +53,19 @@ struct HomePage: View {
             }
           )
 
-          if draft.count > IgenAPI.maxConcernChars {
+          // 文字数はバックエンド (text.length = UTF-16 コード単位) と同じ単位で判定する
+          if draft.utf16.count > IgenAPI.maxConcernChars {
             // ja: 2,000字以内でお願いします（いま %lld 字）
-            Text("Please keep it within 2,000 characters (now \(draft.count))")
+            Text("Please keep it within 2,000 characters (now \(draft.utf16.count))")
               .font(.system(size: 12))
               .foregroundStyle(Color(red: 240 / 255, green: 160 / 255, blue: 160 / 255))
           }
 
           HomeAskButton(draft: draft, sending: sending) {
             Analytics.logEvent("home_ask_button_pressed", parameters: ["text_length": draft.count])
+            // 音声入力の開始処理が suspend 中でも送信後に録音が始まらないよう、開始 Task ごとキャンセルする
+            listeningTask?.cancel()
+            listeningTask = nil
             speechRecognizer.stop()
             listening = false
             sending = true
