@@ -50,9 +50,14 @@ struct SharePage: View {
           .sheet(isPresented: $shareActivitySheetIsPresented) {
             // 共有先での完了・キャンセルを計測するため、completion を取得できる UIActivityViewController を使う
             // (ShareLink は完了結果を取得できない)
-            ShareActivitySheet(cardImage: cardImage) { completed in
+            ShareActivitySheet(cardImage: cardImage) { completed, activityType in
               if completed {
-                Analytics.logEvent("share_completed", parameters: ["quote_id": letter.quoteId])
+                // 保存・コピーは SNS 共有ではないため別イベントで数え、共有完了率を過大にしない
+                if activityType == .saveToCameraRoll || activityType == .copyToPasteboard {
+                  Analytics.logEvent("share_card_saved", parameters: ["quote_id": letter.quoteId])
+                } else {
+                  Analytics.logEvent("share_completed", parameters: ["quote_id": letter.quoteId])
+                }
               }
             }
             .presentationDetents([.medium, .large])

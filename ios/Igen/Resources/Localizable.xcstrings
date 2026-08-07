@@ -481,6 +481,196 @@
         }
       }
     },
+    "A Letter for You": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたへの返書"
+          }
+        }
+      }
+    },
+    "Original": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原文"
+          }
+        }
+      }
+    },
+    "Source": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出典"
+          }
+        }
+      }
+    },
+    "The letter could not be delivered. Please try again later.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返書をお届けできませんでした。しばらくしてからもう一度お試しください。"
+          }
+        }
+      }
+    },
+    "Today's free letter has already been delivered.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "きょうの無料の返書はお届け済みです。"
+          }
+        }
+      }
+    },
+    "Microphone or speech recognition is not allowed. Please allow them in the Settings app.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マイクまたは音声認識が許可されていません。設定アプリから許可してください。"
+          }
+        }
+      }
+    },
+    "Voice input could not be started. Please try typing instead.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いま音声入力を開始できませんでした。キーボードでの入力をお試しください。"
+          }
+        }
+      }
+    },
+    "IGEN is an app of encouragement and cannot provide professional support. The services below are there to listen to you.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偉言は励ましのアプリで、専門の支援をお届けすることはできません。下記の窓口が、あなたの話を聞いてくれます。"
+          }
+        }
+      }
+    },
+    "No letter has been sent for this consultation.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このご相談への返書はお送りしていません。"
+          }
+        }
+      }
+    },
+    "Back to Home": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ホームにもどる"
+          }
+        }
+      }
+    },
+    "Thank you for telling me something so important.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "たいせつなお話を、ありがとうございます。"
+          }
+        }
+      }
+    },
+    "Inochi no Denwa (Japan Lifeline)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いのちの電話"
+          }
+        }
+      }
+    },
+    "Yorisoi Hotline": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "よりそいホットライン"
+          }
+        }
+      }
+    },
+    "24 hours, toll-free": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24時間・通話無料"
+          }
+        }
+      }
+    },
+    "Mamorou yo Kokoro (MHLW)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まもろうよ こころ（厚生労働省）"
+          }
+        }
+      }
+    },
+    "988 Suicide & Crisis Lifeline": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "988 Suicide & Crisis Lifeline"
+          }
+        }
+      }
+    },
+    "24/7, free and confidential (US)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24時間・無料・秘密厳守（米国）"
+          }
+        }
+      }
+    },
+    "Find a Helpline": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find a Helpline"
+          }
+        }
+      }
+    },
+    "Find support services in your country": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お住まいの国の相談窓口を探せます"
+          }
+        }
+      }
+    },
     "See the unlimited plan": {
       "localizations": {
         "ja": {
@@ -627,116 +817,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "購入情報を確認しました。"
-          }
-        }
-      }
-    },
-    "A Letter for You": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "あなたへの返書"
-          }
-        }
-      }
-    },
-    "Original": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "原文"
-          }
-        }
-      }
-    },
-    "Source": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "出典"
-          }
-        }
-      }
-    },
-    "The letter could not be delivered. Please try again later.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "返書をお届けできませんでした。しばらくしてからもう一度お試しください。"
-          }
-        }
-      }
-    },
-    "Today's free letter has already been delivered.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "きょうの無料の返書はお届け済みです。"
-          }
-        }
-      }
-    },
-    "Microphone or speech recognition is not allowed. Please allow them in the Settings app.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "マイクまたは音声認識が許可されていません。設定アプリから許可してください。"
-          }
-        }
-      }
-    },
-    "Voice input could not be started. Please try typing instead.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "いま音声入力を開始できませんでした。キーボードでの入力をお試しください。"
-          }
-        }
-      }
-    },
-    "IGEN is an app of encouragement and cannot provide professional support. The services below are there to listen to you.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "偉言は励ましのアプリで、専門の支援をお届けすることはできません。下記の窓口が、あなたの話を聞いてくれます。"
-          }
-        }
-      }
-    },
-    "No letter has been sent for this consultation.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "このご相談への返書はお送りしていません。"
-          }
-        }
-      }
-    },
-    "Back to Home": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ホームにもどる"
-          }
-        }
-      }
-    },
-    "Thank you for telling me something so important.": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "たいせつなお話を、ありがとうございます。"
           }
         }
       }
