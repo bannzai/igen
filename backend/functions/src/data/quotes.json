@@ -15,9 +15,15 @@
         "ja": "倫理書簡集 (ルキリウスへの手紙)",
         "en": "Moral Letters to Lucilius"
       },
-      "detail": { "ja": "第104書簡 26節", "en": "Letter 104, section 26" },
+      "detail": {
+        "ja": "第104書簡 26節",
+        "en": "Letter 104, section 26"
+      },
       "origTitle": "Epistulae morales ad Lucilium",
-      "year": "65年頃"
+      "year": {
+        "ja": "65年頃",
+        "en": "c. 65 AD"
+      }
     }
   },
   {
@@ -32,10 +38,19 @@
     "personId": "seneca",
     "themes": ["時間", "忙しさ", "人生の使い方"],
     "source": {
-      "work": { "ja": "人生の短さについて", "en": "On the Shortness of Life" },
-      "detail": { "ja": "第2章", "en": "Chapter 2" },
+      "work": {
+        "ja": "人生の短さについて",
+        "en": "On the Shortness of Life"
+      },
+      "detail": {
+        "ja": "第2章",
+        "en": "Chapter 2"
+      },
       "origTitle": "De Brevitate Vitae",
-      "year": "49年頃"
+      "year": {
+        "ja": "49年頃",
+        "en": "c. 49 AD"
+      }
     }
   },
   {
@@ -50,10 +65,19 @@
     "personId": "confucius",
     "themes": ["失敗", "反省", "やり直し"],
     "source": {
-      "work": { "ja": "論語", "en": "The Analects" },
-      "detail": { "ja": "衛霊公第十五", "en": "Book 15 (Wei Ling Gong)" },
+      "work": {
+        "ja": "論語",
+        "en": "The Analects"
+      },
+      "detail": {
+        "ja": "衛霊公第十五",
+        "en": "Book 15 (Wei Ling Gong)"
+      },
       "origTitle": "論語",
-      "year": "紀元前5世紀頃"
+      "year": {
+        "ja": "紀元前5世紀頃",
+        "en": "c. 5th century BC"
+      }
     }
   },
   {
@@ -68,10 +92,19 @@
     "personId": "confucius",
     "themes": ["学び", "考えること", "迷い"],
     "source": {
-      "work": { "ja": "論語", "en": "The Analects" },
-      "detail": { "ja": "為政第二", "en": "Book 2 (Wei Zheng)" },
+      "work": {
+        "ja": "論語",
+        "en": "The Analects"
+      },
+      "detail": {
+        "ja": "為政第二",
+        "en": "Book 2 (Wei Zheng)"
+      },
       "origTitle": "論語",
-      "year": "紀元前5世紀頃"
+      "year": {
+        "ja": "紀元前5世紀頃",
+        "en": "c. 5th century BC"
+      }
     }
   },
   {
@@ -86,10 +119,19 @@
     "personId": "nietzsche",
     "themes": ["苦難", "逆境", "成長"],
     "source": {
-      "work": { "ja": "偶像の黄昏", "en": "Twilight of the Idols" },
-      "detail": { "ja": "箴言と矢 8", "en": "Maxims and Arrows, 8" },
+      "work": {
+        "ja": "偶像の黄昏",
+        "en": "Twilight of the Idols"
+      },
+      "detail": {
+        "ja": "箴言と矢 8",
+        "en": "Maxims and Arrows, 8"
+      },
       "origTitle": "Götzen-Dämmerung",
-      "year": "1889年"
+      "year": {
+        "ja": "1889年",
+        "en": "1889"
+      }
     }
   },
   {
@@ -104,10 +146,19 @@
     "personId": "zeami",
     "themes": ["初心", "慣れ", "続けること"],
     "source": {
-      "work": { "ja": "花鏡", "en": "Kakyo (The Mirror of the Flower)" },
-      "detail": { "ja": "奥段", "en": "Concluding section" },
+      "work": {
+        "ja": "花鏡",
+        "en": "Kakyo (The Mirror of the Flower)"
+      },
+      "detail": {
+        "ja": "奥段",
+        "en": "Concluding section"
+      },
       "origTitle": "花鏡",
-      "year": "1424年"
+      "year": {
+        "ja": "1424年",
+        "en": "1424"
+      }
     }
   },
   {
@@ -126,9 +177,15 @@
         "ja": "おくのほそ道",
         "en": "Oku no Hosomichi (The Narrow Road to the Deep North)"
       },
-      "detail": { "ja": "冒頭", "en": "Opening passage" },
+      "detail": {
+        "ja": "冒頭",
+        "en": "Opening passage"
+      },
       "origTitle": "おくのほそ道",
-      "year": "1702年刊"
+      "year": {
+        "ja": "1702年刊",
+        "en": "published 1702"
+      }
     }
   },
   {
@@ -143,34 +200,18 @@
     "personId": null,
     "themes": ["不運", "幸運", "禍福"],
     "source": {
-      "work": { "ja": "淮南子", "en": "Huainanzi" },
+      "work": {
+        "ja": "淮南子",
+        "en": "Huainanzi"
+      },
       "detail": {
         "ja": "人間訓の故事に由来する故事成語",
         "en": "Idiom derived from a story in the 'In the World of Man' chapter"
       },
       "origTitle": "淮南子",
-      "year": "紀元前2世紀頃"
-    }
-  },
-  {
-    "id": "ishi-no-ue-nimo-sannen",
-    "kind": "proverb",
-    "text": {
-      "ja": "石の上にも三年。",
-      "en": "Even a cold stone will grow warm if you sit on it for three years."
-    },
-    "original": "石の上にも三年",
-    "originalLanguage": "ja",
-    "personId": null,
-    "themes": ["忍耐", "継続", "成果が出ない"],
-    "source": {
-      "work": {
-        "ja": "日本の伝承のことわざ",
-        "en": "Traditional Japanese proverb"
-      },
-      "detail": {
-        "ja": "作者・成立年不詳の伝承",
-        "en": "Oral tradition; author and date unknown"
+      "year": {
+        "ja": "紀元前2世紀頃",
+        "en": "c. 2nd century BC"
       }
     }
   }

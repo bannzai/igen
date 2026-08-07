@@ -63,17 +63,17 @@ analytics.logEvent("consultation_\(consultation == nil ? "created" : "updated")"
 
 ## Toggle の追跡
 
-Toggle の場合は `.onChange(of:)` を使用してイベントを送信する。
+Toggle の場合は Binding の setter でイベントを送信する。
+`.onChange(of:)` は設定同期・購入状態の反映・リセット処理などプログラム的な状態更新でも発火し、ユーザーが操作していない `feature_enabled` / `feature_disabled` が記録されて利用率・離脱分析が歪むため、操作イベントの送信には使わない。
 
 ```swift
-Toggle("Enable Feature", isOn: $isEnabled)
-  .onChange(of: isEnabled) { _, newValue in
-    if newValue {
-      analytics.logEvent("feature_enabled")
-    } else {
-      analytics.logEvent("feature_disabled")
-    }
+Toggle("Enable Feature", isOn: Binding(
+  get: { isEnabled },
+  set: { newValue in
+    analytics.logEvent(newValue ? "feature_enabled" : "feature_disabled")
+    isEnabled = newValue
   }
+))
 ```
 
 ## 副作用は保存メソッド内ではなく呼び出し元で処理する

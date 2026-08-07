@@ -25,7 +25,8 @@ struct LetterQuoteSource: Codable, Hashable {
   var work: LocalizedText
   var detail: LocalizedText?
   var origTitle: String?
-  var year: String?
+  /// 成立年の表記。表示ロケールに応じて切り替える (クライアントでは翻訳しない)
+  var year: LocalizedText?
 }
 
 /// 返書の話者 (persons のスナップショット)。ことわざ等で人物がいない場合は Letter.person が nil
@@ -40,12 +41,12 @@ struct LetterPerson: Codable, Hashable {
   /// 生没年の表示。紀元前は負数で保持しているため、言語に応じて「前551–前479」「551 BC–479 BC」の形にする
   func eraText(language: String) -> String {
     if let born {
-      return "\(Self.yearText(born, language: language))–\(Self.yearText(died, language: language))"
+      return "\(Self.yearText(year: born, language: language))–\(Self.yearText(year: died, language: language))"
     }
-    return "?–\(Self.yearText(died, language: language))"
+    return "?–\(Self.yearText(year: died, language: language))"
   }
 
-  private static func yearText(_ year: Int, language: String) -> String {
+  private static func yearText(year: Int, language: String) -> String {
     if year < 0 {
       return language == "ja" ? "前\(-year)" : "\(-year) BC"
     }
@@ -65,6 +66,8 @@ struct Letter: Codable, Hashable, Identifiable {
   var id: String
   var concern: String
   var language: String
+  /// 相談時の端末タイムゾーン。履歴の日付表示を相談時のまま固定するために使う
+  var timeZone: String?
   var quoteId: String
   var quote: LetterQuote
   var personId: String?
@@ -73,6 +76,20 @@ struct Letter: Codable, Hashable, Identifiable {
   var meaning: String
   var closing: String
   var diagram: LetterDiagram?
+  /// 相談の受信時刻。履歴の日付表示の基準にする (createdAt は生成完了時のため深夜送信で翌日にずれる)
+  var consultedAt: Date?
   /// Firestore から読む場合のみ入る (レスポンスには含まれない)
   var createdAt: Date?
+
+  /// 相談日の表示。相談時のタイムゾーンで固定し (別のタイムゾーンで開いても日付が変わらない)、
+  /// 返書の言語のロケールでフォーマットする (端末が第三言語でも表示言語が混在しない)。
+  /// 日付の基準は相談受信時刻 consultedAt (生成完了時の createdAt では深夜送信で翌日にずれるため)
+  func dateText() -> String {
+    var style = Date.FormatStyle(date: .long, time: .omitted)
+      .locale(Locale(identifier: language == "ja" ? "ja_JP" : "en_US"))
+    if let timeZone = timeZone.flatMap(TimeZone.init(identifier:)) {
+      style.timeZone = timeZone
+    }
+    return (consultedAt ?? createdAt ?? .now).formatted(style)
+  }
 }

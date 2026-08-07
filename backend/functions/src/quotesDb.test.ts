@@ -48,7 +48,8 @@ describe("quotes DB integrity", () => {
     const currentYear = new Date().getFullYear();
     for (const person of persons) {
       expect(person.publicDomain.confirmed, person.id).toBe(true);
-      expect(currentYear - person.died, person.id).toBeGreaterThanOrEqual(70);
+      // 没年しか保持していないため、命日が未到来かもしれない境界年 (ちょうど 70 年差) は不合格にする保守的な判定
+      expect(currentYear - person.died, person.id).toBeGreaterThan(70);
     }
   });
 

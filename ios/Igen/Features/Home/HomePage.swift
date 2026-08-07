@@ -7,6 +7,7 @@ struct HomePage: View {
   @State var letter: Letter?
   @State var sending = false
   @State var listening = false
+  @State var listeningTask: Task<Void, Never>?
   @State var speechRecognizer = SpeechRecognizer()
   @State var sendErrorAlertIsPresented = false
   @State var paywallSheetIsPresented = false
@@ -15,7 +16,6 @@ struct HomePage: View {
   @State var safetyNoticeIsPresented = false
   @State var archiveIsPresented = false
   @State var atlasIsPresented = false
-  @State var askButtonGlowPulsing = false
 
   var body: some View {
     NavigationStack {
@@ -34,6 +34,12 @@ struct HomePage: View {
             Spacer()
 
             Button {
+              Analytics.logEvent("home_atlas_button_pressed", parameters: nil)
+              // 音声入力中・開始処理の suspend 中に遷移しても背後で録音が続かないよう、先に停止する
+              listeningTask?.cancel()
+              listeningTask = nil
+              speechRecognizer.stop()
+              listening = false
               atlasIsPresented = true
             } label: {
               // ja: 星図
@@ -44,9 +50,18 @@ struct HomePage: View {
                 .padding(.horizontal, 13)
                 .background(Capsule().fill(Color.igenCard.opacity(0.55)))
                 .overlay(Capsule().stroke(Color.igenGold.opacity(0.32), lineWidth: 1))
+                // 見た目のカプセルは保ちつつ、最小タップターゲット 44pt を確保する (design_handoff_igen/README.md)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
 
             Button {
+              Analytics.logEvent("home_archive_button_pressed", parameters: nil)
+              // 音声入力中・開始処理の suspend 中に遷移しても背後で録音が続かないよう、先に停止する
+              listeningTask?.cancel()
+              listeningTask = nil
+              speechRecognizer.stop()
+              listening = false
               archiveIsPresented = true
             } label: {
               // ja: 記録
@@ -57,50 +72,77 @@ struct HomePage: View {
                 .padding(.horizontal, 13)
                 .background(Capsule().fill(Color.igenCard.opacity(0.55)))
                 .overlay(Capsule().stroke(Color.igenGold.opacity(0.32), lineWidth: 1))
+                // 見た目のカプセルは保ちつつ、最小タップターゲット 44pt を確保する (design_handoff_igen/README.md)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
           }
           .padding(.vertical, 8)
 
-          // キーボード表示時に入力カード・マイクが隠れないよう、中央ブロックはスクロール可能にする
-          ScrollView {
-            VStack(spacing: 16) {
-              // ja: きょうのできごと・お悩みを どうぞ
-              Text("Tell me about your day, or what's on your mind")
-                .font(.igenSerif(size: 22, weight: .semibold))
-                .multilineTextAlignment(.center)
-                .lineSpacing(8)
-                .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
+          // キーボード表示時に入力カード・マイクが隠れないよう、中央ブロックはスクロール可能にする。
+          // 通常時はデザイン指定どおり中央寄せになるよう、内容の最小高をビューポート高に合わせる
+          GeometryReader { geometry in
+            ScrollView {
+              VStack(spacing: 16) {
+                // ja: きょうのできごと・お悩みを どうぞ
+                Text("Tell me about your day, or what's on your mind")
+                  .font(.igenSerif(size: 22, weight: .semibold))
+                  .multilineTextAlignment(.center)
+                  .lineSpacing(8)
+                  .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
 
-              // ja: 書き終えたら、ふさわしい偉人が出典つきの返書を届けます
-              Text("Write it down, and a fitting great figure will send you a letter of reply with its source")
-                .font(.system(size: 12))
-                .multilineTextAlignment(.center)
-                .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255).opacity(0.6))
+                // ja: 書き終えたら、ふさわしい偉人が出典つきの返書を届けます
+                Text("Write it down, and a fitting great figure will send you a letter of reply with its source")
+                  .font(.system(size: 12))
+                  .multilineTextAlignment(.center)
+                  .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255).opacity(0.6))
 
-              HomeInputCard(
-                draft: $draft,
-                listening: $listening,
-                onMicButtonPressed: {
-                  toggleListening()
+                HomeInputCard(
+                  draft: $draft,
+                  listening: $listening,
+                  onMicButtonPressed: {
+                    toggleListening()
+                  }
+                )
+
+                // 文字数はバックエンド (text.length = UTF-16 コード単位) と同じ単位で判定する
+                if draft.utf16.count > IgenAPI.maxConcernChars {
+                  // ja: 2,000字以内でお願いします（いま %lld 字）
+                  Text("Please keep it within 2,000 characters (now \(draft.utf16.count))")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color(red: 240 / 255, green: 160 / 255, blue: 160 / 255))
                 }
-              )
 
-              askButton
+                HomeAskButton(draft: draft, sending: sending) {
+                  Analytics.logEvent("home_ask_button_pressed", parameters: ["text_length": draft.count])
+                  // 音声入力の開始処理が suspend 中でも送信後に録音が始まらないよう、開始 Task ごとキャンセルする
+                  listeningTask?.cancel()
+                  listeningTask = nil
+                  speechRecognizer.stop()
+                  listening = false
+                  sending = true
+                  Task {
+                    await send()
+                    sending = false
+                  }
+                }
 
-              Button {
-                Analytics.logEvent("home_paywall_link_pressed", parameters: nil)
-                paywallSheetIsPresented = true
-              } label: {
-                // ja: 聞き放題プランをみる
-                Text("See the unlimited plan")
-                  .font(.system(size: 11))
-                  .underline()
-                  .foregroundStyle(Color.igenText.opacity(0.6))
+                Button {
+                  Analytics.logEvent("home_paywall_link_pressed", parameters: nil)
+                  paywallSheetIsPresented = true
+                } label: {
+                  // ja: 聞き放題プランをみる
+                  Text("See the unlimited plan")
+                    .font(.system(size: 11))
+                    .underline()
+                    .foregroundStyle(Color.igenText.opacity(0.6))
+                }
               }
+              .padding(.vertical, 24)
+              .frame(maxWidth: .infinity, minHeight: geometry.size.height)
             }
-            .padding(.vertical, 40)
+            .scrollIndicators(.hidden)
           }
-          .scrollIndicators(.hidden)
         }
         .padding(.horizontal, 24)
 
@@ -127,65 +169,36 @@ struct HomePage: View {
       // ja: いま音声入力を開始できませんでした キーボードでの入力をお試しください
       .alert("Voice input could not be started. Please try typing instead.", isPresented: $speechUnavailableAlertIsPresented) {}
       .fullScreenCover(isPresented: $safetyNoticeIsPresented) {
-        SafetyPage(language: Locale.autoupdatingCurrent.language.languageCode?.identifier == "ja" ? "ja" : "en")
-      }
-    }
-  }
-
-  private var askButton: some View {
-    Button {
-      Analytics.logEvent("home_ask_button_pressed", parameters: ["text_length": draft.count])
-      speechRecognizer.stop()
-      listening = false
-      sending = true
-      Task {
-        await send()
-        sending = false
-      }
-    } label: {
-      // ja: 偉人に聞く
-      Text("Ask the Greats")
-        .font(.igenSerif(size: 17, weight: .bold))
-        .tracking(4)
-        .foregroundStyle(Color(red: 36 / 255, green: 22 / 255, blue: 80 / 255))
-        .frame(maxWidth: .infinity)
-        .frame(height: 52)
-        .background(
-          LinearGradient(
-            colors: [
-              Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255),
-              Color(red: 201 / 255, green: 162 / 255, blue: 77 / 255),
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-          )
-        )
-        .clipShape(Capsule())
-        // グロー明滅 (デザイン指定: box-shadow 18→34px, 4s ease-in-out infinite)
-        .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.4), radius: askButtonGlowPulsing ? 34 : 18)
-    }
-    .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || sending)
-    .opacity(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.45 : 1)
-    .onAppear {
-      // withAnimation でこの状態変化だけにアニメーションを閉じ、初回レイアウトを巻き込まない
-      withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
-        askButtonGlowPulsing = true
+        SafetyPage()
       }
     }
   }
 
   private func toggleListening() {
     if listening {
+      // 権限確認などで開始処理が suspend している間の停止にも効くよう、開始 Task ごとキャンセルする
+      listeningTask?.cancel()
+      listeningTask = nil
       speechRecognizer.stop()
       listening = false
       return
     }
     listening = true
-    Task {
+    // 部分認識結果は全文置き換えで届くため、開始時点の下書きを保持して認識結果を末尾に追記する
+    let baseDraft = draft
+    listeningTask = Task {
       do {
-        for try await transcript in try await speechRecognizer.start() {
-          draft = transcript
+        let transcripts = try await speechRecognizer.start()
+        if Task.isCancelled {
+          // 開始処理の途中で停止された場合、開始してしまった録音を巻き戻す
+          speechRecognizer.stop()
+        } else {
+          for try await transcript in transcripts {
+            draft = baseDraft.isEmpty ? transcript : baseDraft + transcript
+          }
         }
+      } catch is CancellationError {
+        // 停止操作によるキャンセルはエラーではない
       } catch SpeechRecognizer.SpeechError.notAuthorized {
         speechPermissionAlertIsPresented = true
       } catch {

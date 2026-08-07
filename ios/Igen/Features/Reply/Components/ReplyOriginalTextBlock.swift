@@ -19,7 +19,7 @@ struct ReplyOriginalTextBlock: View {
         .tracking(2)
         .foregroundStyle(Color.igenGold)
         Text(quote.original)
-          .font(.igenOriginalText(size: 15))
+          .font(.igenOriginalText(size: 15, originalLanguage: quote.originalLanguage))
           .multilineTextAlignment(.center)
           .lineSpacing(6)
           .foregroundStyle(Color.igenText)

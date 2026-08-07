@@ -35,9 +35,26 @@ export type ComposeLetterFn = (input: {
   quotes: Quote[];
 }) => Promise<LetterComposition>;
 
+/** 相談本文が危機的かどうかだけを判定する関数。無料枠切れでも安全案内を届けるための二次判定。実装は openai.ts、テストではモックする */
+export type ClassifyCrisisFn = (input: { concern: string }) => Promise<boolean>;
+
+// 医療を想起させる語 (documents/PROJECT.md リスク 2)。システムプロンプトで禁止していても
+// ユーザー本文の反復などで生成文へ混入しうるため、検証でも拒否して再試行に載せる
+const BANNED_MEDICAL_TERMS = [
+  "セラピー",
+  "カウンセリング",
+  "診断",
+  "処方",
+  "therapy",
+  "counseling",
+  "diagnosis",
+  "prescription",
+];
+
 /**
  * LLM 応答の意味的整合を検証し、問題の一覧を返す (空配列なら妥当)。
- * JSON の形状は structured outputs が保証するため、ここでは DB との整合だけを見る
+ * JSON の形状は structured outputs が保証するため、ここでは DB との整合と
+ * 生成文の内容 (空文字・禁止語) を見る
  */
 export function validateLetterComposition(
   composition: LetterComposition,
@@ -48,17 +65,34 @@ export function validateLetterComposition(
     problems.push(`quoteId not in DB: ${composition.quoteId}`);
     return problems;
   }
-  if (composition.oneliner.trim() === "") {
-    problems.push("oneliner is empty");
-  }
-  if (composition.meaning.trim() === "") {
-    problems.push("meaning is empty");
-  }
-  if (composition.closing.trim() === "") {
-    problems.push("closing is empty");
-  }
   if (quote.personId === null && composition.diagram === null) {
     problems.push("diagram is required for a quote without a person");
+  }
+  if (quote.personId !== null && composition.diagram !== null) {
+    problems.push("diagram must be null for a quote with a person");
+  }
+  const generatedFields: Array<[string, string]> = [
+    ["oneliner", composition.oneliner],
+    ["meaning", composition.meaning],
+    ["closing", composition.closing],
+  ];
+  if (composition.diagram !== null) {
+    generatedFields.push(
+      ["diagram.metaphor", composition.diagram.metaphor],
+      ["diagram.meaning", composition.diagram.meaning],
+      ["diagram.usage", composition.diagram.usage],
+    );
+  }
+  for (const [field, value] of generatedFields) {
+    if (value.trim() === "") {
+      problems.push(`${field} is empty`);
+    }
+    const bannedTerm = BANNED_MEDICAL_TERMS.find((term) =>
+      value.toLowerCase().includes(term.toLowerCase()),
+    );
+    if (bannedTerm !== undefined) {
+      problems.push(`${field} contains a banned medical term: ${bannedTerm}`);
+    }
   }
   return problems;
 }

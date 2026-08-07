@@ -30,12 +30,11 @@ struct ShareCardView: View {
         .lineSpacing(7)
         .foregroundStyle(Color.igenGoldBright)
 
-      if letter.quote.originalLanguage != letter.language {
-        Text(letter.quote.original)
-          .font(.igenOriginalText(size: 10))
-          .multilineTextAlignment(.center)
-          .foregroundStyle(Color.igenText.opacity(0.8))
-      }
+      // 原文は出典の信頼性の要件として、訳文との一致にかかわらず常に併記する (localization-guidelines.md)
+      Text(letter.quote.original)
+        .font(.igenOriginalText(size: 10, originalLanguage: letter.quote.originalLanguage))
+        .multilineTextAlignment(.center)
+        .foregroundStyle(Color.igenText.opacity(0.8))
 
       VStack(spacing: 6) {
         Rectangle()
@@ -56,12 +55,15 @@ struct ShareCardView: View {
     .padding(.vertical, 18)
     .padding(.horizontal, 16)
     .frame(width: 236)
-    .background(cardBackground)
+    .background(ShareCardBackground())
     .clipShape(RoundedRectangle(cornerRadius: 18))
     .overlay(
       RoundedRectangle(cornerRadius: 18)
         .stroke(Color.igenGold.opacity(0.5), lineWidth: 1)
     )
+    // カード内の UI 文言 (ロゴ・フッター) も返書の言語に固定し、端末ロケールと混在しないようにする。
+    // ImageRenderer での画像化もこの View を描くため同じロケールが適用される
+    .environment(\.locale, Locale(identifier: letter.language == "ja" ? "ja" : "en"))
   }
 
   /// 出典行 (文献名 — 箇所 ・ 成立年)
@@ -71,12 +73,16 @@ struct ShareCardView: View {
       line += " — \(detail.localized(letter.language))"
     }
     if let year = letter.quote.source.year {
-      line += " ・ \(year)"
+      line += " ・ \(year.localized(letter.language))"
     }
     return line
   }
 
-  private var cardBackground: some View {
+}
+
+/// 共有カードの背景 (グラデーション + 静的な星屑)
+struct ShareCardBackground: View {
+  var body: some View {
     ZStack {
       LinearGradient(
         stops: [
