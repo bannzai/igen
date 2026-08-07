@@ -80,6 +80,12 @@ function assertPersonSchema(person: Person): void {
   if (typeof person.publicDomain?.confirmed !== "boolean") {
     errors.push("publicDomain.confirmed");
   }
+  if (
+    person.publicDomain?.note !== undefined &&
+    typeof person.publicDomain.note !== "string"
+  ) {
+    errors.push("publicDomain.note");
+  }
   if (errors.length > 0) {
     throw new Error(
       `persons.json の ${person.id || "(id なし)"} がスキーマに適合しない: ${errors.join(", ")}`,
