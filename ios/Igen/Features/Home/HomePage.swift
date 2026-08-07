@@ -142,7 +142,7 @@ struct HomePage: View {
       // ja: いま音声入力を開始できませんでした キーボードでの入力をお試しください
       .alert("Voice input could not be started. Please try typing instead.", isPresented: $speechUnavailableAlertIsPresented) {}
       .fullScreenCover(isPresented: $safetyNoticeIsPresented) {
-        SafetyPage(language: Locale.autoupdatingCurrent.language.languageCode?.identifier == "ja" ? "ja" : "en")
+        SafetyPage()
       }
     }
   }

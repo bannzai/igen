@@ -4,7 +4,6 @@ import SwiftUI
 /// 深刻な相談 (危機ワード検知) のときに、返書の代わりに表示する相談窓口の案内画面。
 /// トーンは静かで誠実に。世界観は保ちつつ演出は抑える (design_handoff_igen/README.md「セーフティ」)
 struct SafetyPage: View {
-  var language: String
   @Environment(\.dismiss) var dismiss
 
   var body: some View {
@@ -37,7 +36,9 @@ struct SafetyPage: View {
             .lineSpacing(9)
             .foregroundStyle(Color.igenText.opacity(0.85))
 
-          ForEach(SafetyResource.resources(language: language)) { resource in
+          // 窓口は表示言語ではなく端末の地域で選ぶ (危機時に利用できない国の窓口へ誘導しないため)
+          ForEach(SafetyResource.resources(regionCode: Locale.autoupdatingCurrent.region?.identifier)) {
+            resource in
             SafetyResourceCard(resource: resource)
           }
 
@@ -48,6 +49,7 @@ struct SafetyPage: View {
             .padding(.vertical, 8)
 
           Button {
+            Analytics.logEvent("safety_back_button_pressed", parameters: nil)
             dismiss()
           } label: {
             // ja: ホームにもどる
@@ -81,12 +83,26 @@ struct SafetyResource: Identifiable {
   var note: String?
   var url: URL?
 
-  /// 言語ごとの窓口一覧。US 向け (988) は英語モード (#14) で検証する
-  static func resources(language: String) -> [SafetyResource] {
-    if language == "ja" {
+  /// 端末の地域ごとの窓口一覧。表示言語ではなく地域で選ぶ (利用できない国の窓口へ誘導しないため)。
+  /// 日本・米国以外の地域は、国別の窓口を探せる国際サービスに誘導する
+  static func resources(regionCode: String?) -> [SafetyResource] {
+    switch regionCode {
+    case "JP":
       return [
-        SafetyResource(id: "inochi", name: "いのちの電話", phoneNumber: "0570-783-556", note: nil, url: nil),
-        SafetyResource(id: "yorisoi", name: "よりそいホットライン", phoneNumber: "0120-279-338", note: "24時間・通話無料", url: nil),
+        SafetyResource(
+          id: "inochi",
+          name: "いのちの電話",
+          phoneNumber: "0570-783-556",
+          note: nil,
+          url: nil
+        ),
+        SafetyResource(
+          id: "yorisoi",
+          name: "よりそいホットライン",
+          phoneNumber: "0120-279-338",
+          note: "24時間・通話無料",
+          url: nil
+        ),
         SafetyResource(
           id: "mamorouyo",
           name: "まもろうよ こころ (厚生労働省)",
@@ -95,63 +111,32 @@ struct SafetyResource: Identifiable {
           url: URL(string: "https://www.mhlw.go.jp/mamorouyokokoro/")
         ),
       ]
+    case "US":
+      return [
+        SafetyResource(
+          id: "lifeline-988",
+          name: "988 Suicide & Crisis Lifeline",
+          phoneNumber: "988",
+          note: "24/7, free and confidential (US)",
+          url: nil
+        )
+      ]
+    default:
+      return [
+        SafetyResource(
+          id: "find-a-helpline",
+          name: "Find a Helpline",
+          phoneNumber: nil,
+          note: "Find support services in your country",
+          url: URL(string: "https://findahelpline.com/")
+        )
+      ]
     }
-    return [
-      SafetyResource(id: "lifeline-988", name: "988 Suicide & Crisis Lifeline", phoneNumber: "988", note: "24/7, free and confidential (US)", url: nil)
-    ]
-  }
-}
-
-/// 窓口カード。電話番号があればタップで発信、URL があればブラウザで開く
-struct SafetyResourceCard: View {
-  var resource: SafetyResource
-
-  var body: some View {
-    if let phoneNumber = resource.phoneNumber, let telURL = URL(string: "tel:\(phoneNumber.replacingOccurrences(of: "-", with: ""))") {
-      Link(destination: telURL) {
-        content
-      }
-    } else if let url = resource.url {
-      Link(destination: url) {
-        content
-      }
-    } else {
-      content
-    }
-  }
-
-  private var content: some View {
-    VStack(alignment: .leading, spacing: 4) {
-      Text(verbatim: resource.name)
-        .font(.system(size: 14, weight: .semibold))
-        .foregroundStyle(Color.igenText)
-      if let phoneNumber = resource.phoneNumber {
-        Text(verbatim: phoneNumber)
-          .font(.system(size: 17, weight: .semibold, design: .serif))
-          .foregroundStyle(Color.igenGoldBright)
-      }
-      if let note = resource.note {
-        Text(verbatim: note)
-          .font(.system(size: 11))
-          .foregroundStyle(Color.igenText.opacity(0.6))
-      }
-    }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.vertical, 12)
-    .padding(.horizontal, 16)
-    .background(
-      RoundedRectangle(cornerRadius: 12)
-        .fill(Color.igenCard.opacity(0.7))
-    )
-    .overlay(
-      RoundedRectangle(cornerRadius: 12)
-        .stroke(Color.igenText.opacity(0.2), lineWidth: 1)
-    )
   }
 }
 
 struct SafetyPage_Previews: PreviewProvider {
   static var previews: some View {
-    SafetyPage(language: "ja")
+    SafetyPage()
   }
 }
