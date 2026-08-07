@@ -38,19 +38,18 @@ struct ReplyPage: View {
             .lineSpacing(10)
             .foregroundStyle(Color(red: 245 / 255, green: 223 / 255, blue: 164 / 255))
 
-          if letter.quote.original != letter.quote.text.localized(letter.language) {
-            VStack(spacing: 6) {
-              // ja: 原文
-              Text("Original")
-                .font(.system(size: 10, weight: .semibold))
-                .tracking(3)
-                .foregroundStyle(Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255))
-              Text(letter.quote.original)
-                .font(.system(size: 15, design: .serif))
-                .italic()
-                .multilineTextAlignment(.center)
-                .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
-            }
+          // 原文は出典の信頼性の要件として、訳文との一致にかかわらず常に併記する (localization-guidelines.md)
+          VStack(spacing: 6) {
+            // ja: 原文
+            Text("Original")
+              .font(.system(size: 10, weight: .semibold))
+              .tracking(3)
+              .foregroundStyle(Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255))
+            Text(letter.quote.original)
+              .font(.system(size: 15, design: .serif))
+              .italic()
+              .multilineTextAlignment(.center)
+              .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
           }
 
           if let diagram = letter.diagram {

@@ -20,6 +20,8 @@ final class SpeechRecognizer {
   private let audioEngine = AVAudioEngine()
   private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
   private var recognitionTask: SFSpeechRecognitionTask?
+  /// installTap 済みかどうか。オーディオ割り込み等でエンジンだけが停止しても、タップを確実に除去するために追跡する
+  private var tapInstalled = false
 
   /// 許可を確認してから録音を開始し、認識テキスト (partial 含む) を流すストリームを返す
   func start() async throws -> AsyncThrowingStream<String, Error> {
@@ -54,6 +56,7 @@ final class SpeechRecognizer {
     inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { @Sendable buffer, _ in
       request.append(buffer)
     }
+    tapInstalled = true
     audioEngine.prepare()
     do {
       try audioEngine.start()
@@ -61,6 +64,7 @@ final class SpeechRecognizer {
       // 開始途中で失敗したら、設置済みタップ・リクエスト・セッションを片付けてから投げる
       // (タップが残ったまま次回の installTap を呼ぶと例外でクラッシュするため)
       inputNode.removeTap(onBus: 0)
+      tapInstalled = false
       recognitionRequest = nil
       deactivateAudioSession()
       throw error
@@ -91,7 +95,11 @@ final class SpeechRecognizer {
   func stop() {
     if audioEngine.isRunning {
       audioEngine.stop()
+    }
+    // オーディオ割り込み等でエンジンだけが停止した場合もタップは残るため、稼働状態と独立に除去する
+    if tapInstalled {
       audioEngine.inputNode.removeTap(onBus: 0)
+      tapInstalled = false
     }
     recognitionRequest?.endAudio()
     recognitionRequest = nil
