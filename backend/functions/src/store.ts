@@ -1,7 +1,7 @@
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { Firestore } from "firebase-admin/firestore";
 import type { LetterComposition, LetterLanguage } from "./letter";
-import { type Person, findPerson, findQuote } from "./quotesDb";
+import { findPerson, findQuote } from "./quotesDb";
 
 /**
  * 相談と返書を users/{uid}/letters へ保存し、保存したドキュメントの内容を返す。
@@ -50,55 +50,45 @@ export async function saveLetter(
     closing: input.composition.closing,
     diagram: input.composition.diagram,
   };
-  const ref = await firestore
+  // 返書と出会い (encounters) は同一トランザクションで確定させる。
+  // 別書き込みにすると encounter 側だけ失敗したとき返書だけが残り、
+  // 再試行での履歴重複や星図との不整合が生じるため
+  const letterRef = firestore
     .collection("users")
     .doc(uid)
     .collection("letters")
-    .add({
+    .doc();
+  await firestore.runTransaction(async (transaction) => {
+    if (letter.personId !== null && letter.person !== null) {
+      const encounterRef = firestore
+        .collection("users")
+        .doc(uid)
+        .collection("encounters")
+        .doc(letter.personId);
+      // 既に出会っている場合は createdAt (初回の出会い) を保持したまま更新する (冪等)
+      const snapshot = await transaction.get(encounterRef);
+      transaction.set(
+        encounterRef,
+        {
+          personId: letter.personId,
+          person: letter.person,
+          lastQuoteId: quote.id,
+          ...(snapshot.exists
+            ? {}
+            : { createdAt: FieldValue.serverTimestamp() }),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
+    transaction.set(letterRef, {
       ...letter,
       consultedAt: Timestamp.fromDate(input.consultedAt),
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
-  if (letter.personId !== null && letter.person !== null) {
-    await recordEncounter(
-      firestore,
-      uid,
-      letter.personId,
-      letter.person,
-      quote.id,
-    );
-  }
-  return { id: ref.id, letter };
-}
-
-/**
- * 偉人図鑑 (星図) の出会い状態を users/{uid}/encounters/{personId} に記録する。
- * 既に出会っている場合は createdAt (初回の出会い) を保持したまま更新する (冪等)
- */
-async function recordEncounter(
-  firestore: Firestore,
-  uid: string,
-  personId: string,
-  person: Person,
-  quoteId: string,
-): Promise<void> {
-  const encounterRef = firestore
-    .collection("users")
-    .doc(uid)
-    .collection("encounters")
-    .doc(personId);
-  const snapshot = await encounterRef.get();
-  await encounterRef.set(
-    {
-      personId,
-      person,
-      lastQuoteId: quoteId,
-      ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp() }),
-      updatedAt: FieldValue.serverTimestamp(),
-    },
-    { merge: true },
-  );
+  });
+  return { id: letterRef.id, letter };
 }
 
 /**
