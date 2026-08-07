@@ -108,8 +108,10 @@ enum IgenAPI {
     requestId: String,
     forcesTokenRefresh: Bool
   ) async throws -> (statusCode: Int, data: Data) {
-    // 起動時の匿名サインインが未完了・失敗していても、送信時に再確保して自己回復する
-    _ = try await FirebaseSetup.ensureAnonymousUser()
+    // 起動時の匿名サインインが未完了・失敗していても、送信時に再確保して自己回復する。
+    // その経路でも購入機能が使えるよう、RevenueCat の初期化も再試行する (どちらも冪等)
+    let uid = try await FirebaseSetup.ensureAnonymousUser()
+    PurchasesSetup.configure(appUserID: uid)
     guard let user = Auth.auth().currentUser else {
       throw APIError.unauthenticated
     }

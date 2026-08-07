@@ -181,6 +181,25 @@ export function createApp(deps: AppDeps): Express {
       return;
     }
     if (!quota.consumed) {
+      // 利用枠がなくても危機判定は完了させる (キーワード判定の取りこぼしを LLM で補完する二段構え)。
+      // 購入状態の照会に失敗した場合もこの判定を先に済ませ、危機相談に 503 を返さない。
+      // 判定自体の失敗はキーワード判定を通過済みのためエラー応答側に倒す
+      const respondedWithSafety = async (): Promise<boolean> => {
+        const crisis = await deps
+          .classifyCrisis({ concern: text })
+          .catch((error) => {
+            logger.error("crisis classification failed", {
+              uid,
+              error: `${error}`,
+            });
+            return false;
+          });
+        if (crisis) {
+          res.json({ type: "safety" });
+        }
+        return crisis;
+      };
+
       // 購入状態の照会・チケット消費の失敗は「購入なし」(= 429 → ペイウォール表示) に変換せず、
       // 再試行可能な障害として 503 を返す (支払い済みユーザーを枠超過扱いにして再購入を促さないため)
       let entitlement: { unlimited: boolean; ticketsPurchased: number };
@@ -188,6 +207,9 @@ export function createApp(deps: AppDeps): Express {
         entitlement = await deps.checkEntitlement(uid);
       } catch (error) {
         logger.error("entitlement check failed", { uid, error: `${error}` });
+        if (await respondedWithSafety()) {
+          return;
+        }
         sendError(
           res,
           503,
@@ -203,6 +225,9 @@ export function createApp(deps: AppDeps): Express {
           : await consumeTicket(db, uid, entitlement.ticketsPurchased);
       } catch (error) {
         logger.error("ticket transaction failed", { uid, error: `${error}` });
+        if (await respondedWithSafety()) {
+          return;
+        }
         sendError(
           res,
           503,
@@ -216,19 +241,7 @@ export function createApp(deps: AppDeps): Express {
       } else if (ticketConsumed) {
         accessGrant = "ticket";
       } else {
-        // 利用枠がなくても危機判定は完了させる (キーワード判定の取りこぼしを LLM で補完する二段構え)。
-        // 判定自体の失敗はキーワード判定を通過済みのため 429 に倒す
-        const crisis = await deps
-          .classifyCrisis({ concern: text })
-          .catch((error) => {
-            logger.error("crisis classification failed", {
-              uid,
-              error: `${error}`,
-            });
-            return false;
-          });
-        if (crisis) {
-          res.json({ type: "safety" });
+        if (await respondedWithSafety()) {
           return;
         }
         sendError(
