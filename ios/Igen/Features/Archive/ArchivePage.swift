@@ -66,6 +66,10 @@ struct ArchivePage: View {
     }
     .toolbar(.hidden, for: .navigationBar)
     .task {
+      // 詳細から戻ったときの再表示で先頭ページに巻き戻さないよう、初回未取得のときだけ取得する
+      if letters != nil {
+        return
+      }
       do {
         let page = try await LettersStore.fetchLetters(cursor: nil)
         letters = page.letters

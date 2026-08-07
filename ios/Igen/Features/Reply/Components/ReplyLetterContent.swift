@@ -17,6 +17,7 @@ struct ReplyLetterContent: View {
       // 長い返書でも末尾までスクロールせずに戻れるようにする
       HStack {
         Button {
+          Analytics.logEvent("reply_close_button_pressed", parameters: nil)
           dismiss()
         } label: {
           // ja: とじる
@@ -171,6 +172,7 @@ struct ReplyLetterContent: View {
           .igenReveal(8, enabled: revealsBlocks)
 
           Button {
+            Analytics.logEvent("reply_close_button_pressed", parameters: nil)
             dismiss()
           } label: {
             // ja: とじる
