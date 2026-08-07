@@ -76,15 +76,20 @@ struct Letter: Codable, Hashable, Identifiable {
   var meaning: String
   var closing: String
   var diagram: LetterDiagram?
+  /// 相談の受信時刻。履歴の日付表示の基準にする (createdAt は生成完了時のため深夜送信で翌日にずれる)
+  var consultedAt: Date?
   /// Firestore から読む場合のみ入る (レスポンスには含まれない)
   var createdAt: Date?
 
-  /// 相談日の表示。相談時のタイムゾーンで固定し、別のタイムゾーンで開いても日付が変わらないようにする
+  /// 相談日の表示。相談時のタイムゾーンで固定し (別のタイムゾーンで開いても日付が変わらない)、
+  /// 返書の言語のロケールでフォーマットする (端末が第三言語でも表示言語が混在しない)。
+  /// 日付の基準は相談受信時刻 consultedAt (生成完了時の createdAt では深夜送信で翌日にずれるため)
   func dateText() -> String {
     var style = Date.FormatStyle(date: .long, time: .omitted)
+      .locale(Locale(identifier: language == "ja" ? "ja_JP" : "en_US"))
     if let timeZone = timeZone.flatMap(TimeZone.init(identifier:)) {
       style.timeZone = timeZone
     }
-    return (createdAt ?? .now).formatted(style)
+    return (consultedAt ?? createdAt ?? .now).formatted(style)
   }
 }

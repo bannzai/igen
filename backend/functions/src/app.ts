@@ -11,7 +11,7 @@ import { validateLetterComposition } from "./letter";
 import { MAX_CONCERN_CHARS } from "./openai";
 import { consumeFreeQuota, releaseFreeQuota } from "./quota";
 import { quotes } from "./quotesDb";
-import { saveLetter } from "./store";
+import { findLetterByRequestId, saveLetter } from "./store";
 
 /** createApp へ注入する外部依存。テストではモックする。 */
 export interface AppDeps {
@@ -76,9 +76,18 @@ export function createApp(deps: AppDeps): Express {
       return;
     }
 
-    const { text, language, timeZone } = req.body ?? {};
+    const { text, language, timeZone, requestId } = req.body ?? {};
     if (typeof text !== "string" || text.trim() === "") {
       sendError(res, 400, "invalid_request", "body field 'text' is required");
+      return;
+    }
+    if (requestId !== undefined && typeof requestId !== "string") {
+      sendError(
+        res,
+        400,
+        "invalid_request",
+        "body field 'requestId' must be a string",
+      );
       return;
     }
     if (text.length > MAX_CONCERN_CHARS) {
@@ -110,6 +119,30 @@ export function createApp(deps: AppDeps): Express {
     }
     const letterLanguage: LetterLanguage = language ?? "ja";
 
+    // 同じ requestId の返書が保存済みなら再生成せずそれを返す (POST の冪等化)。
+    // 応答の受信前に通信が切れた場合でも、クライアントは同じ requestId の再送で保存済みの返書を回収できる
+    if (requestId !== undefined) {
+      const existing = await findLetterByRequestId(db, uid, requestId).catch(
+        (error) => {
+          // 照会の一時的な失敗では通常フローに進める (再生成されても requestId で重複は防がれる前提が崩れるだけ)
+          logger.error("letter replay lookup failed", {
+            uid,
+            error: `${error}`,
+          });
+          return null;
+        },
+      );
+      if (existing !== null) {
+        // letter 内にも id を含める (クライアントの Codable が Letter 単体でデコードできるように)
+        res.json({
+          type: "letter",
+          id: existing.id,
+          letter: { id: existing.id, ...existing.letter },
+        });
+        return;
+      }
+    }
+
     // 危機ワードを検知したら返書は生成しない (無料枠も消費しない)。
     // 相談本文はセンシティブなデータとして扱い、保存もしない
     if (detectCrisis(text)) {
@@ -117,10 +150,13 @@ export function createApp(deps: AppDeps): Express {
       return;
     }
 
+    // 相談の受信時刻。無料枠の日付判定と、返書に保存する consultedAt (履歴の日付表示の基準) に同じ時刻を使う
+    const receivedAt = new Date();
+
     // 無料枠の「1 日」の境界は quota.ts が保存済み timeZone で固定する (timeZone 切り替えによるリセット悪用の防止)
     let quota: { consumed: boolean; date: string };
     try {
-      quota = await consumeFreeQuota(db, uid, new Date(), timeZone ?? "UTC");
+      quota = await consumeFreeQuota(db, uid, receivedAt, timeZone ?? "UTC");
     } catch (error) {
       logger.error("free quota transaction failed", { uid, error: `${error}` });
       sendError(
@@ -187,6 +223,8 @@ export function createApp(deps: AppDeps): Express {
         concern: text,
         language: letterLanguage,
         timeZone: timeZone ?? null,
+        requestId: requestId ?? null,
+        consultedAt: receivedAt,
         composition,
       });
       // letter 内にも id を含める (クライアントの Codable が Letter 単体でデコードできるように)

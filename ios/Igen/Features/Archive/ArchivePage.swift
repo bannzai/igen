@@ -108,7 +108,9 @@ private struct ArchivePageBody: View {
 
   var body: some View {
     ScrollView {
-      VStack(spacing: 12) {
+      // LazyVStack で末尾のスピナーが「実際に表示された」ときだけ構築されるようにし、
+      // スクロールしていないのに全ページを連続取得しないようにする
+      LazyVStack(spacing: 12) {
         if letters.isEmpty {
           // ja: まだ返書がありません 今夜、最初のお便りをどうぞ
           Text("No letters yet. Write your first tonight.")
@@ -128,8 +130,8 @@ private struct ArchivePageBody: View {
             ProgressView()
               .tint(Color.igenGold)
               .padding(.vertical, 16)
-              // ページが積まれるたび (letters.count の変化) に task を再起動し、
-              // スピナーが表示されている限り次ページを取り続ける
+              // 表示中にページが積まれた場合も letters.count の変化で task を再起動し、
+              // スピナーが見えている限り次ページを取り続ける
               .task(id: letters.count) {
                 await onReachEnd()
               }

@@ -74,6 +74,8 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 | concern | string | 相談本文（センシティブデータ。Analytics・ログに載せない） |
 | language | "ja" \| "en" | 返書の言語 |
 | timeZone | string \| null | 相談時の端末タイムゾーン。履歴の日付表示を相談時のまま固定するために使う |
+| requestId | string \| null | クライアント生成のリクエスト ID。POST /letters の冪等化（応答喪失時の再送で重複生成しない）に使う |
+| consultedAt | Timestamp | 相談の受信時刻。履歴の日付表示の基準（createdAt は生成完了時のため深夜送信で翌日にずれる） |
 | quoteId | string | 名言 DB の参照 |
 | quote | { kind, text: {ja,en}, original, originalLanguage, source } | 名言 DB の値のスナップショット。クライアントは quotes コレクションを読めないため埋め込む。**本文の出どころは常に名言 DB**（ADR 0002） |
 | personId | string \| null | 話者。ことわざ等は null |
