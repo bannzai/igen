@@ -60,7 +60,7 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 
 | フィールド | 型 | 説明 |
 |---|---|---|
-| freeQuota | { date: string, count: number } | 無料枠（1 日 1 通）の消費状況。date は端末タイムゾーンでの YYYY-MM-DD。日付が変わると新しい date で上書きされる（日次リセット） |
+| freeQuota | { date: string, count: number, timeZone: string } | 無料枠（1 日 1 通）の消費状況。timeZone は初回リクエスト時の端末タイムゾーンで固定し（リクエストごとの変更で日付を往復させるリセット悪用の防止）、date はその timeZone での YYYY-MM-DD。日付が変わると新しい date で上書きされる（日次リセット） |
 | createdAt / updatedAt | Timestamp | サーバータイムスタンプ |
 
 - 無料枠の消費・返却はトランザクションで行う（`backend/functions/src/quota.ts`）。LLM 失敗・危機判定で返書を返さなかった場合は返却する
