@@ -35,13 +35,18 @@ struct StarfieldBackground: View {
     }
   }()
 
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
+
   var body: some View {
-    TimelineView(.animation) { timeline in
+    // 「視差効果を減らす」設定では描画更新を止め、固定時刻の静止背景にする (流れ星も描かない)
+    TimelineView(.animation(minimumInterval: nil, paused: reduceMotion)) { timeline in
       Canvas { context, size in
-        let time = timeline.date.timeIntervalSinceReferenceDate
+        let time = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
         drawMist(context: context, size: size, time: time)
         drawStars(context: context, size: size, time: time)
-        drawShootingStar(context: context, size: size, time: time)
+        if reduceMotion == false {
+          drawShootingStar(context: context, size: size, time: time)
+        }
       }
     }
     .background(

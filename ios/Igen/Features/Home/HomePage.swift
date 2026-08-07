@@ -120,6 +120,8 @@ struct HomePage: View {
       return
     }
     listening = true
+    // 部分認識結果は全文置き換えで届くため、開始時点の下書きを保持して認識結果を末尾に追記する
+    let baseDraft = draft
     listeningTask = Task {
       do {
         let transcripts = try await speechRecognizer.start()
@@ -128,7 +130,7 @@ struct HomePage: View {
           speechRecognizer.stop()
         } else {
           for try await transcript in transcripts {
-            draft = transcript
+            draft = baseDraft.isEmpty ? transcript : baseDraft + transcript
           }
         }
       } catch is CancellationError {

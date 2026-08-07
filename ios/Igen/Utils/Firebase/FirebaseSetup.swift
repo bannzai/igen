@@ -37,13 +37,24 @@ enum FirebaseSetup {
     }
   }
 
+  /// 進行中の匿名サインイン。起動時 (.task) と送信時の同時呼び出しが別々の UID を作らないよう直列化する
+  @MainActor private static var signInTask: Task<String, Error>?
+
   /// 匿名 UID を確保する。既にサインイン済みならその UID を返す (冪等)
+  @MainActor
   static func ensureAnonymousUser() async throws -> String {
+    if let signInTask {
+      return try await signInTask.value
+    }
     if let user = Auth.auth().currentUser {
       return user.uid
     }
-    let result = try await Auth.auth().signInAnonymously()
-    return result.user.uid
+    let task = Task {
+      try await Auth.auth().signInAnonymously().user.uid
+    }
+    signInTask = task
+    defer { signInTask = nil }
+    return try await task.value
   }
 
   /// サインアウトして新しい匿名ユーザーでサインインし直す。
