@@ -72,7 +72,7 @@ struct ShareCardView: View {
       line += " — \(detail.localized(letter.language))"
     }
     if let year = letter.quote.source.year {
-      line += " ・ \(year)"
+      line += " ・ \(year.localized(letter.language))"
     }
     return line
   }
