@@ -3,6 +3,7 @@ import SwiftUI
 /// 返書生成を待つ間のオーバーレイ。星が集まる本演出は返書画面 issue (#8) で作り込む
 struct HomeWaitingOverlay: View {
   @State var pulsing = false
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
 
   var body: some View {
     ZStack {
@@ -15,7 +16,10 @@ struct HomeWaitingOverlay: View {
         .opacity(pulsing ? 0.4 : 1)
         .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: pulsing)
         .onAppear {
-          pulsing = true
+          // 「視差効果を減らす」設定では明滅させない (返書生成中は数分続きうるため)
+          if !reduceMotion {
+            pulsing = true
+          }
         }
     }
   }

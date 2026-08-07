@@ -119,6 +119,14 @@ export function createApp(deps: AppDeps): Express {
     }
     const letterLanguage: LetterLanguage = language ?? "ja";
 
+    // 危機ワードを検知したら返書は生成しない (無料枠も消費しない)。
+    // 再送照会よりも先に判定し、本文だけ差し替えた再送でも安全案内を優先する。
+    // 相談本文はセンシティブなデータとして扱い、保存もしない
+    if (detectCrisis(text)) {
+      res.json({ type: "safety" });
+      return;
+    }
+
     // 同じ requestId の返書が保存済みなら再生成せずそれを返す (POST の冪等化)。
     // 応答の受信前に通信が切れた場合でも、クライアントは同じ requestId の再送で保存済みの返書を回収できる
     if (requestId !== undefined) {
@@ -141,13 +149,6 @@ export function createApp(deps: AppDeps): Express {
         });
         return;
       }
-    }
-
-    // 危機ワードを検知したら返書は生成しない (無料枠も消費しない)。
-    // 相談本文はセンシティブなデータとして扱い、保存もしない
-    if (detectCrisis(text)) {
-      res.json({ type: "safety" });
-      return;
     }
 
     // 無料枠の「1 日」の境界は quota.ts が保存済み timeZone で固定する (timeZone 切り替えによるリセット悪用の防止)

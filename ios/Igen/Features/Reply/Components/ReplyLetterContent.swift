@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import SwiftUI
 
 /// 返書の本文表示。固定ヘッダー (とじる / タイトル) + スクロール本文。
@@ -13,6 +14,7 @@ struct ReplyLetterContent: View {
       // 長い返書でも末尾までスクロールせずに戻れるようにする
       HStack {
         Button {
+          Analytics.logEvent("reply_close_button_pressed", parameters: nil)
           dismiss()
         } label: {
           // ja: とじる
@@ -135,6 +137,7 @@ struct ReplyLetterContent: View {
             .igenReveal(7)
 
           Button {
+            Analytics.logEvent("reply_close_button_pressed", parameters: nil)
             dismiss()
           } label: {
             // ja: とじる

@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import SwiftUI
 
 /// ホーム画面の入力カード。テキスト入力・音声入力ボタン・文字数カウンタを持つ
@@ -10,6 +11,8 @@ struct HomeInputCard: View {
     VStack(spacing: 8) {
       ZStack(alignment: .topLeading) {
         TextEditor(text: $draft)
+          // 音声認識中の手入力は次の部分認識結果で失われるため、認識中は無効化する
+          .disabled(listening)
           .scrollContentBackground(.hidden)
           .font(.system(size: 15))
           .lineSpacing(8)
@@ -28,6 +31,7 @@ struct HomeInputCard: View {
 
       HStack {
         Button {
+          Analytics.logEvent("home_mic_button_pressed", parameters: nil)
           onMicButtonPressed()
         } label: {
           Image(systemName: listening ? "mic.fill" : "mic")

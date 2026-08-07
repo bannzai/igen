@@ -1,376 +1,386 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "Please keep it within 2,000 characters (now %lld)" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "2,000字以内でお願いします（いま %lld 字）"
+  "sourceLanguage": "en",
+  "strings": {
+    "Please keep it within 2,000 characters (now %lld)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2,000字以内でお願いします（いま %lld 字）"
           }
         }
       }
     },
-    "IGEN" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "偉言"
+    "IGEN": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偉言"
           }
         }
       }
     },
-    "Tell me about your day, or what's on your mind" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "きょうのできごと・お悩みを どうぞ"
+    "Tell me about your day, or what's on your mind": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "きょうのできごと・お悩みを どうぞ"
           }
         }
       }
     },
-    "Write it down, and a fitting great figure will send you a letter of reply with its source" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "書き終えたら、ふさわしい偉人が出典つきの返書を届けます"
+    "Write it down, and a fitting great figure will send you a letter of reply with its source": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書き終えたら、ふさわしい偉人が出典つきの返書を届けます"
           }
         }
       }
     },
-    "e.g. Lately, I can't stop thinking before I fall asleep…" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "例: 最近、眠る前に考えごとが止まらない…"
+    "e.g. Lately, I can't stop thinking before I fall asleep…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "例: 最近、眠る前に考えごとが止まらない…"
           }
         }
       }
     },
-    "Ask the Greats" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "偉人に聞く"
+    "Ask the Greats": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偉人に聞く"
           }
         }
       }
     },
-    "The stars are searching for words…" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "星々が、ことばを探しています…"
+    "The stars are searching for words…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "星々が、ことばを探しています…"
           }
         }
       }
     },
-    "Listening…" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "聞いています…"
+    "Listening…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聞いています…"
           }
         }
       }
     },
-    "%@ appeared in your sky" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@が、あなたの空に現れました"
+    "%@ appeared in your sky": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@が、あなたの空に現れました"
           }
         }
       }
     },
-    "Skip" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "スキップ"
+    "Skip": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スキップ"
           }
         }
       }
     },
-    "Diagram — How the words work" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "図解 — ことばのしくみ"
+    "Diagram — How the words work": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "図解 — ことばのしくみ"
           }
         }
       }
     },
-    "Metaphor" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "たとえ"
+    "Metaphor": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "たとえ"
           }
         }
       }
     },
-    "Meaning" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "意味"
+    "Meaning": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "意味"
           }
         }
       }
     },
-    "When to use" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使いどころ"
+    "When to use": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使いどころ"
           }
         }
       }
     },
-    "Latin" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ラテン語"
+    "Latin": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ラテン語"
           }
         }
       }
     },
-    "Classical Chinese" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "漢文"
+    "Classical Chinese": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "漢文"
           }
         }
       }
     },
-    "German" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ドイツ語"
+    "German": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドイツ語"
           }
         }
       }
     },
-    "Ancient Greek" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "古典ギリシア語"
+    "Ancient Greek": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "古典ギリシア語"
           }
         }
       }
     },
-    "Japanese" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日本語"
+    "Japanese": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日本語"
           }
         }
       }
     },
-    "English" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "英語"
+    "English": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "英語"
           }
         }
       }
     },
-    "Translation" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日本語訳"
+    "Translation": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日本語訳"
           }
         }
       }
     },
-    "Meaning & Context" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "意味と文脈"
+    "Meaning & Context": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "意味と文脈"
           }
         }
       }
     },
-    "— from %@" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "— %@ より"
+    "— from %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— %@ より"
           }
         }
       }
     },
-    "— from IGEN" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "— 偉言 より"
+    "— from IGEN": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 偉言 より"
           }
         }
       }
     },
-    "Work" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "出典"
+    "Work": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出典"
           }
         }
       }
     },
-    "Original title" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "原題"
+    "Original title": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原題"
           }
         }
       }
     },
-    "Language" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "原文の言語"
+    "Language": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原文の言語"
           }
         }
       }
     },
-    "Written" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成立"
+    "Written": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成立"
           }
         }
       }
     },
-    "Close" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "とじる"
+    "Close": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "とじる"
           }
         }
       }
     },
-    "A Letter for You" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "あなたへの返書"
+    "A Letter for You": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたへの返書"
           }
         }
       }
     },
-    "Original" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "原文"
+    "Original": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原文"
           }
         }
       }
     },
-    "Source" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "出典"
+    "Source": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出典"
           }
         }
       }
     },
-    "The letter could not be delivered. Please try again later." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "返書をお届けできませんでした。しばらくしてからもう一度お試しください。"
+    "The letter could not be delivered. Please try again later.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返書をお届けできませんでした。しばらくしてからもう一度お試しください。"
           }
         }
       }
     },
-    "Today's free letter has already been delivered." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "きょうの無料の返書はお届け済みです。"
+    "Today's free letter has already been delivered.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "きょうの無料の返書はお届け済みです。"
           }
         }
       }
     },
-    "Microphone or speech recognition is not allowed. Please allow them in the Settings app." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "マイクまたは音声認識が許可されていません。設定アプリから許可してください。"
+    "Microphone or speech recognition is not allowed. Please allow them in the Settings app.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マイクまたは音声認識が許可されていません。設定アプリから許可してください。"
           }
         }
       }
     },
-    "Voice input could not be started. Please try typing instead." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "いま音声入力を開始できませんでした。キーボードでの入力をお試しください。"
+    "Voice input could not be started. Please try typing instead.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いま音声入力を開始できませんでした。キーボードでの入力をお試しください。"
           }
         }
       }
     },
-    "Thank you for telling me something so important." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "たいせつなお話を、ありがとうございます。"
+    "Thank you for telling me something so important.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "たいせつなお話を、ありがとうございます。"
+          }
+        }
+      }
+    },
+    "Words have reached your sky": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ことばが、あなたの空に届きました"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
