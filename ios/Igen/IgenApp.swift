@@ -19,6 +19,8 @@ struct IgenApp: App {
             Logger(subsystem: "com.bannzai.Igen", category: "auth").error("anonymous sign-in failed: \(error)")
           }
         }
+        // デザインはダークテーマ固定 (design_handoff_igen/README.md)。端末のライトモードでもステータスバーを暗色前提の表示に保つ
+        .preferredColorScheme(.dark)
     }
   }
 }
