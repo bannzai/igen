@@ -39,7 +39,7 @@ struct ReplyPage: View {
           .foregroundStyle(Color.igenGoldBright)
           .igenReveal(0)
 
-        Text((letter.createdAt ?? .now).formatted(date: .long, time: .omitted))
+        Text(letter.dateText())
           .font(.system(size: 11))
           .foregroundStyle(Color.igenText.opacity(0.5))
           .igenReveal(0)

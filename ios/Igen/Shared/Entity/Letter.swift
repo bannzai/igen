@@ -51,6 +51,8 @@ struct Letter: Codable, Hashable, Identifiable {
   var id: String
   var concern: String
   var language: String
+  /// 相談時の端末タイムゾーン。履歴の日付表示を相談時のまま固定するために使う
+  var timeZone: String?
   var quoteId: String
   var quote: LetterQuote
   var personId: String?
@@ -61,4 +63,13 @@ struct Letter: Codable, Hashable, Identifiable {
   var diagram: LetterDiagram?
   /// Firestore から読む場合のみ入る (レスポンスには含まれない)
   var createdAt: Date?
+
+  /// 相談日の表示。相談時のタイムゾーンで固定し、別のタイムゾーンで開いても日付が変わらないようにする
+  func dateText() -> String {
+    var style = Date.FormatStyle(date: .long, time: .omitted)
+    if let timeZone = timeZone.flatMap(TimeZone.init(identifier:)) {
+      style.timeZone = timeZone
+    }
+    return (createdAt ?? .now).formatted(style)
+  }
 }

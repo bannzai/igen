@@ -33,6 +33,7 @@ struct HomePage: View {
             Spacer()
 
             Button {
+              Analytics.logEvent("home_archive_button_pressed", parameters: nil)
               archiveIsPresented = true
             } label: {
               // ja: 記録

@@ -186,6 +186,7 @@ export function createApp(deps: AppDeps): Express {
       const saved = await saveLetter(db, uid, {
         concern: text,
         language: letterLanguage,
+        timeZone: timeZone ?? null,
         composition,
       });
       // letter 内にも id を含める (クライアントの Codable が Letter 単体でデコードできるように)
