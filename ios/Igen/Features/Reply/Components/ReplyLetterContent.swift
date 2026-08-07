@@ -38,8 +38,24 @@ struct ReplyLetterContent: View {
           .tracking(4)
           .foregroundStyle(Color.igenGoldBright)
         Spacer()
-        // 左のとじるピルと釣り合いを取り、タイトルを中央に保つための余白
-        Color.clear.frame(width: 58, height: 1)
+        // デザイン指定のヘッダー構成「とじる / タイトル / 共有」(design_handoff_igen/README.md)。
+        // 長い返書でも末尾までスクロールせずに共有できるようにする
+        Button {
+          Analytics.logEvent("reply_share_button_pressed", parameters: ["quote_id": letter.quoteId])
+          shareSheetIsPresented = true
+        } label: {
+          // ja: 共有
+          Text("Share")
+            .font(.system(size: 12))
+            .foregroundStyle(Color.igenTextGold)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+            .background(Capsule().fill(Color.igenCard.opacity(0.55)))
+            .overlay(Capsule().stroke(Color.igenGold.opacity(0.32), lineWidth: 1))
+            // 見た目のカプセルは保ちつつ、最小タップターゲット 44pt を確保する
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
       }
       .padding(.vertical, 12)
       .padding(.horizontal, 18)

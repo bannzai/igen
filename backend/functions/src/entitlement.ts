@@ -36,6 +36,9 @@ export function createRevenueCatEntitlementChecker(options: {
           Authorization: `Bearer ${options.apiKey}`,
           "Content-Type": "application/json",
         },
+        // RevenueCat の応答停止で Functions の実行期限 (300 秒) を使い切らないよう短い期限で失敗させ、
+        // 呼び出し元の「購入なし」フォールバック (app.ts の catch) へ流す
+        signal: AbortSignal.timeout(10_000),
       },
     );
     if (!response.ok) {
@@ -45,17 +48,28 @@ export function createRevenueCatEntitlementChecker(options: {
     }
     const body = (await response.json()) as {
       subscriber?: {
-        entitlements?: Record<string, { expires_date: string | null }>;
+        entitlements?: Record<
+          string,
+          {
+            expires_date: string | null;
+            grace_period_expires_date?: string | null;
+          }
+        >;
         non_subscriptions?: Record<string, unknown[]>;
       };
     };
     const entitlement =
       body.subscriber?.entitlements?.[UNLIMITED_ENTITLEMENT_ID];
-    // expires_date が null (買い切り等) または未来ならアクティブ
+    // expires_date が null (買い切り等) または未来ならアクティブ。
+    // App Store の Billing Grace Period 中は expires_date が過去でも
+    // grace_period_expires_date まで有効として扱う (支払い再試行中の購読者を拒否しない)
+    const now = new Date();
     const unlimited =
       entitlement !== undefined &&
       (entitlement.expires_date === null ||
-        new Date(entitlement.expires_date) > new Date());
+        new Date(entitlement.expires_date) > now ||
+        (entitlement.grace_period_expires_date != null &&
+          new Date(entitlement.grace_period_expires_date) > now));
     return {
       unlimited,
       ticketsPurchased:

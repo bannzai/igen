@@ -171,6 +171,7 @@ struct PaywallPage: View {
     Task {
       do {
         _ = try await Purchases.shared.restorePurchases()
+        Analytics.logEvent("paywall_restore_completed", parameters: nil)
         restoreDoneAlertIsPresented = true
       } catch {
         purchaseErrorAlertIsPresented = true

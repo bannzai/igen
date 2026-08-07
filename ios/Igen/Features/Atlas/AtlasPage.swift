@@ -7,6 +7,8 @@ struct AtlasPage: View {
   @State var encounters: [Encounter]?
   @State var loadFailed = false
   @State var newlyMetPersonIds: Set<String> = []
+  /// 表示済み記録の保存先キー (匿名 UID を含む)。取得完了時に確定する
+  @State var seenKey: String?
 
   var body: some View {
     ZStack {
@@ -35,7 +37,9 @@ struct AtlasPage: View {
             .padding(.vertical, 32)
           Spacer()
         } else if let encounters {
-          AtlasPageBody(encounters: encounters, newlyMetPersonIds: newlyMetPersonIds)
+          AtlasPageBody(encounters: encounters, newlyMetPersonIds: newlyMetPersonIds) { personId in
+            markPersonSeen(personId: personId)
+          }
         } else {
           Spacer()
           ProgressView()
@@ -50,20 +54,28 @@ struct AtlasPage: View {
         // 「新しい星座が夜空に灯る」演出の表示済み記録は匿名 UID ごとに分ける
         // (401 回復でユーザーを作り直した場合に、前のユーザーの表示済み状態を引き継がないため)。
         // fetchEncounters が認証を確保済みのため currentUser は取得できる
-        let seenKey = "atlasSeenPersonIds.\(Auth.auth().currentUser?.uid ?? "unknown")"
+        let key = "atlasSeenPersonIds.\(Auth.auth().currentUser?.uid ?? "unknown")"
+        seenKey = key
         let seen = Set(
-          (UserDefaults.standard.string(forKey: seenKey) ?? "").split(separator: ",")
+          (UserDefaults.standard.string(forKey: key) ?? "").split(separator: ",")
             .map(String.init)
         )
         newlyMetPersonIds = Set(fetched.map(\.personId)).subtracting(seen)
         encounters = fetched
-        UserDefaults.standard.set(
-          fetched.map(\.personId).sorted().joined(separator: ","),
-          forKey: seenKey
-        )
       } catch {
         loadFailed = true
       }
+    }
+  }
+
+  /// 点灯演出を最後まで見た (または演出なしで表示された) 人物だけを表示済みとして永続化する。
+  /// 途中でアプリを閉じても、未再生の演出は次回また流れる
+  private func markPersonSeen(personId: String) {
+    if let seenKey {
+      let seen = Set(
+        (UserDefaults.standard.string(forKey: seenKey) ?? "").split(separator: ",").map(String.init)
+      ).union([personId])
+      UserDefaults.standard.set(seen.sorted().joined(separator: ","), forKey: seenKey)
     }
   }
 }
@@ -72,6 +84,8 @@ struct AtlasPage: View {
 private struct AtlasPageBody: View {
   var encounters: [Encounter]
   var newlyMetPersonIds: Set<String>
+  // 表示済みの永続化は UserDefaults のキーを持つ AtlasPage の責務のため、演出完了の通知だけを返す
+  var onRevealFinished: (String) -> Void
 
   @State var selectedEncounter: Encounter?
 
@@ -95,7 +109,10 @@ private struct AtlasPageBody: View {
           AtlasMetConstellation(
             encounter: encounter,
             scale: slot.scale,
-            reveals: newlyMetPersonIds.contains(slot.personId)
+            reveals: newlyMetPersonIds.contains(slot.personId),
+            onRevealFinished: {
+              onRevealFinished(slot.personId)
+            }
           ) {
             Analytics.logEvent("atlas_person_button_pressed", parameters: nil)
             selectedEncounter = encounter
@@ -109,16 +126,22 @@ private struct AtlasPageBody: View {
     }
     .padding(.horizontal, 12)
 
+    // 表示できる枠 (slots) に存在する人物だけを数える (旧バージョンに新人物が届いても件数が枠を超えない)
+    let visibleMetCount = encounters.filter { encounter in
+      Self.slots.contains { $0.personId == encounter.personId }
+    }.count
     // ja: 出会った偉人 %lld / %lld
-    Text("Great figures you have met: \(encounters.count) / \(Self.slots.count)")
+    Text("Great figures you have met: \(visibleMetCount) / \(Self.slots.count)")
       .font(.system(size: 12))
       .foregroundStyle(Color.igenTextGold)
       .padding(.bottom, 16)
 
     Color.clear.frame(height: 0)
       .sheet(item: $selectedEncounter) { encounter in
-        // その偉人の返書はシート側で personId 指定で取得する (星図を開くだけで全返書を読まない)
+        // その偉人の返書はシート側で personId 指定で取得する (星図を開くだけで全返書を読まない)。
+        // デザイン指定の下部プロフィールシートとして表示し、星図とのつながりを保つ
         AtlasProfileSheet(encounter: encounter)
+          .presentationDetents([.medium, .large])
       }
   }
 }
@@ -128,6 +151,8 @@ struct AtlasMetConstellation: View {
   var encounter: Encounter
   var scale: Double
   var reveals: Bool
+  /// 点灯演出が最後まで表示された (演出なし表示を含む) ときに一度だけ呼ばれる
+  var onRevealFinished: () -> Void
   var onPressed: () -> Void
 
   @State var start = Date.now
@@ -152,13 +177,20 @@ struct AtlasMetConstellation: View {
             .frame(width: 74 * scale, height: 74 * scale)
           }
           .task {
-            // 線の描き上がり (0.6s 遅延 + 1.6s) が終わったら静的表示へ切り替える
+            // 線の描き上がり (0.6s 遅延 + 1.6s) が終わったら静的表示へ切り替え、表示済みとして記録する
             try? await Task.sleep(for: .seconds(2.4))
             revealFinished = true
+            onRevealFinished()
           }
         } else {
           ConstellationAvatar(constellation: ConstellationData.constellation(for: encounter.personId))
             .frame(width: 74 * scale, height: 74 * scale)
+            .onAppear {
+              // Reduce Motion で演出を流さない場合も、表示された時点で表示済みとして記録する
+              if reveals && reduceMotion {
+                onRevealFinished()
+              }
+            }
         }
         Text(encounter.person.name.localized(Locale.autoupdatingCurrent.language.languageCode?.identifier == "ja" ? "ja" : "en"))
           .font(.system(size: 10))
