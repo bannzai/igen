@@ -1,9 +1,9 @@
 import FirebaseAnalytics
 import SwiftUI
 
-/// 星図で偉人をタップしたときのプロフィールシート。
-/// その偉人からもらった返書を personId 指定で取得し、取得できたら本文表示 (AtlasProfileSheetBody) へ渡す
-struct AtlasProfileSheet: View {
+/// 星図で偉人をタップしたときのプロフィール画面 (シート表示)。
+/// その偉人からもらった返書を personId 指定で取得し、取得できたら本文表示 (AtlasProfilePageBody) へ渡す
+struct AtlasProfilePage: View {
   var encounter: Encounter
   /// この偉人からもらった返書 (新しい順)。表示時に personId 指定で取得する (nil は取得中)
   @State var letters: [Letter]?
@@ -15,7 +15,7 @@ struct AtlasProfileSheet: View {
           .ignoresSafeArea()
 
         if let letters {
-          AtlasProfileSheetBody(encounter: encounter, letters: letters)
+          AtlasProfilePageBody(encounter: encounter, letters: letters)
         } else {
           ProgressView()
             .tint(Color.igenGold)
@@ -30,7 +30,7 @@ struct AtlasProfileSheet: View {
 }
 
 /// プロフィールの本文表示 (人物・生没年・略歴・もらった言葉・返書への導線)
-private struct AtlasProfileSheetBody: View {
+private struct AtlasProfilePageBody: View {
   var encounter: Encounter
   /// この偉人からもらった返書 (新しい順)
   var letters: [Letter]
@@ -133,9 +133,9 @@ private struct AtlasProfileSheetBody: View {
   }
 }
 
-struct AtlasProfileSheet_Previews: PreviewProvider {
+struct AtlasProfilePage_Previews: PreviewProvider {
   static var previews: some View {
-    AtlasProfileSheet(
+    AtlasProfilePage(
       encounter: Encounter(
         personId: "seneca",
         person: ReplyPage_Previews.senecaLetter.person!,
