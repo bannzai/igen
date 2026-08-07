@@ -23,6 +23,9 @@ struct ReplyLetterContent: View {
             .padding(.horizontal, 12)
             .background(Capsule().fill(Color.igenCard.opacity(0.55)))
             .overlay(Capsule().stroke(Color.igenText.opacity(0.22), lineWidth: 1))
+            // 見た目のカプセルは保ちつつ、最小タップターゲット 44pt を確保する (design_handoff_igen/README.md)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
         }
         Spacer()
         // ja: あなたへの返書
