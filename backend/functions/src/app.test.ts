@@ -7,6 +7,9 @@ const deps: AppDeps = {
   composeLetter: async () => {
     throw new Error("composeLetter must not be called");
   },
+  classifyCrisis: async () => {
+    throw new Error("classifyCrisis must not be called");
+  },
   verifyIdToken: async () => {
     throw new Error("verifyIdToken must not be called");
   },

@@ -18,26 +18,32 @@ export function localDate(date: Date, timeZone: string): string {
 }
 
 /**
- * 無料枠を 1 通ぶん消費する。超過していれば消費せず false を返す。
+ * 無料枠を 1 通ぶん消費する。超過していれば消費せず consumed: false を返す。
+ * 「1 日」の境界には初回リクエスト時の timeZone を保存して使い続け、リクエストごとの
+ * timeZone 変更で日付を往復させて無料枠をリセットする悪用を防ぐ (転居等で境界がずれる
+ * 影響より、無制限の LLM 呼び出しを許す影響の方が大きいと判断)。
  * 同時リクエストで二重消費しないようトランザクションで行う
  */
 export async function consumeFreeQuota(
   firestore: Firestore,
   uid: string,
-  date: string,
-): Promise<boolean> {
+  now: Date,
+  requestedTimeZone: string,
+): Promise<{ consumed: boolean; date: string }> {
   const userRef = firestore.collection("users").doc(uid);
   return firestore.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     const freeQuota = snapshot.data()?.freeQuota;
+    const timeZone = freeQuota?.timeZone ?? requestedTimeZone;
+    const date = localDate(now, timeZone);
     if (freeQuota?.date === date && freeQuota.count >= FREE_LETTERS_PER_DAY) {
-      return false;
+      return { consumed: false, date };
     }
     const count = freeQuota?.date === date ? freeQuota.count + 1 : 1;
     transaction.set(
       userRef,
       {
-        freeQuota: { date, count },
+        freeQuota: { date, count, timeZone },
         createdAt: snapshot.exists
           ? (snapshot.data()?.createdAt ?? FieldValue.serverTimestamp())
           : FieldValue.serverTimestamp(),
@@ -45,7 +51,7 @@ export async function consumeFreeQuota(
       },
       { merge: true },
     );
-    return true;
+    return { consumed: true, date };
   });
 }
 
