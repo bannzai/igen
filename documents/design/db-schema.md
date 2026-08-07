@@ -52,7 +52,7 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 - 原本は `backend/functions/src/data/*.json`（レビュー・監修の対象）
 - `backend/functions` で `npm run seed` を実行すると Firestore の `persons` / `quotes` へ投入される（doc id 固定の set のため冪等）
   - Emulator へ投入する場合: `FIRESTORE_EMULATOR_HOST=127.0.0.1:8282 npm run seed`（エミュレータを起動しておく）
-  - 実プロジェクトへの投入は Firebase プロジェクト作成後（issue #4）
+  - 実プロジェクトへ投入する場合: `GCLOUD_PROJECT=<project-id> npm run seed`（`GCLOUD_PROJECT` 未設定だと `demo-igen` にフォールバックするため必ず指定する。Firebase プロジェクト作成は issue #4）
 
 ### users/{uid}（issue #6 で定義）
 
