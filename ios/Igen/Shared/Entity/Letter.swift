@@ -70,4 +70,6 @@ struct Letter: Codable, Hashable, Identifiable {
   var diagram: LetterDiagram?
   /// Firestore から読む場合のみ入る (レスポンスには含まれない)
   var createdAt: Date?
+  /// Firestore から読む場合のみ入る (レスポンスには含まれない)
+  var updatedAt: Date?
 }

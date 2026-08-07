@@ -149,9 +149,11 @@ struct HomePage: View {
   }
 
   private func send() async {
+    // 生成中 (数分かかりうる) にユーザーが編集した下書きを消さないよう、送信時点の本文を控える
+    let sentText = draft
     do {
       let result = try await IgenAPI.requestLetter(
-        text: draft,
+        text: sentText,
         // 端末言語ではなくアプリに適用中のローカライズで判定する (アプリ単位の言語切り替えに追随)
         language: Bundle.main.preferredLocalizations.first == "ja" ? "ja" : "en",
         timeZone: TimeZone.autoupdatingCurrent.identifier
@@ -159,7 +161,10 @@ struct HomePage: View {
       switch result {
       case .letter(let letter):
         Analytics.logEvent("reply_generated", parameters: ["quote_id": letter.quoteId])
-        draft = ""
+        // 生成中に編集されていなければクリアする (編集済みの下書きは残す)
+        if draft == sentText {
+          draft = ""
+        }
         self.letter = letter
       case .safety:
         // 相談本文は Analytics に送らない (.claude/rules/coding-rules-analytics.md)
