@@ -2,9 +2,19 @@ import { FieldValue } from "firebase-admin/firestore";
 import type { Firestore } from "firebase-admin/firestore";
 
 // 無料枠は 1 日 1 通 (documents/PROJECT.md「マネタイズ」)。
-// IGEN_FREE_LETTERS_PER_DAY はローカル開発 (Emulator) で複数通の UI 検証をするための上書き
-export const FREE_LETTERS_PER_DAY =
-  Number(process.env.IGEN_FREE_LETTERS_PER_DAY ?? "") || 1;
+// IGEN_FREE_LETTERS_PER_DAY はローカル開発 (Emulator) で複数通の UI 検証をするための上書き。
+// デプロイ環境で誤って設定されても本番仕様が変わらないよう、Emulator 実行時のみ・正の整数のみ採用する
+function resolveFreeLettersPerDay(): number {
+  if (process.env.FUNCTIONS_EMULATOR !== "true") {
+    return 1;
+  }
+  const overridden = Number(process.env.IGEN_FREE_LETTERS_PER_DAY ?? "");
+  if (Number.isInteger(overridden) && overridden > 0) {
+    return overridden;
+  }
+  return 1;
+}
+export const FREE_LETTERS_PER_DAY = resolveFreeLettersPerDay();
 
 /** timeZone における日付 (YYYY-MM-DD)。無料枠の「1 日」の境界に使う。 */
 export function localDate(date: Date, timeZone: string): string {
