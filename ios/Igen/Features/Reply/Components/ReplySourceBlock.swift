@@ -55,7 +55,7 @@ struct ReplySourceBlock: View {
             Text("Written")
               .font(.system(size: 11))
               .foregroundStyle(Color.igenText.opacity(0.5))
-            Text(year)
+            Text(year.localized(language))
               .font(.system(size: 13))
               .foregroundStyle(Color.igenText)
           }

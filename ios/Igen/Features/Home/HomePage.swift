@@ -7,6 +7,7 @@ struct HomePage: View {
   @State var letter: Letter?
   @State var sending = false
   @State var listening = false
+  @State var listeningTask: Task<Void, Never>?
   @State var speechRecognizer = SpeechRecognizer()
   @State var sendErrorAlertIsPresented = false
   @State var freeQuotaAlertIsPresented = false
@@ -69,7 +70,23 @@ struct HomePage: View {
             }
           )
 
-          askButton
+          if draft.count > IgenAPI.maxConcernChars {
+            // ja: 2,000字以内でお願いします（いま %lld 字）
+            Text("Please keep it within 2,000 characters (now \(draft.count))")
+              .font(.system(size: 12))
+              .foregroundStyle(Color(red: 240 / 255, green: 160 / 255, blue: 160 / 255))
+          }
+
+          HomeAskButton(draft: draft, sending: sending) {
+            Analytics.logEvent("home_ask_button_pressed", parameters: ["text_length": draft.count])
+            speechRecognizer.stop()
+            listening = false
+            sending = true
+            Task {
+              await send()
+              sending = false
+            }
+          }
 
           Spacer()
         }
@@ -109,53 +126,29 @@ struct HomePage: View {
     }
   }
 
-  private var askButton: some View {
-    Button {
-      Analytics.logEvent("home_ask_button_pressed", parameters: ["text_length": draft.count])
-      speechRecognizer.stop()
-      listening = false
-      sending = true
-      Task {
-        await send()
-        sending = false
-      }
-    } label: {
-      // ja: 偉人に聞く
-      Text("Ask the Greats")
-        .font(.system(size: 17, weight: .bold, design: .serif))
-        .tracking(4)
-        .foregroundStyle(Color(red: 36 / 255, green: 22 / 255, blue: 80 / 255))
-        .frame(maxWidth: .infinity)
-        .frame(height: 52)
-        .background(
-          LinearGradient(
-            colors: [
-              Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255),
-              Color(red: 201 / 255, green: 162 / 255, blue: 77 / 255),
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-          )
-        )
-        .clipShape(Capsule())
-        .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.4), radius: 18)
-    }
-    .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || sending)
-    .opacity(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.45 : 1)
-  }
-
   private func toggleListening() {
     if listening {
+      // 権限確認などで開始処理が suspend している間の停止にも効くよう、開始 Task ごとキャンセルする
+      listeningTask?.cancel()
+      listeningTask = nil
       speechRecognizer.stop()
       listening = false
       return
     }
     listening = true
-    Task {
+    listeningTask = Task {
       do {
-        for try await transcript in try await speechRecognizer.start() {
-          draft = transcript
+        let transcripts = try await speechRecognizer.start()
+        if Task.isCancelled {
+          // 開始処理の途中で停止された場合、開始してしまった録音を巻き戻す
+          speechRecognizer.stop()
+        } else {
+          for try await transcript in transcripts {
+            draft = transcript
+          }
         }
+      } catch is CancellationError {
+        // 停止操作によるキャンセルはエラーではない
       } catch SpeechRecognizer.SpeechError.notAuthorized {
         speechPermissionAlertIsPresented = true
       } catch {

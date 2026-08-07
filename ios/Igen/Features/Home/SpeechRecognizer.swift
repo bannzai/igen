@@ -55,7 +55,16 @@ final class SpeechRecognizer {
       request.append(buffer)
     }
     audioEngine.prepare()
-    try audioEngine.start()
+    do {
+      try audioEngine.start()
+    } catch {
+      // 開始途中で失敗したら、設置済みタップ・リクエスト・セッションを片付けてから投げる
+      // (タップが残ったまま次回の installTap を呼ぶと例外でクラッシュするため)
+      inputNode.removeTap(onBus: 0)
+      recognitionRequest = nil
+      deactivateAudioSession()
+      throw error
+    }
 
     return AsyncThrowingStream { continuation in
       // 認識結果のコールバックも任意のキューで呼ばれるため @Sendable を明示する
@@ -88,5 +97,12 @@ final class SpeechRecognizer {
     recognitionRequest = nil
     recognitionTask?.cancel()
     recognitionTask = nil
+    // マイク使用後も .duckOthers で他アプリの音声が下がり続けないよう、セッションを解除する
+    deactivateAudioSession()
+  }
+
+  private func deactivateAudioSession() {
+    // 解除の失敗 (他の音声処理が使用中など) はユーザーに提示しても対処できないため無視する
+    try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
   }
 }

@@ -1,4 +1,4 @@
-import type { ComposeLetterFn } from "./letter";
+import type { ClassifyCrisisFn, ComposeLetterFn } from "./letter";
 
 // ローカル開発 (Emulator) 用のフェイク LLM。実 API キーなしで E2E フローを完結させるための開発ハーネスで、
 // 環境変数 IGEN_FAKE_LLM=1 のときだけ index.ts が使う。本番コードパスでは使われない。
@@ -39,4 +39,12 @@ export function createFakeLetterComposer(): ComposeLetterFn {
       crisis: false,
     };
   };
+}
+
+/**
+ * ローカル開発用のフェイク危機判定 (無料枠切れ時の二次判定)。
+ * セーフティ画面の E2E を再現できるよう、相談本文に "fake-crisis" が含まれるときだけ危機ありを返す
+ */
+export function createFakeCrisisClassifier(): ClassifyCrisisFn {
+  return async (input) => input.concern.includes("fake-crisis");
 }

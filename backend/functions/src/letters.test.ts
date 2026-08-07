@@ -11,6 +11,7 @@ function fakeDeps(overrides: Partial<AppDeps> = {}): AppDeps {
     composeLetter: async () => {
       throw new Error("composeLetter is not stubbed");
     },
+    classifyCrisis: async () => false,
     verifyIdToken: async (idToken) => {
       if (idToken.startsWith("token-")) {
         return { uid: idToken.slice("token-".length) };
@@ -114,6 +115,52 @@ describe("POST /letters", () => {
     expect(second.body.error.code).toBe("free_quota_exceeded");
   });
 
+  it("timeZone を変えても無料枠はリセットされない (初回の timeZone で日付を固定する)", async () => {
+    const app = createApp(
+      fakeDeps({ composeLetter: async () => fakeComposition() }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-7")
+      .send({ text: "今日の出来事", timeZone: "Pacific/Kiritimati" });
+    expect(first.status).toBe(200);
+
+    // 日付が変わって見える timeZone に切り替えても、保存済み timeZone の日付で判定される
+    const second = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-7")
+      .send({ text: "もう一通", timeZone: "Etc/GMT+12" });
+    expect(second.status).toBe(429);
+    expect(second.body.error.code).toBe("free_quota_exceeded");
+  });
+
+  it("無料枠切れでも LLM の危機判定が真なら safety を返す", async () => {
+    let classifyCalled = false;
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        classifyCrisis: async () => {
+          classifyCalled = true;
+          return true;
+        },
+      }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-8")
+      .send({ text: "最初の相談" });
+    expect(first.status).toBe(200);
+
+    // キーワードに引っかからない危機表現でも、無料枠切れの段階で二次判定に到達する
+    const second = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-8")
+      .send({ text: "今夜、高いところから飛び降りる計画がある" });
+    expect(second.status).toBe(200);
+    expect(second.body).toEqual({ type: "safety" });
+    expect(classifyCalled).toBe(true);
+  });
+
   it("危機ワードを含む相談は返書を生成せず safety を返す (LLM も呼ばず保存もしない)", async () => {
     let composeCalled = false;
     const app = createApp(
@@ -191,6 +238,40 @@ describe("POST /letters", () => {
       .collection("letters")
       .get();
     expect(letters.size).toBe(0);
+  });
+
+  it("人物付きの格言に図解が付いたら 502 (返書契約に反するデータを通さない)", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () =>
+          fakeComposition({
+            diagram: {
+              metaphor: "不要な図解",
+              meaning: "人物がいる場合は付かないはず",
+              usage: "付いてはいけない",
+            },
+          }),
+      }),
+    );
+    const res = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-9")
+      .send({ text: "悩みごと" });
+    expect(res.status).toBe(502);
+  });
+
+  it("生成文に医療を想起させる語が含まれたら 502", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () =>
+          fakeComposition({ meaning: "これはあなたへの診断です。" }),
+      }),
+    );
+    const res = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-10")
+      .send({ text: "悩みごと" });
+    expect(res.status).toBe(502);
   });
 
   it("人物のいないことわざは person が null で図解カードが付く", async () => {

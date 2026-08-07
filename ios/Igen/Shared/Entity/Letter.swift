@@ -25,7 +25,8 @@ struct LetterQuoteSource: Codable, Hashable {
   var work: LocalizedText
   var detail: LocalizedText?
   var origTitle: String?
-  var year: String?
+  /// 成立年の表記。表示ロケールに応じて切り替える (クライアントでは翻訳しない)
+  var year: LocalizedText?
 }
 
 /// 返書の話者 (persons のスナップショット)。ことわざ等で人物がいない場合は Letter.person が nil
