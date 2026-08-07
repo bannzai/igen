@@ -42,10 +42,16 @@ struct ReplyLetterContent: View {
 
       ScrollView {
         VStack(spacing: 24) {
-          Text((letter.createdAt ?? .now).formatted(date: .long, time: .omitted))
-            .font(.system(size: 11))
-            .foregroundStyle(Color.igenText.opacity(0.5))
-            .igenReveal(0)
+          // 日付は返書の言語に合わせてフォーマットし、端末ロケールが第三言語でも表示言語が混在しないようにする
+          Text(
+            (letter.createdAt ?? .now).formatted(
+              Date.FormatStyle(date: .long, time: .omitted)
+                .locale(Locale(identifier: letter.language == "ja" ? "ja_JP" : "en_US"))
+            )
+          )
+          .font(.system(size: 11))
+          .foregroundStyle(Color.igenText.opacity(0.5))
+          .igenReveal(0)
 
           if let person = letter.person {
             VStack(spacing: 8) {
