@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import SwiftUI
 
 /// 星図で偉人をタップしたときのプロフィールシート。
@@ -74,6 +75,7 @@ struct AtlasProfileSheet: View {
               )
 
               Button {
+                Analytics.logEvent("atlas_read_letter_button_pressed", parameters: nil)
                 selectedLetter = letters.first
               } label: {
                 // ja: 返書を読む
