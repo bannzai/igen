@@ -14,6 +14,8 @@ export async function saveLetter(
   input: {
     concern: string;
     language: LetterLanguage;
+    /** 相談時の端末タイムゾーン。履歴の日付表示を相談時のまま固定するために保存する。不明なら null */
+    timeZone: string | null;
     composition: LetterComposition;
   },
 ): Promise<{ id: string; letter: Record<string, unknown> }> {
@@ -24,6 +26,7 @@ export async function saveLetter(
   const letter = {
     concern: input.concern,
     language: input.language,
+    timeZone: input.timeZone,
     quoteId: quote.id,
     quote: {
       kind: quote.kind,

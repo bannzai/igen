@@ -39,7 +39,7 @@ struct ReplyPage: View {
           .foregroundStyle(Color.igenGoldBright)
           .igenReveal(0)
 
-        Text((letter.createdAt ?? .now).formatted(date: .long, time: .omitted))
+        Text(letter.dateText())
           .font(.system(size: 11))
           .foregroundStyle(Color.igenText.opacity(0.5))
           .igenReveal(0)
@@ -84,7 +84,9 @@ struct ReplyPage: View {
         }
         .igenReveal(3)
 
-        if letter.quote.originalLanguage != letter.language {
+        // 原文はどのロケールでも改変せず併記する (localization-guidelines.md)。
+        // 同一言語でも古文原文などが異なる場合があるため、言語コードではなく表示文との差異で判定する
+        if letter.quote.original != letter.quote.text.localized(letter.language) {
           ReplyOriginalTextBlock(quote: letter.quote, language: letter.language)
             .igenReveal(4)
         }
@@ -171,7 +173,7 @@ struct ReplyPage_Previews: PreviewProvider {
         work: LocalizedText(ja: "倫理書簡集 (ルキリウスへの手紙)", en: "Moral Letters to Lucilius"),
         detail: LocalizedText(ja: "第104書簡 26節", en: "Letter 104, section 26"),
         origTitle: "Epistulae morales ad Lucilium",
-        year: "65年頃"
+        year: LocalizedText(ja: "65年頃", en: "c. 65 AD")
       )
     ),
     personId: "seneca",

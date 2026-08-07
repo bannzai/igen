@@ -6,7 +6,7 @@ struct ArchiveLetterCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text((letter.createdAt ?? .now).formatted(date: .long, time: .omitted))
+      Text(letter.dateText())
         .font(.system(size: 10))
         .foregroundStyle(Color.igenText.opacity(0.5))
 

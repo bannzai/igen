@@ -1,6 +1,26 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Please keep it within 2,000 characters (now %lld)" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2,000字以内でお願いします（いま %lld 字）"
+          }
+        }
+      }
+    },
+    "Home" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホーム"
+          }
+        }
+      }
+    },
     "IGEN" : {
       "localizations" : {
         "ja" : {
