@@ -570,6 +570,46 @@
           }
         }
       }
+    },
+    "Proverb": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ことわざ"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もどる"
+          }
+        }
+      }
+    },
+    "Save image": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画像を保存"
+          }
+        }
+      }
+    },
+    "The share card has been saved to your photos.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共有カードを写真に保存しました。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

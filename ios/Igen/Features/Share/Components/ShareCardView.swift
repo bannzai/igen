@@ -22,6 +22,13 @@ struct ShareCardView: View {
           .font(.system(size: 13, weight: .semibold, design: .serif))
           .tracking(2)
           .foregroundStyle(Color.igenText)
+      } else {
+        // 人物のいない格言でも話者位置を空けない (デザイン指定の代替ラベル)
+        // ja: ことわざ
+        Text("Proverb")
+          .font(.system(size: 13, weight: .semibold, design: .serif))
+          .tracking(2)
+          .foregroundStyle(Color.igenText)
       }
 
       Text(letter.quote.text.localized(letter.language))
