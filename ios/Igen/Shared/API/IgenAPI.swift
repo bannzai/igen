@@ -54,14 +54,25 @@ enum IgenAPI {
     if firstResponse.statusCode != 401 {
       return try parseLetterResponse(firstResponse)
     }
-    let refreshedResponse = try await postLetter(
-      text: text,
-      language: language,
-      timeZone: timeZone,
-      forcesTokenRefresh: true
-    )
-    if refreshedResponse.statusCode != 401 || usesEmulator == false {
-      return try parseLetterResponse(refreshedResponse)
+    if usesEmulator == false {
+      return try parseLetterResponse(
+        try await postLetter(text: text, language: language, timeZone: timeZone, forcesTokenRefresh: true)
+      )
+    }
+    // Emulator では、強制更新が 401 を返すケースに加えて、無効なリフレッシュトークンで
+    // getIDToken 自体が throw するケース (Auth エミュレータ再起動後) もリセット経路へつなぐ
+    do {
+      let refreshedResponse = try await postLetter(
+        text: text,
+        language: language,
+        timeZone: timeZone,
+        forcesTokenRefresh: true
+      )
+      if refreshedResponse.statusCode != 401 {
+        return try parseLetterResponse(refreshedResponse)
+      }
+    } catch {
+      // リセットで回復を試みるため、ここでは投げ直さない
     }
     _ = try await FirebaseSetup.resetAnonymousUser()
     return try parseLetterResponse(
@@ -82,8 +93,9 @@ enum IgenAPI {
     }
     var request = URLRequest(url: baseURL.appending(path: "letters"))
     // Functions は LLM 呼び出しのため timeoutSeconds 300 で動く。クライアント既定 (60 秒) のままだと
-    // 生成完了前に打ち切り、サーバー側だけ返書が保存され無料枠も消費されるため、サーバーの上限に合わせる
-    request.timeoutInterval = 300
+    // 生成完了前に打ち切り、サーバー側だけ返書が保存され無料枠も消費される。
+    // クライアント側の計測には接続・転送時間も含まれるため、サーバー期限 + 30 秒の余裕を持たせる
+    request.timeoutInterval = 330
     request.httpMethod = "POST"
     request.setValue(
       "Bearer \(try await user.getIDToken(forcingRefresh: forcesTokenRefresh))",

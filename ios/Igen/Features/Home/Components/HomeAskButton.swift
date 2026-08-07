@@ -32,7 +32,8 @@ struct HomeAskButton: View {
         .clipShape(Capsule())
         .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.4), radius: 18)
     }
-    .disabled(trimmedDraft.isEmpty || draft.count > IgenAPI.maxConcernChars || sending)
-    .opacity(trimmedDraft.isEmpty || draft.count > IgenAPI.maxConcernChars ? 0.45 : 1)
+    // 文字数はバックエンド (text.length = UTF-16 コード単位) と同じ単位で判定する
+    .disabled(trimmedDraft.isEmpty || draft.utf16.count > IgenAPI.maxConcernChars || sending)
+    .opacity(trimmedDraft.isEmpty || draft.utf16.count > IgenAPI.maxConcernChars ? 0.45 : 1)
   }
 }
