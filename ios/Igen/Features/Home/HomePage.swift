@@ -193,6 +193,8 @@ struct HomePage: View {
           // 開始処理の途中で停止された場合、開始してしまった録音を巻き戻す
           speechRecognizer.stop()
         } else {
+          // 押下 (home_mic_button_pressed) と分けて、認識開始の成功を記録する (権限拒否・開始失敗の離脱率を出すため)
+          Analytics.logEvent("home_mic_started", parameters: nil)
           for try await transcript in transcripts {
             draft = baseDraft.isEmpty ? transcript : baseDraft + transcript
           }
@@ -214,7 +216,8 @@ struct HomePage: View {
     do {
       let result = try await IgenAPI.requestLetter(
         text: draft,
-        language: Locale.autoupdatingCurrent.language.languageCode?.identifier == "ja" ? "ja" : "en",
+        // 端末言語ではなくアプリに適用中のローカライズで判定する (アプリ単位の言語切り替えに追随)
+        language: Bundle.main.preferredLocalizations.first == "ja" ? "ja" : "en",
         timeZone: TimeZone.autoupdatingCurrent.identifier
       )
       switch result {

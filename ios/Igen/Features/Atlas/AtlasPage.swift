@@ -62,6 +62,8 @@ struct AtlasPage: View {
         )
         newlyMetPersonIds = Set(fetched.map(\.personId)).subtracting(seen)
         encounters = fetched
+        // 押下 (home_atlas_button_pressed) と分けて、星図が実際に表示できた数を記録する
+        Analytics.logEvent("atlas_loaded", parameters: ["encounters_count": fetched.count])
       } catch {
         loadFailed = true
       }
@@ -140,7 +142,7 @@ private struct AtlasPageBody: View {
       .sheet(item: $selectedEncounter) { encounter in
         // その偉人の返書はシート側で personId 指定で取得する (星図を開くだけで全返書を読まない)。
         // デザイン指定の下部プロフィールシートとして表示し、星図とのつながりを保つ
-        AtlasProfileSheet(encounter: encounter)
+        AtlasProfilePage(encounter: encounter)
           .presentationDetents([.medium, .large])
       }
   }
@@ -177,8 +179,13 @@ struct AtlasMetConstellation: View {
             .frame(width: 74 * scale, height: 74 * scale)
           }
           .task {
-            // 線の描き上がり (0.6s 遅延 + 1.6s) が終わったら静的表示へ切り替え、表示済みとして記録する
-            try? await Task.sleep(for: .seconds(2.4))
+            // 線の描き上がり (0.6s 遅延 + 1.6s) が終わったら静的表示へ切り替え、表示済みとして記録する。
+            // 演出の途中で画面を離れた (sleep がキャンセルされた) 場合は記録せず、次回また演出を流す
+            do {
+              try await Task.sleep(for: .seconds(2.4))
+            } catch {
+              return
+            }
             revealFinished = true
             onRevealFinished()
           }

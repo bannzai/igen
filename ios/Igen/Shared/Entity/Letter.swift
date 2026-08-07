@@ -37,11 +37,18 @@ struct LetterPerson: Codable, Hashable {
   var died: Int
   var title: LocalizedText
   var bio: LocalizedText
+  /// 没後 70 年経過 (パブリックドメイン) の確認結果 (persons スナップショットの権利確認情報)
+  var publicDomain: LetterPersonPublicDomain?
 
-  /// 生没年の表示。紀元前は負数で保持しているため、言語に応じて「前551–前479」「551 BC–479 BC」の形にする
+  /// 生没年の表示。紀元前は負数で保持しているため、言語に応じて「前551–前479」「551 BC–479 BC」の形にする。
+  /// 紀元をまたぐ場合 (紀元前生まれ・西暦没) は、英語では没年側にも AD を付けて紀元を明示する
   func eraText(language: String) -> String {
     if let born {
-      return "\(Self.yearText(year: born, language: language))–\(Self.yearText(year: died, language: language))"
+      let diedText =
+        born < 0 && died > 0 && language != "ja"
+        ? "\(died) AD"
+        : Self.yearText(year: died, language: language)
+      return "\(Self.yearText(year: born, language: language))–\(diedText)"
     }
     return "?–\(Self.yearText(year: died, language: language))"
   }
@@ -52,6 +59,12 @@ struct LetterPerson: Codable, Hashable {
     }
     return "\(year)"
   }
+}
+
+/// 収録人物のパブリックドメイン確認結果
+struct LetterPersonPublicDomain: Codable, Hashable {
+  var confirmed: Bool
+  var note: String?
 }
 
 /// 話者が特定できない格言を説明する図解カード (例え → 意味 → 使いどころ)
@@ -68,6 +81,8 @@ struct Letter: Codable, Hashable, Identifiable {
   var language: String
   /// 相談時の端末タイムゾーン。履歴の日付表示を相談時のまま固定するために使う
   var timeZone: String?
+  /// POST /letters の冪等化に使ったクライアント生成 ID
+  var requestId: String?
   var quoteId: String
   var quote: LetterQuote
   var personId: String?
