@@ -42,7 +42,7 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 | originalLanguage | string | 原文の言語（ISO 639-1: la, zh, de, ja 等） |
 | personId | string \| null | 発祥人物。ことわざ等で特定できない場合は null（返書画面では図解カードで表示） |
 | themes | string[] | マッチングの手がかりになるテーマタグ（ja） |
-| source | { work: {ja,en}, detail?: {ja,en}, origTitle?: string, year?: string } | **出典。work は必須**（文献名・箇所・成立年） |
+| source | { work: {ja,en}, detail?: {ja,en}, origTitle?: string, year?: {ja,en} } | **出典。work は必須**（文献名・箇所・成立年）。year は表示ロケールに応じて切り替える（クライアントでは翻訳しない） |
 | createdAt / updatedAt | Timestamp | seed 時にサーバータイムスタンプで付与 |
 
 - **出典のないデータ・LLM が生成した文を入れない**（偽名言対策。PROJECT.md リスク 1）。原文・出典の必須性は整合性テストで検証する
@@ -60,7 +60,7 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 
 | フィールド | 型 | 説明 |
 |---|---|---|
-| freeQuota | { date: string, count: number } | 無料枠（1 日 1 通）の消費状況。date は端末タイムゾーンでの YYYY-MM-DD。日付が変わると新しい date で上書きされる（日次リセット） |
+| freeQuota | { date: string, count: number, timeZone: string } | 無料枠（1 日 1 通）の消費状況。timeZone は初回リクエスト時の端末タイムゾーンで固定し（リクエストごとの変更で日付を往復させるリセット悪用の防止）、date はその timeZone での YYYY-MM-DD。日付が変わると新しい date で上書きされる（日次リセット） |
 | ticketsUsed | number | 使用済みの相談チケット枚数。購入数（RevenueCat の non_subscriptions）との差分が残チケット |
 | createdAt / updatedAt | Timestamp | サーバータイムスタンプ |
 
@@ -74,6 +74,9 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 |---|---|---|
 | concern | string | 相談本文（センシティブデータ。Analytics・ログに載せない） |
 | language | "ja" \| "en" | 返書の言語 |
+| timeZone | string \| null | 相談時の端末タイムゾーン。履歴の日付表示を相談時のまま固定するために使う |
+| requestId | string \| null | クライアント生成のリクエスト ID。POST /letters の冪等化（応答喪失時の再送で重複生成しない）に使う |
+| consultedAt | Timestamp | 相談の受信時刻。履歴の日付表示の基準（createdAt は生成完了時のため深夜送信で翌日にずれる） |
 | quoteId | string | 名言 DB の参照 |
 | quote | { kind, text: {ja,en}, original, originalLanguage, source } | 名言 DB の値のスナップショット。クライアントは quotes コレクションを読めないため埋め込む。**本文の出どころは常に名言 DB**（ADR 0002） |
 | personId | string \| null | 話者。ことわざ等は null |
@@ -98,4 +101,8 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 
 ## インデックス
 
-`backend/firestore.indexes.json` に定義する（現状なし）。
+`backend/firestore.indexes.json` に定義する。
+
+| コレクション | フィールド | 用途 |
+|---|---|---|
+| letters | personId ASC, createdAt DESC | 星図のプロフィールで「その偉人からもらった返書」を新しい順に取得するクエリ（`LettersStore.fetchLetters(personId:)`） |

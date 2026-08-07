@@ -1,11 +1,12 @@
+import FirebaseAnalytics
 import SwiftUI
 
 /// 星図で偉人をタップしたときのプロフィールシート。
 /// 人物・生没年・略歴と、過去にその偉人からもらった言葉の一覧、返書への導線を表示する
 struct AtlasProfileSheet: View {
   var encounter: Encounter
-  /// この偉人からもらった返書 (新しい順)
-  var letters: [Letter]
+  /// この偉人からもらった返書 (新しい順)。表示時に personId 指定で取得する (nil は取得中)
+  @State var letters: [Letter]?
   @Environment(\.dismiss) var dismiss
   @State var selectedLetter: Letter?
 
@@ -51,7 +52,7 @@ struct AtlasProfileSheet: View {
               .lineSpacing(7)
               .foregroundStyle(Color.igenText.opacity(0.85))
 
-            if !letters.isEmpty {
+            if let letters, !letters.isEmpty {
               VStack(alignment: .leading, spacing: 8) {
                 // ja: もらった言葉
                 Text("Words you received")
@@ -74,6 +75,7 @@ struct AtlasProfileSheet: View {
               )
 
               Button {
+                Analytics.logEvent("atlas_read_letter_button_pressed", parameters: nil)
                 selectedLetter = letters.first
               } label: {
                 // ja: 返書を読む
@@ -95,6 +97,10 @@ struct AtlasProfileSheet: View {
       }
       .navigationDestination(item: $selectedLetter) { letter in
         ReplyPage(letter: letter, showsRitual: false)
+      }
+      .task {
+        // 取得失敗はもらった言葉ブロックの非表示に留める (プロフィール自体は encounter だけで表示できる)
+        letters = (try? await LettersStore.fetchLetters(personId: encounter.personId)) ?? []
       }
     }
   }

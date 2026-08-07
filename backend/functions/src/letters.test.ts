@@ -11,6 +11,7 @@ function fakeDeps(overrides: Partial<AppDeps> = {}): AppDeps {
     composeLetter: async () => {
       throw new Error("composeLetter is not stubbed");
     },
+    classifyCrisis: async () => false,
     verifyIdToken: async (idToken) => {
       if (idToken.startsWith("token-")) {
         return { uid: idToken.slice("token-".length) };
@@ -115,6 +116,52 @@ describe("POST /letters", () => {
     expect(second.body.error.code).toBe("free_quota_exceeded");
   });
 
+  it("timeZone を変えても無料枠はリセットされない (初回の timeZone で日付を固定する)", async () => {
+    const app = createApp(
+      fakeDeps({ composeLetter: async () => fakeComposition() }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-7")
+      .send({ text: "今日の出来事", timeZone: "Pacific/Kiritimati" });
+    expect(first.status).toBe(200);
+
+    // 日付が変わって見える timeZone に切り替えても、保存済み timeZone の日付で判定される
+    const second = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-7")
+      .send({ text: "もう一通", timeZone: "Etc/GMT+12" });
+    expect(second.status).toBe(429);
+    expect(second.body.error.code).toBe("free_quota_exceeded");
+  });
+
+  it("無料枠切れでも LLM の危機判定が真なら safety を返す", async () => {
+    let classifyCalled = false;
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        classifyCrisis: async () => {
+          classifyCalled = true;
+          return true;
+        },
+      }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-8")
+      .send({ text: "最初の相談" });
+    expect(first.status).toBe(200);
+
+    // キーワードに引っかからない危機表現でも、無料枠切れの段階で二次判定に到達する
+    const second = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-8")
+      .send({ text: "今夜、高いところから飛び降りる計画がある" });
+    expect(second.status).toBe(200);
+    expect(second.body).toEqual({ type: "safety" });
+    expect(classifyCalled).toBe(true);
+  });
+
   it("危機ワードを含む相談は返書を生成せず safety を返す (LLM も呼ばず保存もしない)", async () => {
     let composeCalled = false;
     const app = createApp(
@@ -200,13 +247,13 @@ describe("POST /letters", () => {
     );
     const first = await request(app)
       .post("/letters")
-      .set("Authorization", "Bearer token-letter-user-7")
+      .set("Authorization", "Bearer token-letter-user-11")
       .send({ text: "挑戦が怖い" });
     expect(first.status).toBe(200);
 
     const encounterRef = db
       .collection("users")
-      .doc("letter-user-7")
+      .doc("letter-user-11")
       .collection("encounters")
       .doc("seneca");
     const firstSnapshot = await encounterRef.get();
@@ -217,11 +264,11 @@ describe("POST /letters", () => {
     // 無料枠 (1 日 1 通) を Admin SDK でリセットして同日 2 通目を送れるようにする
     await db
       .collection("users")
-      .doc("letter-user-7")
+      .doc("letter-user-11")
       .set({ freeQuota: { date: "1970-01-01", count: 0 } }, { merge: true });
     const second = await request(app)
       .post("/letters")
-      .set("Authorization", "Bearer token-letter-user-7")
+      .set("Authorization", "Bearer token-letter-user-11")
       .send({ text: "また挑戦の悩み" });
     expect(second.status).toBe(200);
     const secondSnapshot = await encounterRef.get();
@@ -240,13 +287,13 @@ describe("POST /letters", () => {
     );
     const first = await request(app)
       .post("/letters")
-      .set("Authorization", "Bearer token-letter-user-8")
+      .set("Authorization", "Bearer token-letter-user-12")
       .send({ text: "1 通目 (無料枠)" });
     expect(first.status).toBe(200);
 
     const second = await request(app)
       .post("/letters")
-      .set("Authorization", "Bearer token-letter-user-8")
+      .set("Authorization", "Bearer token-letter-user-12")
       .send({ text: "2 通目 (聞き放題)" });
     expect(second.status).toBe(200);
     expect(second.body.type).toBe("letter");
@@ -264,25 +311,59 @@ describe("POST /letters", () => {
     );
     const first = await request(app)
       .post("/letters")
-      .set("Authorization", "Bearer token-letter-user-9")
+      .set("Authorization", "Bearer token-letter-user-13")
       .send({ text: "1 通目 (無料枠)" });
     expect(first.status).toBe(200);
 
     const second = await request(app)
       .post("/letters")
-      .set("Authorization", "Bearer token-letter-user-9")
+      .set("Authorization", "Bearer token-letter-user-13")
       .send({ text: "2 通目 (チケット)" });
     expect(second.status).toBe(200);
 
     const third = await request(app)
       .post("/letters")
-      .set("Authorization", "Bearer token-letter-user-9")
+      .set("Authorization", "Bearer token-letter-user-13")
       .send({ text: "3 通目 (チケット切れ)" });
     expect(third.status).toBe(429);
     expect(third.body.error.code).toBe("free_quota_exceeded");
 
-    const user = await db.collection("users").doc("letter-user-9").get();
+    const user = await db.collection("users").doc("letter-user-13").get();
     expect(user.data()?.ticketsUsed).toBe(1);
+  });
+
+  it("人物付きの格言に図解が付いたら 502 (返書契約に反するデータを通さない)", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () =>
+          fakeComposition({
+            diagram: {
+              metaphor: "不要な図解",
+              meaning: "人物がいる場合は付かないはず",
+              usage: "付いてはいけない",
+            },
+          }),
+      }),
+    );
+    const res = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-9")
+      .send({ text: "悩みごと" });
+    expect(res.status).toBe(502);
+  });
+
+  it("生成文に医療を想起させる語が含まれたら 502", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () =>
+          fakeComposition({ meaning: "これはあなたへの診断です。" }),
+      }),
+    );
+    const res = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-letter-user-10")
+      .send({ text: "悩みごと" });
+    expect(res.status).toBe(502);
   });
 
   it("人物のいないことわざは person が null で図解カードが付く", async () => {

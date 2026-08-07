@@ -7,10 +7,16 @@ import {
   createNoEntitlementChecker,
   createRevenueCatEntitlementChecker,
 } from "./entitlement";
-import { createFakeLetterComposer } from "./fakeLlm";
+import {
+  createFakeCrisisClassifier,
+  createFakeLetterComposer,
+} from "./fakeLlm";
 // firebase-admin の初期化を先に済ませる (getAuth が初期化済みの app を要求するため)
 import "./firestore";
-import { createOpenAILetterComposer } from "./openai";
+import {
+  createOpenAICrisisClassifier,
+  createOpenAILetterComposer,
+} from "./openai";
 
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
 const revenuecatApiKey = defineSecret("REVENUECAT_API_KEY");
@@ -40,16 +46,21 @@ export const api = onRequest(
           return "";
         }
       })();
+      // ADR 0002: モデルはコード変更なしで差し替えられるよう環境変数にする
+      const openaiOptions = {
+        apiKey: openaiApiKey.value(),
+        model: process.env.OPENAI_MODEL ?? "gpt-5.6",
+      };
       app = createApp({
         // IGEN_FAKE_LLM=1 は Emulator でのローカル開発用 (実 API キーなしで E2E を完結させる)
         composeLetter:
           process.env.IGEN_FAKE_LLM === "1"
             ? createFakeLetterComposer()
-            : createOpenAILetterComposer({
-                apiKey: openaiApiKey.value(),
-                // ADR 0002: モデルはコード変更なしで差し替えられるよう環境変数にする
-                model: process.env.OPENAI_MODEL ?? "gpt-5.6",
-              }),
+            : createOpenAILetterComposer(openaiOptions),
+        classifyCrisis:
+          process.env.IGEN_FAKE_LLM === "1"
+            ? createFakeCrisisClassifier()
+            : createOpenAICrisisClassifier(openaiOptions),
         verifyIdToken: (idToken) => getAuth().verifyIdToken(idToken),
         checkEntitlement:
           revenuecatKey === ""

@@ -1,23 +1,12 @@
+import FirebaseAnalytics
+import FirebaseAuth
 import SwiftUI
 
 /// 偉人図鑑 (星図)。相談を通じて出会った偉人が星座として夜空に灯り、未出会いは暗い星のみ表示する
 struct AtlasPage: View {
   @State var encounters: [Encounter]?
-  @State var letters: [Letter] = []
   @State var loadFailed = false
-  @State var selectedEncounter: Encounter?
-  /// 「新しい星座が夜空に灯る」演出を一度だけ流すための、表示済み人物 id (カンマ区切り)
-  @AppStorage("atlasSeenPersonIds") var atlasSeenPersonIds = ""
   @State var newlyMetPersonIds: Set<String> = []
-
-  /// 星図上の配置 (0–100)。名言 DB に人物を追加したらここにも枠を追加する
-  private static let slots: [(personId: String, x: Double, y: Double, scale: Double)] = [
-    ("seneca", 26, 18, 1.0),
-    ("confucius", 70, 14, 0.85),
-    ("nietzsche", 30, 48, 0.9),
-    ("zeami", 72, 44, 0.95),
-    ("basho", 48, 76, 0.9),
-  ]
 
   var body: some View {
     ZStack {
@@ -46,34 +35,7 @@ struct AtlasPage: View {
             .padding(.vertical, 32)
           Spacer()
         } else if let encounters {
-          GeometryReader { geometry in
-            ForEach(Self.slots, id: \.personId) { slot in
-              let position = CGPoint(
-                x: slot.x / 100 * geometry.size.width,
-                y: slot.y / 100 * geometry.size.height
-              )
-              if let encounter = encounters.first(where: { $0.personId == slot.personId }) {
-                AtlasMetConstellation(
-                  encounter: encounter,
-                  scale: slot.scale,
-                  reveals: newlyMetPersonIds.contains(slot.personId)
-                ) {
-                  selectedEncounter = encounter
-                }
-                .position(x: position.x + 37 * slot.scale, y: position.y + 45 * slot.scale)
-              } else {
-                AtlasUnmetCluster()
-                  .position(x: position.x + 20, y: position.y + 20)
-              }
-            }
-          }
-          .padding(.horizontal, 12)
-
-          // ja: 出会った偉人 %lld / %lld
-          Text("Great figures you have met: \(encounters.count) / \(Self.slots.count)")
-            .font(.system(size: 12))
-            .foregroundStyle(Color.igenTextGold)
-            .padding(.bottom, 16)
+          AtlasPageBody(encounters: encounters, newlyMetPersonIds: newlyMetPersonIds)
         } else {
           Spacer()
           ProgressView()
@@ -85,21 +47,79 @@ struct AtlasPage: View {
     .task {
       do {
         let fetched = try await EncountersStore.fetchEncounters()
-        letters = (try? await LettersStore.fetchLetters()) ?? []
-        let seen = Set(atlasSeenPersonIds.split(separator: ",").map(String.init))
+        // 「新しい星座が夜空に灯る」演出の表示済み記録は匿名 UID ごとに分ける
+        // (401 回復でユーザーを作り直した場合に、前のユーザーの表示済み状態を引き継がないため)。
+        // fetchEncounters が認証を確保済みのため currentUser は取得できる
+        let seenKey = "atlasSeenPersonIds.\(Auth.auth().currentUser?.uid ?? "unknown")"
+        let seen = Set(
+          (UserDefaults.standard.string(forKey: seenKey) ?? "").split(separator: ",")
+            .map(String.init)
+        )
         newlyMetPersonIds = Set(fetched.map(\.personId)).subtracting(seen)
         encounters = fetched
-        atlasSeenPersonIds = fetched.map(\.personId).sorted().joined(separator: ",")
+        UserDefaults.standard.set(
+          fetched.map(\.personId).sorted().joined(separator: ","),
+          forKey: seenKey
+        )
       } catch {
         loadFailed = true
       }
     }
-    .sheet(item: $selectedEncounter) { encounter in
-      AtlasProfileSheet(
-        encounter: encounter,
-        letters: letters.filter { $0.personId == encounter.personId }
-      )
+  }
+}
+
+/// 取得済みの出会い一覧から星図 (星座の配置・件数) を表示する
+private struct AtlasPageBody: View {
+  var encounters: [Encounter]
+  var newlyMetPersonIds: Set<String>
+
+  @State var selectedEncounter: Encounter?
+
+  /// 星図上の配置 (0–100)。名言 DB に人物を追加したらここにも枠を追加する
+  private static let slots: [(personId: String, x: Double, y: Double, scale: Double)] = [
+    ("seneca", 26, 18, 1.0),
+    ("confucius", 70, 14, 0.85),
+    ("nietzsche", 30, 48, 0.9),
+    ("zeami", 72, 44, 0.95),
+    ("basho", 48, 76, 0.9),
+  ]
+
+  var body: some View {
+    GeometryReader { geometry in
+      ForEach(Self.slots, id: \.personId) { slot in
+        let position = CGPoint(
+          x: slot.x / 100 * geometry.size.width,
+          y: slot.y / 100 * geometry.size.height
+        )
+        if let encounter = encounters.first(where: { $0.personId == slot.personId }) {
+          AtlasMetConstellation(
+            encounter: encounter,
+            scale: slot.scale,
+            reveals: newlyMetPersonIds.contains(slot.personId)
+          ) {
+            Analytics.logEvent("atlas_person_button_pressed", parameters: nil)
+            selectedEncounter = encounter
+          }
+          .position(x: position.x + 37 * slot.scale, y: position.y + 45 * slot.scale)
+        } else {
+          AtlasUnmetCluster()
+            .position(x: position.x + 20, y: position.y + 20)
+        }
+      }
     }
+    .padding(.horizontal, 12)
+
+    // ja: 出会った偉人 %lld / %lld
+    Text("Great figures you have met: \(encounters.count) / \(Self.slots.count)")
+      .font(.system(size: 12))
+      .foregroundStyle(Color.igenTextGold)
+      .padding(.bottom, 16)
+
+    Color.clear.frame(height: 0)
+      .sheet(item: $selectedEncounter) { encounter in
+        // その偉人の返書はシート側で personId 指定で取得する (星図を開くだけで全返書を読まない)
+        AtlasProfileSheet(encounter: encounter)
+      }
   }
 }
 
@@ -111,13 +131,17 @@ struct AtlasMetConstellation: View {
   var onPressed: () -> Void
 
   @State var start = Date.now
+  /// 点灯演出が完了したか。完了後は TimelineView を止め、毎フレームの再評価を続けない
+  @State var revealFinished = false
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
 
   var body: some View {
     Button {
       onPressed()
     } label: {
       VStack(spacing: 4) {
-        if reveals {
+        // 「視差効果を減らす」設定では点灯演出を流さず、最初から静的な星座を表示する
+        if reveals && !revealFinished && !reduceMotion {
           TimelineView(.animation) { timeline in
             let elapsed = timeline.date.timeIntervalSince(start)
             ConstellationAvatar(
@@ -126,6 +150,11 @@ struct AtlasMetConstellation: View {
               lineProgress: min(max((elapsed - 0.6) / 1.6, 0), 1)
             )
             .frame(width: 74 * scale, height: 74 * scale)
+          }
+          .task {
+            // 線の描き上がり (0.6s 遅延 + 1.6s) が終わったら静的表示へ切り替える
+            try? await Task.sleep(for: .seconds(2.4))
+            revealFinished = true
           }
         } else {
           ConstellationAvatar(constellation: ConstellationData.constellation(for: encounter.personId))
