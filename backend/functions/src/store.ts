@@ -28,8 +28,10 @@ export async function saveLetter(
     throw new Error(`quoteId not in DB: ${input.composition.quoteId}`);
   }
   // 返り値の letter は JSON レスポンスにそのまま載るため Timestamp を含めない
-  // (Timestamp は JSON 化するとクライアントの Codable が解釈できない形になる)
+  // (Timestamp は JSON 化するとクライアントの Codable が解釈できない形になる)。
+  // 相談時刻は日付表示の基準としてクライアントが必要とするため、ミリ秒 epoch で含める
   const letter = {
+    consultedAt: input.consultedAt.getTime(),
     concern: input.concern,
     language: input.language,
     timeZone: input.timeZone,
@@ -82,7 +84,16 @@ export async function findLetterByRequestId(
   if (document === undefined) {
     return null;
   }
-  // JSON レスポンスに載せるため、クライアントの Codable が解釈できない Timestamp フィールドを除外する
+  // JSON レスポンスに載せるため、クライアントの Codable が解釈できない Timestamp フィールドを除外する。
+  // 相談時刻は日付表示の基準としてクライアントが必要とするため、ミリ秒 epoch に変換して残す
   const { createdAt, updatedAt, consultedAt, ...letter } = document.data();
-  return { id: document.id, letter };
+  return {
+    id: document.id,
+    letter: {
+      ...letter,
+      ...(consultedAt instanceof Timestamp
+        ? { consultedAt: consultedAt.toMillis() }
+        : {}),
+    },
+  };
 }

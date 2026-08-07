@@ -127,7 +127,9 @@ Compose the letter of reply.`;
       }
       const message = choice.message;
       if (message.refusal) {
-        throw new Error(`openai refused the request: ${message.refusal}`);
+        // refusal 本文には相談内容の引用が含まれうる。相談はセンシティブデータとして
+        // ログに残さないため、例外メッセージへモデル由来の本文を入れない
+        throw new Error("openai refused the request");
       }
       // 出力上限到達などで途中終了した応答は JSON が不完全なため、解析せず再試行に回す
       if (choice.finish_reason !== "stop") {
@@ -148,6 +150,11 @@ Compose the letter of reply.`;
           `openai response is not valid JSON: ${parseError}`,
         );
         continue;
+      }
+      // 危機判定が真なら返書本文は破棄される (app.ts が safety を返す) ため、
+      // 本文の意味検証で危機応答を 502 にしない。crisis を先に返す
+      if (composition.crisis) {
+        return composition;
       }
       const problems = validateLetterComposition(composition);
       if (problems.length === 0) {
