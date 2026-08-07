@@ -13,6 +13,14 @@ struct PaywallPage: View {
   @State var purchasesUnavailableAlertIsPresented = false
   @State var restoreDoneAlertIsPresented = false
 
+  /// チケット (consumable) のパッケージ。offering に別の custom package があっても
+  /// バックエンドが数えるストア商品 ID (igen_ticket_1) と一致するものだけを選ぶ
+  private var ticketPackage: Package? {
+    offerings?.current?.availablePackages.first(where: {
+      $0.storeProduct.productIdentifier == PurchasesSetup.ticketProductID
+    })
+  }
+
   /// offering の取得中か (SDK が使える環境でのみ真になりうる)。取得完了まで購入 CTA を待機させる
   private var offeringsLoading: Bool {
     PurchasesSetup.isAvailable && offerings == nil && !offeringsLoadFailed
@@ -27,6 +35,7 @@ struct PaywallPage: View {
           HStack {
             Spacer()
             Button {
+              Analytics.logEvent("paywall_close_button_pressed", parameters: nil)
               dismiss()
             } label: {
               Image(systemName: "xmark")
@@ -58,7 +67,7 @@ struct PaywallPage: View {
           }
 
           PaywallTicketPlanCard(
-            package: offerings?.current?.availablePackages.first(where: { $0.packageType == .custom }),
+            package: ticketPackage,
             purchasing: purchasing || offeringsLoading
           ) {
             Analytics.logEvent("paywall_ticket_button_pressed", parameters: nil)
@@ -140,10 +149,7 @@ struct PaywallPage: View {
       purchasesUnavailableAlertIsPresented = true
       return
     }
-    let package =
-      packageType == .monthly
-      ? offerings?.current?.monthly
-      : offerings?.current?.availablePackages.first(where: { $0.packageType == .custom })
+    let package = packageType == .monthly ? offerings?.current?.monthly : ticketPackage
     if let package {
       purchasing = true
       Task {

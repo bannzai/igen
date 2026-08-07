@@ -127,6 +127,8 @@ enum IgenAPI {
     // その経路でも購入機能が使えるよう、RevenueCat の初期化も再試行する (どちらも冪等)
     let uid = try await FirebaseSetup.ensureAnonymousUser()
     PurchasesSetup.configure(appUserID: uid)
+    // ensureAnonymousUser が無効ユーザーを作り直した場合も RevenueCat を同じ UID へ揃える (UID 一致なら no-op)
+    await PurchasesSetup.logIn(appUserID: uid)
     guard let user = Auth.auth().currentUser else {
       throw APIError.unauthenticated
     }
