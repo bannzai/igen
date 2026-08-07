@@ -21,13 +21,13 @@ enum IgenAPI {
     case safety
   }
 
-  /// API のベース URL。GoogleService-Info.plist が無い間は Functions エミュレータに向ける
-  /// (FirebaseSetup の Emulator フォールバックと同じ判定。実プロジェクト作成後に本番 URL を設定する)
+  /// API のベース URL。Emulator を使うかどうかの判定は FirebaseSetup.usesEmulator と共有する
+  /// (Debug は既定で Functions エミュレータ、IGEN_USE_PROD=1 または Release で実プロジェクト)
   static var baseURL: URL {
-    if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
-      return URL(string: "https://asia-northeast1-igen-prod.cloudfunctions.net/api")!
+    if FirebaseSetup.usesEmulator {
+      return URL(string: "http://127.0.0.1:5201/demo-igen/asia-northeast1/api")!
     }
-    return URL(string: "http://127.0.0.1:5201/demo-igen/asia-northeast1/api")!
+    return URL(string: "https://asia-northeast1-igen-prod.cloudfunctions.net/api")!
   }
 
   /// 相談本文を送り、返書または safety を受け取る。
