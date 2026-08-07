@@ -21,14 +21,13 @@ struct SafetyResourceCard: View {
   }
 }
 
-/// 窓口カードの表示部分 (名称・電話番号・注記)。名称・注記は表示言語で切り替える
+/// 窓口カードの表示部分 (名称・電話番号・注記)。名称・注記は文字列カタログで解決済みの文字列を受け取る
 struct SafetyResourceCardContent: View {
   var resource: SafetyResource
 
   var body: some View {
-    let language = Locale.autoupdatingCurrent.language.languageCode?.identifier == "ja" ? "ja" : "en"
     VStack(alignment: .leading, spacing: 4) {
-      Text(verbatim: resource.name.localized(language))
+      Text(verbatim: resource.name)
         .font(.system(size: 14, weight: .semibold))
         .foregroundStyle(Color.igenText)
       if let phoneNumber = resource.phoneNumber {
@@ -37,7 +36,7 @@ struct SafetyResourceCardContent: View {
           .foregroundStyle(Color.igenGoldBright)
       }
       if let note = resource.note {
-        Text(verbatim: note.localized(language))
+        Text(verbatim: note)
           .font(.system(size: 11))
           .foregroundStyle(Color.igenText.opacity(0.6))
       }
@@ -63,9 +62,11 @@ struct SafetyResourceCard_Previews: PreviewProvider {
     SafetyResourceCard(
       resource: SafetyResource(
         id: "yorisoi",
-        name: LocalizedText(ja: "よりそいホットライン", en: "Yorisoi Hotline"),
+        // ja: よりそいホットライン
+        name: String(localized: "Yorisoi Hotline"),
         phoneNumber: "0120-279-338",
-        note: LocalizedText(ja: "24時間・通話無料", en: "24 hours, toll-free"),
+        // ja: 24時間・通話無料
+        note: String(localized: "24 hours, toll-free"),
         url: nil
       )
     )

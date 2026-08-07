@@ -181,23 +181,36 @@ export function createApp(deps: AppDeps): Express {
       return;
     }
     if (!quota.consumed) {
-      // 購入状態の確認・チケット消費の失敗は 500 にせず「購入なし」として 429 に倒す
-      // (RevenueCat 障害・未設定時に返書機能全体を止めず、未処理 rejection にもしないため)
-      const entitlement = await deps.checkEntitlement(uid).catch((error) => {
+      // 購入状態の照会・チケット消費の失敗は「購入なし」(= 429 → ペイウォール表示) に変換せず、
+      // 再試行可能な障害として 503 を返す (支払い済みユーザーを枠超過扱いにして再購入を促さないため)
+      let entitlement: { unlimited: boolean; ticketsPurchased: number };
+      try {
+        entitlement = await deps.checkEntitlement(uid);
+      } catch (error) {
         logger.error("entitlement check failed", { uid, error: `${error}` });
-        return { unlimited: false, ticketsPurchased: 0 };
-      });
-      const ticketConsumed = entitlement.unlimited
-        ? false
-        : await consumeTicket(db, uid, entitlement.ticketsPurchased).catch(
-            (error) => {
-              logger.error("ticket transaction failed", {
-                uid,
-                error: `${error}`,
-              });
-              return false;
-            },
-          );
+        sendError(
+          res,
+          503,
+          "entitlement_unavailable",
+          "failed to check purchases",
+        );
+        return;
+      }
+      let ticketConsumed: boolean;
+      try {
+        ticketConsumed = entitlement.unlimited
+          ? false
+          : await consumeTicket(db, uid, entitlement.ticketsPurchased);
+      } catch (error) {
+        logger.error("ticket transaction failed", { uid, error: `${error}` });
+        sendError(
+          res,
+          503,
+          "entitlement_unavailable",
+          "failed to check purchases",
+        );
+        return;
+      }
       if (entitlement.unlimited) {
         accessGrant = "unlimited";
       } else if (ticketConsumed) {

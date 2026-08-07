@@ -76,10 +76,10 @@ export function createOpenAILetterComposer(
 ): ComposeLetterFn {
   // Functions の timeoutSeconds (300 秒) より先に SDK 側で必ず失敗させ、無料枠の返却と
   // エラーレスポンス送信の時間を残す (SDK 既定の 10 分では実行環境が先に強制終了される)。
-  // SDK の自動リトライと下の検証ループ (2 試行) を合わせた最悪時間も 300 秒未満に収まる値にする
+  // 最悪時間 = timeout 70 秒 × SDK 試行 2 回 (maxRetries 1) × 検証ループ 2 試行 = 280 秒 < 300 秒
   const client = new OpenAI({
     apiKey: options.apiKey,
-    timeout: 120_000,
+    timeout: 70_000,
     maxRetries: 1,
   });
 
