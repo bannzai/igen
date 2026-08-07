@@ -37,10 +37,27 @@ enum FirebaseSetup {
     }
   }
 
-  /// 匿名 UID を確保する。既にサインイン済みならその UID を返す (冪等)
+  /// 保存済みユーザーがサーバー側に存在しない・無効化されたことを示す Auth エラーコード
+  private static let invalidUserErrorCodes: Set<AuthErrorCode> = [
+    .userNotFound, .invalidUserToken, .userTokenExpired, .userDisabled,
+  ]
+
+  /// 匿名 UID を確保する。既にサインイン済みならトークンを強制更新して有効性を検証したうえで返す (冪等)
   static func ensureAnonymousUser() async throws -> String {
     if let user = Auth.auth().currentUser {
-      return user.uid
+      do {
+        // Auth エミュレータの再起動やユーザー削除でサーバー側から消えた保存済みユーザーを検出する
+        _ = try await user.getIDToken(forcingRefresh: true)
+        return user.uid
+      } catch let error as NSError
+        where invalidUserErrorCodes.contains(AuthErrorCode(rawValue: error.code) ?? .internalError)
+      {
+        // サーバーに存在しないユーザーはサインアウトし、下の signInAnonymously で作り直す
+        try Auth.auth().signOut()
+      } catch {
+        // ネットワーク断などユーザー無効以外の失敗では、新規 UID を発行して履歴を失わないよう既存 UID を維持する
+        return user.uid
+      }
     }
     let result = try await Auth.auth().signInAnonymously()
     return result.user.uid
