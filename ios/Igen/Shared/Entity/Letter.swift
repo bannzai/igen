@@ -36,6 +36,14 @@ struct LetterPerson: Codable, Hashable {
   var died: Int
   var title: LocalizedText
   var bio: LocalizedText
+  /// 没後 70 年経過 (パブリックドメイン) の確認結果 (persons スナップショットの権利確認情報)
+  var publicDomain: LetterPersonPublicDomain?
+}
+
+/// 収録人物のパブリックドメイン確認結果
+struct LetterPersonPublicDomain: Codable, Hashable {
+  var confirmed: Bool
+  var note: String?
 }
 
 /// 話者が特定できない格言を説明する図解カード (例え → 意味 → 使いどころ)
@@ -50,6 +58,8 @@ struct Letter: Codable, Hashable, Identifiable {
   var id: String
   var concern: String
   var language: String
+  /// POST /letters の冪等化に使ったクライアント生成 ID
+  var requestId: String?
   var quoteId: String
   var quote: LetterQuote
   var personId: String?
