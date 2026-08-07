@@ -21,34 +21,74 @@ enum IgenAPI {
     case safety
   }
 
+  /// 相談本文の送信上限。バックエンド (backend/functions/src/openai.ts の MAX_CONCERN_CHARS) と同じ値
+  static let maxConcernChars = 2000
+
+  /// Emulator 開発かどうか (FirebaseSetup の Emulator フォールバックと同じ判定)
+  private static var usesEmulator: Bool {
+    Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") == nil
+  }
+
   /// API のベース URL。GoogleService-Info.plist が無い間は Functions エミュレータに向ける
-  /// (FirebaseSetup の Emulator フォールバックと同じ判定。実プロジェクト作成後に本番 URL を設定する)
+  /// (実プロジェクト作成後に本番 URL を設定する)
   static var baseURL: URL {
-    if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
-      // Firebase 実プロジェクト作成後 (issue #4) にデプロイ先の URL へ差し替える
-      return URL(string: "https://asia-northeast1-igen.cloudfunctions.net/api")!
+    if usesEmulator {
+      return URL(string: "http://127.0.0.1:5201/demo-igen/asia-northeast1/api")!
     }
-    return URL(string: "http://127.0.0.1:5201/demo-igen/asia-northeast1/api")!
+    // Firebase 実プロジェクト作成後 (issue #4) にデプロイ先の URL へ差し替える
+    return URL(string: "https://asia-northeast1-igen.cloudfunctions.net/api")!
   }
 
   /// 相談本文を送り、返書または safety を受け取る。
-  /// 401 (Keychain に残った無効なセッション等) は匿名ユーザーを作り直して 1 回だけリトライする
+  /// 401 はまずトークンを強制更新して 1 回リトライする。それでも 401 の場合、Emulator 開発時に限り
+  /// 匿名ユーザーを作り直してもう 1 回だけリトライする (Auth エミュレータ再起動で残った無効セッションの回復)。
+  /// 本番では認証系の一時的な失敗で UID を作り直すと保存済み返書 (users/{uid}/letters) へ
+  /// 恒久的にアクセスできなくなるため、ユーザーの作り直しはしない
   static func requestLetter(text: String, language: String, timeZone: String) async throws -> LetterResult {
-    let firstResponse = try await postLetter(text: text, language: language, timeZone: timeZone)
+    let firstResponse = try await postLetter(
+      text: text,
+      language: language,
+      timeZone: timeZone,
+      forcesTokenRefresh: false
+    )
     if firstResponse.statusCode != 401 {
       return try parseLetterResponse(firstResponse)
     }
+    let refreshedResponse = try await postLetter(
+      text: text,
+      language: language,
+      timeZone: timeZone,
+      forcesTokenRefresh: true
+    )
+    if refreshedResponse.statusCode != 401 || usesEmulator == false {
+      return try parseLetterResponse(refreshedResponse)
+    }
     _ = try await FirebaseSetup.resetAnonymousUser()
-    return try parseLetterResponse(try await postLetter(text: text, language: language, timeZone: timeZone))
+    return try parseLetterResponse(
+      try await postLetter(text: text, language: language, timeZone: timeZone, forcesTokenRefresh: false)
+    )
   }
 
-  private static func postLetter(text: String, language: String, timeZone: String) async throws -> (statusCode: Int, data: Data) {
+  private static func postLetter(
+    text: String,
+    language: String,
+    timeZone: String,
+    forcesTokenRefresh: Bool
+  ) async throws -> (statusCode: Int, data: Data) {
+    // 起動時の匿名サインインが未完了・失敗していても、送信時に再確保して自己回復する
+    _ = try await FirebaseSetup.ensureAnonymousUser()
     guard let user = Auth.auth().currentUser else {
       throw APIError.unauthenticated
     }
     var request = URLRequest(url: baseURL.appending(path: "letters"))
+    // Functions は LLM 呼び出しのため timeoutSeconds 300 で動く。クライアント既定 (60 秒) のままだと
+    // 生成完了前に打ち切り、サーバー側だけ返書が保存され無料枠も消費されるため、サーバーの上限に合わせる
+    request.timeoutInterval = 300
     request.httpMethod = "POST"
-    request.setValue("Bearer \(try await user.getIDToken())", forHTTPHeaderField: "Authorization")
+    request.setValue(
+      "Bearer \(try await user.getIDToken(forcingRefresh: forcesTokenRefresh))",
+      forHTTPHeaderField: "Authorization"
+    )
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.httpBody = try JSONEncoder().encode(["text": text, "language": language, "timeZone": timeZone])
 
