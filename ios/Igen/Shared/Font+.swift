@@ -17,8 +17,12 @@ extension Font {
     }
   }
 
-  /// ラテン語などの欧文原文に使うイタリック (Georgia。デザイン指定)
-  static func igenOriginalText(size: CGFloat) -> Font {
-    .custom("Georgia-Italic", size: size)
+  /// 原文の書体。欧文はイタリック (Georgia。デザイン指定)、
+  /// CJK (ja / zh) は Georgia にグリフがなくフォールバックになるため明朝体で表示する
+  static func igenOriginalText(size: CGFloat, originalLanguage: String) -> Font {
+    if originalLanguage == "ja" || originalLanguage == "zh" {
+      return igenSerif(size: size)
+    }
+    return .custom("Georgia-Italic", size: size)
   }
 }

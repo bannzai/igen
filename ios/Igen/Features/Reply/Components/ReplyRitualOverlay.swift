@@ -65,8 +65,10 @@ struct ReplyRitualOverlay: View {
             Text("Skip")
               .font(.system(size: 13))
               .foregroundStyle(Color.igenText.opacity(0.6))
-              .padding(.vertical, 10)
               .padding(.horizontal, 24)
+              // 演出を中断する唯一の操作のため、最小タップターゲット 44pt を確保する (design_handoff_igen/README.md)
+              .frame(minHeight: 44)
+              .contentShape(Rectangle())
           }
         }
         .padding(.vertical, 32)

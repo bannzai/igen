@@ -7,10 +7,16 @@ import SwiftUI
 struct PaywallPage: View {
   @Environment(\.dismiss) var dismiss
   @State var offerings: Offerings?
+  @State var offeringsLoadFailed = false
   @State var purchasing = false
   @State var purchaseErrorAlertIsPresented = false
   @State var purchasesUnavailableAlertIsPresented = false
   @State var restoreDoneAlertIsPresented = false
+
+  /// offering の取得中か (SDK が使える環境でのみ真になりうる)。取得完了まで購入 CTA を待機させる
+  private var offeringsLoading: Bool {
+    PurchasesSetup.isAvailable && offerings == nil && !offeringsLoadFailed
+  }
 
   var body: some View {
     ZStack {
@@ -43,14 +49,33 @@ struct PaywallPage: View {
             .lineSpacing(8)
             .foregroundStyle(Color.igenText.opacity(0.8))
 
-          PaywallUnlimitedPlanCard(purchasing: purchasing) {
+          PaywallUnlimitedPlanCard(
+            package: offerings?.current?.monthly,
+            purchasing: purchasing || offeringsLoading
+          ) {
             Analytics.logEvent("paywall_subscribe_button_pressed", parameters: nil)
             purchase(packageType: .monthly)
           }
 
-          PaywallTicketPlanCard(purchasing: purchasing) {
+          PaywallTicketPlanCard(
+            package: offerings?.current?.availablePackages.first(where: { $0.packageType == .custom }),
+            purchasing: purchasing || offeringsLoading
+          ) {
             Analytics.logEvent("paywall_ticket_button_pressed", parameters: nil)
             purchase(packageType: .custom)
+          }
+
+          if offeringsLoadFailed {
+            Button {
+              Task {
+                await loadOfferings()
+              }
+            } label: {
+              // ja: 価格を読み込めませんでした タップして再試行
+              Text("Prices could not be loaded. Tap to retry.")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.igenGoldBright)
+            }
           }
 
           HStack(spacing: 16) {
@@ -61,14 +86,15 @@ struct PaywallPage: View {
               // ja: 購入の復元
               Text("Restore purchases")
             }
-            // 法務ドキュメントの公開 URL は #16 (GitHub Pages 有効化) で確定する
+            // 法務ドキュメントの公開 URL は #16 (GitHub Pages 有効化) で確定する。
+            // 現状は日本語版のみ提供のため、英語 UI では提供言語を明示する
             Link(destination: URL(string: "https://github.com/bannzai/igen/blob/main/docs/Terms-ja.md")!) {
               // ja: 利用規約
-              Text("Terms of Service")
+              Text("Terms of Service (Japanese)")
             }
             Link(destination: URL(string: "https://github.com/bannzai/igen/blob/main/docs/PrivacyPolicy-ja.md")!) {
               // ja: プライバシーポリシー
-              Text("Privacy Policy")
+              Text("Privacy Policy (Japanese)")
             }
           }
           .font(.system(size: 11))
@@ -91,15 +117,26 @@ struct PaywallPage: View {
     .alert("Your purchases have been restored.", isPresented: $restoreDoneAlertIsPresented) {}
     .task {
       Analytics.logEvent("paywall_shown", parameters: nil)
-      if PurchasesSetup.isConfigured {
-        offerings = try? await Purchases.shared.offerings()
-      }
+      await loadOfferings()
     }
   }
 
-  /// offering からパッケージを選んで購入する。SDK 未設定の間は準備中の案内を出す
+  /// offering を取得する。失敗したら再試行導線を表示する
+  private func loadOfferings() async {
+    if !PurchasesSetup.isAvailable {
+      return
+    }
+    offeringsLoadFailed = false
+    do {
+      offerings = try await Purchases.shared.offerings()
+    } catch {
+      offeringsLoadFailed = true
+    }
+  }
+
+  /// offering からパッケージを選んで購入する。SDK 未設定・未初期化の間は準備中の案内を出す
   private func purchase(packageType: PackageType) {
-    if !PurchasesSetup.isConfigured {
+    if !PurchasesSetup.isAvailable {
       purchasesUnavailableAlertIsPresented = true
       return
     }
@@ -127,13 +164,14 @@ struct PaywallPage: View {
   }
 
   private func restore() {
-    if !PurchasesSetup.isConfigured {
+    if !PurchasesSetup.isAvailable {
       purchasesUnavailableAlertIsPresented = true
       return
     }
     Task {
       do {
         _ = try await Purchases.shared.restorePurchases()
+        Analytics.logEvent("paywall_restore_completed", parameters: nil)
         restoreDoneAlertIsPresented = true
       } catch {
         purchaseErrorAlertIsPresented = true

@@ -18,4 +18,27 @@ describe("seedQuotesDb", () => {
     expect(seneca.data()?.name.ja).toBe("セネカ");
     expect(seneca.data()?.createdAt).toBeDefined();
   });
+
+  it("原本に無いドキュメントは削除される (原本から排除した名言を配信し続けない)", async () => {
+    await db.collection("quotes").doc("stale-quote").set({ id: "stale-quote" });
+
+    await seedQuotesDb(db);
+
+    const staleQuote = await db.collection("quotes").doc("stale-quote").get();
+    expect(staleQuote.exists).toBe(false);
+  });
+
+  it("再実行しても既存ドキュメントの createdAt は変わらない", async () => {
+    await seedQuotesDb(db);
+    const firstCreatedAt = (
+      await db.collection("persons").doc("seneca").get()
+    ).data()?.createdAt;
+
+    await seedQuotesDb(db);
+
+    const secondCreatedAt = (
+      await db.collection("persons").doc("seneca").get()
+    ).data()?.createdAt;
+    expect(secondCreatedAt.isEqual(firstCreatedAt)).toBe(true);
+  });
 });

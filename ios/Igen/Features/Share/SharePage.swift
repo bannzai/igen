@@ -5,7 +5,8 @@ import SwiftUI
 struct SharePage: View {
   var letter: Letter
   @Environment(\.displayScale) var displayScale
-  @State var cardImage: Image?
+  @State var cardImage: UIImage?
+  @State var shareActivitySheetIsPresented = false
 
   var body: some View {
     ZStack {
@@ -29,10 +30,10 @@ struct SharePage: View {
           .foregroundStyle(Color.igenText.opacity(0.6))
 
         if let cardImage {
-          ShareLink(
-            item: cardImage,
-            preview: SharePreview("IGEN", image: cardImage)
-          ) {
+          Button {
+            Analytics.logEvent("share_button_pressed", parameters: ["quote_id": letter.quoteId])
+            shareActivitySheetIsPresented = true
+          } label: {
             // ja: シェア
             Text("Share")
               .font(.igenSerif(size: 16, weight: .semibold))
@@ -46,6 +47,21 @@ struct SharePage: View {
               .clipShape(Capsule())
           }
           .padding(.horizontal, 32)
+          .sheet(isPresented: $shareActivitySheetIsPresented) {
+            // 共有先での完了・キャンセルを計測するため、completion を取得できる UIActivityViewController を使う
+            // (ShareLink は完了結果を取得できない)
+            ShareActivitySheet(cardImage: cardImage) { completed, activityType in
+              if completed {
+                // 保存・コピーは SNS 共有ではないため別イベントで数え、共有完了率を過大にしない
+                if activityType == .saveToCameraRoll || activityType == .copyToPasteboard {
+                  Analytics.logEvent("share_card_saved", parameters: ["quote_id": letter.quoteId])
+                } else {
+                  Analytics.logEvent("share_completed", parameters: ["quote_id": letter.quoteId])
+                }
+              }
+            }
+            .presentationDetents([.medium, .large])
+          }
         } else {
           ProgressView()
             .tint(Color.igenGold)
@@ -58,9 +74,7 @@ struct SharePage: View {
       Analytics.logEvent("share_card_shown", parameters: ["quote_id": letter.quoteId])
       let renderer = ImageRenderer(content: ShareCardView(letter: letter))
       renderer.scale = displayScale
-      if let uiImage = renderer.uiImage {
-        cardImage = Image(uiImage: uiImage)
-      }
+      cardImage = renderer.uiImage
     }
   }
 }

@@ -15,9 +15,9 @@ struct ReplyDiagramCard: View {
         .padding(.bottom, 14)
 
       ReplyDiagramNode(kind: .metaphor, text: diagram.metaphor)
-      connector
+      ReplyDiagramConnector()
       ReplyDiagramNode(kind: .meaning, text: diagram.meaning)
-      connector
+      ReplyDiagramConnector()
       ReplyDiagramNode(kind: .usage, text: diagram.usage)
     }
     .frame(maxWidth: .infinity)
@@ -29,7 +29,11 @@ struct ReplyDiagramCard: View {
     )
   }
 
-  private var connector: some View {
+}
+
+/// 図解カードのノード間をつなぐ金のグラデーション縦線
+struct ReplyDiagramConnector: View {
+  var body: some View {
     Rectangle()
       .fill(
         LinearGradient(
