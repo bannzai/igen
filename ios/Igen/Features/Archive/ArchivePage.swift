@@ -91,8 +91,12 @@ struct ArchivePage: View {
       nextCursor = page.cursor
     } catch {
       // 追加取得の失敗で画面全体をエラーにしない (既に表示済みの一覧を保つ)。
-      // 一時的な失敗に備えて少し待ってから 1 回だけ再試行する (スピナーが出たまま止まらないように)
+      // 一時的な失敗に備えて少し待ってから 1 回だけ再試行する (スピナーが出たまま止まらないように)。
+      // 画面遷移などで task がキャンセルされたら再試行しない (再表示時の task と重複取得しないため)
       try? await Task.sleep(for: .seconds(2))
+      if Task.isCancelled {
+        return
+      }
       if let page = try? await LettersStore.fetchLetters(cursor: nextCursor) {
         letters = (letters ?? []) + page.letters
         nextCursor = page.cursor

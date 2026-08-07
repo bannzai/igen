@@ -40,6 +40,10 @@ export type ClassifyCrisisFn = (input: { concern: string }) => Promise<boolean>;
 
 // 医療を想起させる語 (documents/PROJECT.md リスク 2)。システムプロンプトで禁止していても
 // ユーザー本文の反復などで生成文へ混入しうるため、検証でも拒否して再試行に載せる
+// 生成フィールド 1 つあたりの長さ上限。返書レイアウトの想定を大きく超える出力と
+// Firestore ドキュメント上限 (1 MiB) への接近を保存前に拒否する
+const MAX_GENERATED_FIELD_CHARS = 2000;
+
 const BANNED_MEDICAL_TERMS = [
   "セラピー",
   "カウンセリング",
@@ -86,6 +90,9 @@ export function validateLetterComposition(
   for (const [field, value] of generatedFields) {
     if (value.trim() === "") {
       problems.push(`${field} is empty`);
+    }
+    if (value.length > MAX_GENERATED_FIELD_CHARS) {
+      problems.push(`${field} is too long`);
     }
     const bannedTerm = BANNED_MEDICAL_TERMS.find((term) =>
       value.toLowerCase().includes(term.toLowerCase()),
