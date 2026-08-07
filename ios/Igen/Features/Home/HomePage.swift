@@ -35,6 +35,11 @@ struct HomePage: View {
 
             Button {
               Analytics.logEvent("home_atlas_button_pressed", parameters: nil)
+              // 音声入力中・開始処理の suspend 中に遷移しても背後で録音が続かないよう、先に停止する
+              listeningTask?.cancel()
+              listeningTask = nil
+              speechRecognizer.stop()
+              listening = false
               atlasIsPresented = true
             } label: {
               // ja: 星図
@@ -45,6 +50,9 @@ struct HomePage: View {
                 .padding(.horizontal, 13)
                 .background(Capsule().fill(Color.igenCard.opacity(0.55)))
                 .overlay(Capsule().stroke(Color.igenGold.opacity(0.32), lineWidth: 1))
+                // 見た目のカプセルは保ちつつ、最小タップターゲット 44pt を確保する (design_handoff_igen/README.md)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
 
             Button {

@@ -74,13 +74,14 @@ struct SafetyPage: View {
   }
 }
 
-/// 相談窓口 1 件。名称・電話番号・URL は表示用のデータとしてそのまま扱う。
+/// 相談窓口 1 件。電話番号・URL は表示用のデータとしてそのまま扱う。
+/// 名称・注記は表示言語で切り替える (窓口の選択は地域、文言は言語)。
 /// **掲載内容 (電話番号・受付時間) はリリース前に必ず最新情報を確認する** (#16 公開前チェックリスト)
 struct SafetyResource: Identifiable {
   var id: String
-  var name: String
+  var name: LocalizedText
   var phoneNumber: String?
-  var note: String?
+  var note: LocalizedText?
   var url: URL?
 
   /// 端末の地域ごとの窓口一覧。表示言語ではなく地域で選ぶ (利用できない国の窓口へ誘導しないため)。
@@ -91,21 +92,21 @@ struct SafetyResource: Identifiable {
       return [
         SafetyResource(
           id: "inochi",
-          name: "いのちの電話",
+          name: LocalizedText(ja: "いのちの電話", en: "Inochi no Denwa (Japan Lifeline)"),
           phoneNumber: "0570-783-556",
           note: nil,
           url: nil
         ),
         SafetyResource(
           id: "yorisoi",
-          name: "よりそいホットライン",
+          name: LocalizedText(ja: "よりそいホットライン", en: "Yorisoi Hotline"),
           phoneNumber: "0120-279-338",
-          note: "24時間・通話無料",
+          note: LocalizedText(ja: "24時間・通話無料", en: "24 hours, toll-free"),
           url: nil
         ),
         SafetyResource(
           id: "mamorouyo",
-          name: "まもろうよ こころ (厚生労働省)",
+          name: LocalizedText(ja: "まもろうよ こころ (厚生労働省)", en: "Mamorou yo Kokoro (MHLW)"),
           phoneNumber: nil,
           note: nil,
           url: URL(string: "https://www.mhlw.go.jp/mamorouyokokoro/")
@@ -115,9 +116,9 @@ struct SafetyResource: Identifiable {
       return [
         SafetyResource(
           id: "lifeline-988",
-          name: "988 Suicide & Crisis Lifeline",
+          name: LocalizedText(ja: "988 Suicide & Crisis Lifeline", en: "988 Suicide & Crisis Lifeline"),
           phoneNumber: "988",
-          note: "24/7, free and confidential (US)",
+          note: LocalizedText(ja: "24時間・無料・秘密厳守 (米国)", en: "24/7, free and confidential (US)"),
           url: nil
         )
       ]
@@ -125,9 +126,9 @@ struct SafetyResource: Identifiable {
       return [
         SafetyResource(
           id: "find-a-helpline",
-          name: "Find a Helpline",
+          name: LocalizedText(ja: "Find a Helpline", en: "Find a Helpline"),
           phoneNumber: nil,
-          note: "Find support services in your country",
+          note: LocalizedText(ja: "お住まいの国の相談窓口を探せます", en: "Find support services in your country"),
           url: URL(string: "https://findahelpline.com/")
         )
       ]

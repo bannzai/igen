@@ -6,7 +6,7 @@ struct SharePage: View {
   var letter: Letter
   @Environment(\.displayScale) var displayScale
   @State var cardImage: UIImage?
-  @State var shareActivityIsPresented = false
+  @State var shareActivitySheetIsPresented = false
 
   var body: some View {
     ZStack {
@@ -32,7 +32,7 @@ struct SharePage: View {
         if let cardImage {
           Button {
             Analytics.logEvent("share_button_pressed", parameters: ["quote_id": letter.quoteId])
-            shareActivityIsPresented = true
+            shareActivitySheetIsPresented = true
           } label: {
             // ja: シェア
             Text("Share")
@@ -47,7 +47,7 @@ struct SharePage: View {
               .clipShape(Capsule())
           }
           .padding(.horizontal, 32)
-          .sheet(isPresented: $shareActivityIsPresented) {
+          .sheet(isPresented: $shareActivitySheetIsPresented) {
             // 共有先での完了・キャンセルを計測するため、completion を取得できる UIActivityViewController を使う
             // (ShareLink は完了結果を取得できない)
             ShareActivitySheet(cardImage: cardImage) { completed in
@@ -72,23 +72,6 @@ struct SharePage: View {
       cardImage = renderer.uiImage
     }
   }
-}
-
-/// 共有先での完了・キャンセルを受け取れる共有シート (UIActivityViewController のラッパー)
-private struct ShareActivitySheet: UIViewControllerRepresentable {
-  var cardImage: UIImage
-  // 共有の成否は UIKit の completion でしか取れないため、コールバックで親へ伝える
-  var onCompleted: (Bool) -> Void
-
-  func makeUIViewController(context: Context) -> UIActivityViewController {
-    let controller = UIActivityViewController(activityItems: [cardImage], applicationActivities: nil)
-    controller.completionWithItemsHandler = { _, completed, _, _ in
-      onCompleted(completed)
-    }
-    return controller
-  }
-
-  func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 struct SharePage_Previews: PreviewProvider {

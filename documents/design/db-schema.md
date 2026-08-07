@@ -101,4 +101,8 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 
 ## インデックス
 
-`backend/firestore.indexes.json` に定義する（現状なし）。
+`backend/firestore.indexes.json` に定義する。
+
+| コレクション | フィールド | 用途 |
+|---|---|---|
+| letters | personId ASC, createdAt DESC | 星図のプロフィールで「その偉人からもらった返書」を新しい順に取得するクエリ（`LettersStore.fetchLetters(personId:)`） |
