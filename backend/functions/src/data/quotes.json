@@ -151,27 +151,5 @@
       "origTitle": "淮南子",
       "year": "紀元前2世紀頃"
     }
-  },
-  {
-    "id": "ishi-no-ue-nimo-sannen",
-    "kind": "proverb",
-    "text": {
-      "ja": "石の上にも三年。",
-      "en": "Even a cold stone will grow warm if you sit on it for three years."
-    },
-    "original": "石の上にも三年",
-    "originalLanguage": "ja",
-    "personId": null,
-    "themes": ["忍耐", "継続", "成果が出ない"],
-    "source": {
-      "work": {
-        "ja": "日本の伝承のことわざ",
-        "en": "Traditional Japanese proverb"
-      },
-      "detail": {
-        "ja": "作者・成立年不詳の伝承",
-        "en": "Oral tradition; author and date unknown"
-      }
-    }
   }
 ]
