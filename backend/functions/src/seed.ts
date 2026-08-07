@@ -60,9 +60,23 @@ async function collectionSyncOperations(
  * 原本に無いドキュメントの削除と createdAt の保持により、何度実行しても同じ状態になる (冪等)。
  */
 export async function seedQuotesDb(firestore: Firestore): Promise<void> {
+  const personOperations = await collectionSyncOperations(
+    firestore,
+    "persons",
+    persons,
+  );
+  const quoteOperations = await collectionSyncOperations(
+    firestore,
+    "quotes",
+    quotes,
+  );
+  // 500 件超で複数バッチに分かれ、途中の commit 失敗で処理が止まっても
+  // 参照先 (人物) が先に消えないよう、人物 upsert → 名言 upsert → 名言 delete → 人物 delete の順に並べる
   const operations = [
-    ...(await collectionSyncOperations(firestore, "persons", persons)),
-    ...(await collectionSyncOperations(firestore, "quotes", quotes)),
+    ...personOperations.filter((operation) => operation.kind === "set"),
+    ...quoteOperations.filter((operation) => operation.kind === "set"),
+    ...quoteOperations.filter((operation) => operation.kind === "delete"),
+    ...personOperations.filter((operation) => operation.kind === "delete"),
   ];
   for (let index = 0; index < operations.length; index += batchWriteLimit) {
     const batch = firestore.batch();
