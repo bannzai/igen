@@ -39,7 +39,7 @@ struct SharePage: View {
             Spacer()
             // ja: 共有カード
             Text("Share Card")
-              .font(.system(size: 15, weight: .semibold, design: .serif))
+              .font(.igenSerif(size: 15, weight: .semibold))
               .tracking(3)
               .foregroundStyle(Color.igenGoldBright)
             Spacer()
@@ -63,7 +63,7 @@ struct SharePage: View {
             } label: {
               // ja: シェア
               Text("Share")
-                .font(.system(size: 16, weight: .semibold, design: .serif))
+                .font(.igenSerif(size: 16, weight: .semibold))
                 .tracking(3)
                 .foregroundStyle(Color.igenButtonText)
                 .frame(maxWidth: .infinity)
@@ -84,7 +84,7 @@ struct SharePage: View {
             } label: {
               // ja: 画像を保存
               Text("Save image")
-                .font(.system(size: 15, weight: .semibold, design: .serif))
+                .font(.igenSerif(size: 15, weight: .semibold))
                 .tracking(2)
                 .foregroundStyle(Color.igenTextGold)
                 .frame(maxWidth: .infinity)
