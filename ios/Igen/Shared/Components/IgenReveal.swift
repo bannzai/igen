@@ -5,6 +5,7 @@ import SwiftUI
 private struct IgenReveal: ViewModifier {
   var index: Int
   @State var revealed = false
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
 
   func body(content: Content) -> some View {
     content
@@ -12,6 +13,11 @@ private struct IgenReveal: ViewModifier {
       .blur(radius: revealed ? 0 : 6)
       .offset(y: revealed ? 0 : 10)
       .onAppear {
+        // 「視差効果を減らす」設定では blur・上昇・stagger の演出を行わず即時表示する
+        if reduceMotion {
+          revealed = true
+          return
+        }
         withAnimation(.easeOut(duration: 0.9).delay(Double(index) * 0.15)) {
           revealed = true
         }
