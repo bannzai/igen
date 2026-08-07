@@ -8,7 +8,7 @@ import type {
   LetterLanguage,
 } from "./letter";
 import { validateLetterComposition } from "./letter";
-import { MAX_CONCERN_CHARS } from "./openai";
+import { MAX_CONCERN_CHARS, OpenAIRefusalError } from "./openai";
 import { consumeFreeQuota, releaseFreeQuota } from "./quota";
 import { quotes } from "./quotesDb";
 import { saveLetter } from "./store";
@@ -117,23 +117,9 @@ export function createApp(deps: AppDeps): Express {
       return;
     }
 
-    // 無料枠の「1 日」の境界は quota.ts が保存済み timeZone で固定する (timeZone 切り替えによるリセット悪用の防止)
-    let quota: { consumed: boolean; date: string };
-    try {
-      quota = await consumeFreeQuota(db, uid, new Date(), timeZone ?? "UTC");
-    } catch (error) {
-      logger.error("free quota transaction failed", { uid, error: `${error}` });
-      sendError(
-        res,
-        503,
-        "quota_unavailable",
-        "failed to check the free quota",
-      );
-      return;
-    }
-    if (!quota.consumed) {
-      // 無料枠切れでも危機判定は完了させる (キーワード判定の取りこぼしを LLM で補完する二段構え)。
-      // 判定自体の失敗はキーワード判定を通過済みのため 429 に倒す
+    // 利用枠の判定に失敗・超過しても危機判定は完了させる (キーワード判定の取りこぼしを LLM で補完する二段構え)。
+    // 判定自体の失敗はキーワード判定を通過済みのためエラー応答側に倒す
+    const respondedWithSafety = async (): Promise<boolean> => {
       const crisis = await deps
         .classifyCrisis({ concern: text })
         .catch((error) => {
@@ -145,6 +131,30 @@ export function createApp(deps: AppDeps): Express {
         });
       if (crisis) {
         res.json({ type: "safety" });
+      }
+      return crisis;
+    };
+
+    // 無料枠の「1 日」の境界は quota.ts が保存済み timeZone で固定する (timeZone 切り替えによるリセット悪用の防止)
+    let quota: { consumed: boolean; date: string };
+    try {
+      quota = await consumeFreeQuota(db, uid, new Date(), timeZone ?? "UTC");
+    } catch (error) {
+      logger.error("free quota transaction failed", { uid, error: `${error}` });
+      // Firestore が利用不能でも危機相談には安全案内を優先する
+      if (await respondedWithSafety()) {
+        return;
+      }
+      sendError(
+        res,
+        503,
+        "quota_unavailable",
+        "failed to check the free quota",
+      );
+      return;
+    }
+    if (!quota.consumed) {
+      if (await respondedWithSafety()) {
         return;
       }
       sendError(
@@ -191,6 +201,14 @@ export function createApp(deps: AppDeps): Express {
       res.json({ type: "letter", id: saved.id, letter: saved.letter });
     } catch (error) {
       await refundFreeQuota();
+      // モデルが応答を拒否したケースは安全上の拒否である可能性が高いため、
+      // 通常の生成失敗と分けて危機の二次判定を行い、危機的なら安全案内を優先する
+      if (
+        error instanceof OpenAIRefusalError &&
+        (await respondedWithSafety())
+      ) {
+        return;
+      }
       // 相談本文はログに残さない (.claude/rules/firestore-rules.md「データ設計の決めごと」)
       logger.error("letter composition failed", { uid, error: `${error}` });
       sendError(res, 502, "generation_failed", "failed to compose the letter");
