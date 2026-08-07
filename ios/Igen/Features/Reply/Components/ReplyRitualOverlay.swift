@@ -1,3 +1,4 @@
+import FirebaseAnalytics
 import SwiftUI
 
 /// 返書の登場演出 (リチュアル)。散らばった星がアバター座標へ収束し、星座線が描かれ、
@@ -9,6 +10,7 @@ struct ReplyRitualOverlay: View {
   var onFinished: () -> Void
 
   @State var start = Date.now
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
 
   /// 演出の区切り時刻 (design_handoff_igen/README.md「回答演出」のフェーズ表)
   private var schedule: (appear: Double, converge: Double, lines: Double, total: Double) {
@@ -46,6 +48,12 @@ struct ReplyRitualOverlay: View {
                 Text("\(person.name.localized(letter.language)) appeared in your sky")
                   .font(.system(size: 12))
                   .foregroundStyle(Color.igenText.opacity(0.6))
+              } else {
+                // 人物のいないことわざでも、線の完了後に停止して見えないよう完了文言を出す
+                // ja: ことばが、あなたの空に届きました
+                Text("Words have reached your sky")
+                  .font(.system(size: 14, design: .serif))
+                  .foregroundStyle(Color.igenText)
               }
             }
             .transition(.opacity)
@@ -59,6 +67,7 @@ struct ReplyRitualOverlay: View {
           Spacer()
 
           Button {
+            Analytics.logEvent("reply_skip_button_pressed", parameters: nil)
             onFinished()
           } label: {
             // ja: スキップ
@@ -75,6 +84,11 @@ struct ReplyRitualOverlay: View {
       }
     }
     .task {
+      // 「視差効果を減らす」設定では演出を流さず、返書表示へ即時に移る
+      if reduceMotion {
+        onFinished()
+        return
+      }
       // 演出終了で自動的に返書表示へ (スキップ時はこの task がキャンセルされる)
       try? await Task.sleep(for: .seconds(schedule.total))
       if !Task.isCancelled {
