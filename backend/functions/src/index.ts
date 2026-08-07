@@ -5,7 +5,10 @@ import { onRequest } from "firebase-functions/v2/https";
 import { createApp } from "./app";
 // firebase-admin の初期化を先に済ませる (getAuth が初期化済みの app を要求するため)
 import "./firestore";
-import { createOpenAILetterComposer } from "./openai";
+import {
+  createOpenAICrisisClassifier,
+  createOpenAILetterComposer,
+} from "./openai";
 
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
 
@@ -26,12 +29,14 @@ export const api = onRequest(
   },
   (req, res) => {
     if (app === undefined) {
+      // ADR 0002: モデルはコード変更なしで差し替えられるよう環境変数にする
+      const openaiOptions = {
+        apiKey: openaiApiKey.value(),
+        model: process.env.OPENAI_MODEL ?? "gpt-5.6",
+      };
       app = createApp({
-        composeLetter: createOpenAILetterComposer({
-          apiKey: openaiApiKey.value(),
-          // ADR 0002: モデルはコード変更なしで差し替えられるよう環境変数にする
-          model: process.env.OPENAI_MODEL ?? "gpt-5.6",
-        }),
+        composeLetter: createOpenAILetterComposer(openaiOptions),
+        classifyCrisis: createOpenAICrisisClassifier(openaiOptions),
         verifyIdToken: (idToken) => getAuth().verifyIdToken(idToken),
       });
     }
