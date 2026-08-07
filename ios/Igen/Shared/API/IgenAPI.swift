@@ -48,13 +48,27 @@ enum IgenAPI {
     // 再送 (トークン更新・ユーザー作り直し後を含む) で同じ ID を使い、応答喪失時にサーバーが
     // 保存済みの返書を再生成せずに返せるようにする (POST の冪等化)
     let requestId = UUID().uuidString
-    let firstResponse = try await postLetter(
-      text: text,
-      language: language,
-      timeZone: timeZone,
-      requestId: requestId,
-      forcesTokenRefresh: false
-    )
+    // 通信断・タイムアウトで結果が不明な場合は同じ requestId で 1 回だけ自動再試行し、
+    // サーバー側だけ保存が完了していた返書を冪等照会で回収する
+    let firstResponse: (statusCode: Int, data: Data)
+    do {
+      firstResponse = try await postLetter(
+        text: text,
+        language: language,
+        timeZone: timeZone,
+        requestId: requestId,
+        forcesTokenRefresh: false
+      )
+    } catch let error as URLError {
+      _ = error
+      firstResponse = try await postLetter(
+        text: text,
+        language: language,
+        timeZone: timeZone,
+        requestId: requestId,
+        forcesTokenRefresh: false
+      )
+    }
     if firstResponse.statusCode != 401 {
       return try parseLetterResponse(firstResponse)
     }
@@ -145,7 +159,10 @@ enum IgenAPI {
     if response.statusCode != 200 {
       throw APIError.http(statusCode: response.statusCode)
     }
-    let envelope = try JSONDecoder().decode(LetterEnvelope.self, from: response.data)
+    let decoder = JSONDecoder()
+    // レスポンスの日時 (consultedAt) はミリ秒 epoch で届く (backend/functions/src/store.ts)
+    decoder.dateDecodingStrategy = .millisecondsSince1970
+    let envelope = try decoder.decode(LetterEnvelope.self, from: response.data)
     switch envelope.type {
     case "letter":
       if let letter = envelope.letter {
