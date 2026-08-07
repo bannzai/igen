@@ -88,7 +88,9 @@ enum IgenAPI {
     if let refreshedResponse, refreshedResponse.statusCode != 401 {
       return try parseLetterResponse(refreshedResponse)
     }
-    _ = try await FirebaseSetup.resetAnonymousUser()
+    let resetUid = try await FirebaseSetup.resetAnonymousUser()
+    // 購入とサーバーの entitlement 照会が同じ UID を見るよう、RevenueCat 側も新しい UID へ切り替える
+    await PurchasesSetup.logIn(appUserID: resetUid)
     return try parseLetterResponse(
       try await postLetter(
         text: text,

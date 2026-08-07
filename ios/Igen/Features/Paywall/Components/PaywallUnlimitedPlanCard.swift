@@ -1,8 +1,11 @@
+import RevenueCat
 import SwiftUI
 
 /// 聞き放題サブスク「星読み」のプランカード (featured。金枠 + グロー + いちばん人気バッジ)。
-/// 価格はストア反映後に StoreKit の値へ差し替える (#16)。それまでは仮価格を表示する
+/// 価格は StoreKit のローカライズ済み価格を表示し、offering 未取得 (SDK 未設定) の間は仮価格を表示する
 struct PaywallUnlimitedPlanCard: View {
+  /// 購入対象の月額パッケージ。取得済みならローカライズ済み価格の表示にも使う
+  var package: Package?
   var purchasing: Bool
   var onPressed: () -> Void
 
@@ -22,21 +25,23 @@ struct PaywallUnlimitedPlanCard: View {
         .font(.system(size: 17, weight: .semibold, design: .serif))
         .foregroundStyle(Color.igenText)
 
-      Text(verbatim: "¥480 / 月")
-        .font(.system(size: 22, weight: .semibold, design: .serif))
-        .foregroundStyle(Color.igenGoldBright)
-      // ja: 年払いは ¥3,800 (約34%お得)
-      Text("Yearly: ¥3,800 (save about 34%)")
-        .font(.system(size: 11))
-        .foregroundStyle(Color.igenText.opacity(0.6))
+      if let priceString = package?.storeProduct.localizedPriceString {
+        // ja: %@ / 月
+        Text("\(priceString) / month")
+          .font(.system(size: 22, weight: .semibold, design: .serif))
+          .foregroundStyle(Color.igenGoldBright)
+      } else {
+        // SDK 未設定の間の仮価格 (#16 でストア価格を設定したら package 側の表示になる)
+        Text(verbatim: "¥480 / 月")
+          .font(.system(size: 22, weight: .semibold, design: .serif))
+          .foregroundStyle(Color.igenGoldBright)
+      }
 
       VStack(alignment: .leading, spacing: 6) {
         // ja: 返書無制限
         Label("Unlimited letters", systemImage: "envelope.open")
-        // ja: 星図・記録の無制限保存 出会った偉人はあなたの夜空に残りつづけます
-        Label("Unlimited star atlas & archive — every great figure you meet stays in your sky", systemImage: "sparkles")
-        // ja: 新偉人の先行解放
-        Label("Early access to new great figures", systemImage: "person.crop.circle.badge.plus")
+        // ja: 1日1通の枠を気にせず、話したい夜に話せます
+        Label("Talk on any night you need, without the once-a-day limit", systemImage: "sparkles")
       }
       .font(.system(size: 12))
       .foregroundStyle(Color.igenText.opacity(0.85))
@@ -75,7 +80,7 @@ struct PaywallUnlimitedPlanCard: View {
 
 struct PaywallUnlimitedPlanCard_Previews: PreviewProvider {
   static var previews: some View {
-    PaywallUnlimitedPlanCard(purchasing: false, onPressed: {})
+    PaywallUnlimitedPlanCard(package: nil, purchasing: false, onPressed: {})
       .padding()
       .background(Color.igenSheet)
   }

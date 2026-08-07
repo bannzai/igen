@@ -1,8 +1,11 @@
+import RevenueCat
 import SwiftUI
 
 /// 相談チケット「ひとしずく」(consumable) のプランカード。
-/// 価格はストア反映後に StoreKit の値へ差し替える (#16)。それまでは仮価格を表示する
+/// 価格は StoreKit のローカライズ済み価格を表示し、offering 未取得 (SDK 未設定) の間は仮価格を表示する
 struct PaywallTicketPlanCard: View {
+  /// 購入対象のチケットパッケージ。取得済みならローカライズ済み価格の表示にも使う
+  var package: Package?
   var purchasing: Bool
   var onPressed: () -> Void
 
@@ -13,9 +16,17 @@ struct PaywallTicketPlanCard: View {
         .font(.system(size: 15, weight: .semibold, design: .serif))
         .foregroundStyle(Color.igenText)
 
-      Text(verbatim: "¥160 / 1通")
-        .font(.system(size: 18, weight: .semibold, design: .serif))
-        .foregroundStyle(Color.igenGoldBright)
+      if let priceString = package?.storeProduct.localizedPriceString {
+        // ja: %@ / 1通
+        Text("\(priceString) / 1 letter")
+          .font(.system(size: 18, weight: .semibold, design: .serif))
+          .foregroundStyle(Color.igenGoldBright)
+      } else {
+        // SDK 未設定の間の仮価格 (#16 でストア価格を設定したら package 側の表示になる)
+        Text(verbatim: "¥160 / 1通")
+          .font(.system(size: 18, weight: .semibold, design: .serif))
+          .foregroundStyle(Color.igenGoldBright)
+      }
 
       // ja: 今夜だけ、もう一通。
       Text("Just one more letter, for tonight.")
@@ -54,7 +65,7 @@ struct PaywallTicketPlanCard: View {
 
 struct PaywallTicketPlanCard_Previews: PreviewProvider {
   static var previews: some View {
-    PaywallTicketPlanCard(purchasing: false, onPressed: {})
+    PaywallTicketPlanCard(package: nil, purchasing: false, onPressed: {})
       .padding()
       .background(Color.igenSheet)
   }

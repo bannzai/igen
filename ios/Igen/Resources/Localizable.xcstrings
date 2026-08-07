@@ -1,796 +1,806 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "Please keep it within 2,000 characters (now %lld)" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "2,000字以内でお願いします（いま %lld 字）"
+  "sourceLanguage": "en",
+  "strings": {
+    "Please keep it within 2,000 characters (now %lld)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2,000字以内でお願いします（いま %lld 字）"
           }
         }
       }
     },
-    "Home" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホーム"
+    "Home": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ホーム"
           }
         }
       }
     },
-    "IGEN" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "偉言"
+    "IGEN": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偉言"
           }
         }
       }
     },
-    "Tell me about your day, or what's on your mind" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "きょうのできごと・お悩みを どうぞ"
+    "Tell me about your day, or what's on your mind": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "きょうのできごと・お悩みを どうぞ"
           }
         }
       }
     },
-    "Write it down, and a fitting great figure will send you a letter of reply with its source" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "書き終えたら、ふさわしい偉人が出典つきの返書を届けます"
+    "Write it down, and a fitting great figure will send you a letter of reply with its source": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書き終えたら、ふさわしい偉人が出典つきの返書を届けます"
           }
         }
       }
     },
-    "e.g. Lately, I can't stop thinking before I fall asleep…" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "例: 最近、眠る前に考えごとが止まらない…"
+    "e.g. Lately, I can't stop thinking before I fall asleep…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "例: 最近、眠る前に考えごとが止まらない…"
           }
         }
       }
     },
-    "Ask the Greats" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "偉人に聞く"
+    "Ask the Greats": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偉人に聞く"
           }
         }
       }
     },
-    "The stars are searching for words…" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "星々が、ことばを探しています…"
+    "The stars are searching for words…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "星々が、ことばを探しています…"
           }
         }
       }
     },
-    "Listening…" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "聞いています…"
+    "Listening…": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聞いています…"
           }
         }
       }
     },
-    "%@ appeared in your sky" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@が、あなたの空に現れました"
+    "%@ appeared in your sky": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@が、あなたの空に現れました"
           }
         }
       }
     },
-    "Skip" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "スキップ"
+    "Skip": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スキップ"
           }
         }
       }
     },
-    "Diagram — How the words work" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "図解 — ことばのしくみ"
+    "Diagram — How the words work": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "図解 — ことばのしくみ"
           }
         }
       }
     },
-    "Metaphor" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "たとえ"
+    "Metaphor": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "たとえ"
           }
         }
       }
     },
-    "Meaning" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "意味"
+    "Meaning": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "意味"
           }
         }
       }
     },
-    "When to use" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使いどころ"
+    "When to use": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使いどころ"
           }
         }
       }
     },
-    "Latin" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ラテン語"
+    "Latin": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ラテン語"
           }
         }
       }
     },
-    "Classical Chinese" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "漢文"
+    "Classical Chinese": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "漢文"
           }
         }
       }
     },
-    "German" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ドイツ語"
+    "German": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドイツ語"
           }
         }
       }
     },
-    "Ancient Greek" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "古典ギリシア語"
+    "Ancient Greek": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "古典ギリシア語"
           }
         }
       }
     },
-    "Japanese" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日本語"
+    "Japanese": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日本語"
           }
         }
       }
     },
-    "English" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "英語"
+    "English": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "英語"
           }
         }
       }
     },
-    "Translation" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日本語訳"
+    "Translation": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日本語訳"
           }
         }
       }
     },
-    "Meaning & Context" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "意味と文脈"
+    "Meaning & Context": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "意味と文脈"
           }
         }
       }
     },
-    "— from %@" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "— %@ より"
+    "— from %@": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— %@ より"
           }
         }
       }
     },
-    "— from IGEN" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "— 偉言 より"
+    "— from IGEN": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 偉言 より"
           }
         }
       }
     },
-    "Work" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "出典"
+    "Work": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出典"
           }
         }
       }
     },
-    "Original title" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "原題"
+    "Original title": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原題"
           }
         }
       }
     },
-    "Language" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "原文の言語"
+    "Language": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原文の言語"
           }
         }
       }
     },
-    "Written" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成立"
+    "Written": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成立"
           }
         }
       }
     },
-    "Close" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "とじる"
+    "Close": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "とじる"
           }
         }
       }
     },
-    "Star Atlas" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "星図"
+    "Star Atlas": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "星図"
           }
         }
       }
     },
-    "Your Star Atlas" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "あなたの星図"
+    "Your Star Atlas": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたの星図"
           }
         }
       }
     },
-    "Great figures you've met through your letters light up as constellations in your night sky" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "相談を通じて出会った偉人が、星座としてあなたの夜空に増えていきます"
+    "Great figures you've met through your letters light up as constellations in your night sky": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相談を通じて出会った偉人が、星座としてあなたの夜空に増えていきます"
           }
         }
       }
     },
-    "Great figures you have met: %lld / %lld" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "出会った偉人 %lld / %lld"
+    "Great figures you have met: %lld / %lld": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出会った偉人 %lld / %lld"
           }
         }
       }
     },
-    "Your star atlas could not be loaded. Please try again later." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "星図を読み込めませんでした。しばらくしてからもう一度お試しください。"
+    "Your star atlas could not be loaded. Please try again later.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "星図を読み込めませんでした。しばらくしてからもう一度お試しください。"
           }
         }
       }
     },
-    "Words you received" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "もらった言葉"
+    "Words you received": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もらった言葉"
           }
         }
       }
     },
-    "Read the letter" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "返書を読む"
+    "Read the letter": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返書を読む"
           }
         }
       }
     },
-    "Archive" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "記録"
+    "Archive": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記録"
           }
         }
       }
     },
-    "Your Letters" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "返書の記録"
+    "Your Letters": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返書の記録"
           }
         }
       }
     },
-    "Your letters could not be loaded. Please try again later." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "記録を読み込めませんでした。しばらくしてからもう一度お試しください。"
+    "Your letters could not be loaded. Please try again later.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記録を読み込めませんでした。しばらくしてからもう一度お試しください。"
           }
         }
       }
     },
-    "No letters yet. Write your first tonight." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "まだ返書がありません。今夜、最初のお便りをどうぞ。"
+    "No letters yet. Write your first tonight.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まだ返書がありません。今夜、最初のお便りをどうぞ。"
           }
         }
       }
     },
-    "You can revisit the letters to your past self anytime" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "あの日の自分への返書を、いつでも読み返せます"
+    "You can revisit the letters to your past self anytime": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あの日の自分への返書を、いつでも読み返せます"
           }
         }
       }
     },
-    "Proverb & diagram" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ことわざ・図解"
+    "Proverb & diagram": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ことわざ・図解"
           }
         }
       }
     },
-    "Create a share card" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "共有カードを作る"
+    "Create a share card": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共有カードを作る"
           }
         }
       }
     },
-    "Share Card" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "共有カード"
+    "Share Card": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共有カード"
           }
         }
       }
     },
-    "Share" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "シェア"
+    "Share": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "シェア"
           }
         }
       }
     },
-    "Your worry is not included in the card" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "悩みの本文はカードに含まれません"
+    "Your worry is not included in the card": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "悩みの本文はカードに含まれません"
           }
         }
       }
     },
-    "IGEN — Letters from the Greats" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "IGEN — 偉人からの返書"
+    "IGEN — Letters from the Greats": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IGEN — 偉人からの返書"
           }
         }
       }
     },
-    "See the unlimited plan" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "聞き放題プランをみる"
+    "See the unlimited plan": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聞き放題プランをみる"
           }
         }
       }
     },
-    "Your night sky, unlimited." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "夜空を、聞き放題に。"
+    "Your night sky, unlimited.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "夜空を、聞き放題に。"
           }
         }
       }
     },
-    "Free letters arrive once a day. For the nights you want to talk more." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無料の返書は 1日1通。もっと話したい夜のために。"
+    "Free letters arrive once a day. For the nights you want to talk more.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無料の返書は 1日1通。もっと話したい夜のために。"
           }
         }
       }
     },
-    "Most popular" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "いちばん人気"
+    "Most popular": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いちばん人気"
           }
         }
       }
     },
-    "Unlimited — 'Hoshiyomi'" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "聞き放題「星読み」"
+    "Unlimited — 'Hoshiyomi'": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聞き放題「星読み」"
           }
         }
       }
     },
-    "Yearly: ¥3,800 (save about 34%)" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "年払いは ¥3,800（約34%お得）"
+    "Unlimited letters": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返書無制限"
           }
         }
       }
     },
-    "Unlimited letters" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "返書無制限"
+    "Start Hoshiyomi": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "星読みをはじめる"
           }
         }
       }
     },
-    "Unlimited star atlas & archive — every great figure you meet stays in your sky" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "星図・記録の無制限保存 — 出会った偉人はあなたの夜空に残りつづけます"
+    "Ticket — 'Hitoshizuku'": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相談チケット「ひとしずく」"
           }
         }
       }
     },
-    "Early access to new great figures" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新偉人の先行解放"
+    "Just one more letter, for tonight.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今夜だけ、もう一通。"
           }
         }
       }
     },
-    "Start Hoshiyomi" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "星読みをはじめる"
+    "Buy a ticket": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チケットを買う"
           }
         }
       }
     },
-    "Ticket — 'Hitoshizuku'" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "相談チケット「ひとしずく」"
+    "Restore purchases": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入の復元"
           }
         }
       }
     },
-    "Just one more letter, for tonight." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "今夜だけ、もう一通。"
+    "Payment is processed by the App Store. You can cancel anytime.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お支払いは App Store 経由。いつでも解約できます。"
           }
         }
       }
     },
-    "Buy a ticket" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "チケットを買う"
+    "The purchase could not be completed. Please try again later.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入を完了できませんでした。しばらくしてからもう一度お試しください。"
           }
         }
       }
     },
-    "Restore purchases" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "購入の復元"
+    "Purchases are not available yet. Please check back soon.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入はただいま準備中です。もうしばらくお待ちください。"
           }
         }
       }
     },
-    "Terms of Service" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "利用規約"
+    "Your purchases have been restored.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入情報を確認しました。"
           }
         }
       }
     },
-    "Privacy Policy" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "プライバシーポリシー"
+    "A Letter for You": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたへの返書"
           }
         }
       }
     },
-    "Payment is processed by the App Store. You can cancel anytime." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "お支払いは App Store 経由。いつでも解約できます。"
+    "Original": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原文"
           }
         }
       }
     },
-    "The purchase could not be completed. Please try again later." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "購入を完了できませんでした。しばらくしてからもう一度お試しください。"
+    "Source": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出典"
           }
         }
       }
     },
-    "Purchases are not available yet. Please check back soon." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "購入はただいま準備中です。もうしばらくお待ちください。"
+    "The letter could not be delivered. Please try again later.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返書をお届けできませんでした。しばらくしてからもう一度お試しください。"
           }
         }
       }
     },
-    "Your purchases have been restored." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "購入情報を確認しました。"
+    "Today's free letter has already been delivered.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "きょうの無料の返書はお届け済みです。"
           }
         }
       }
     },
-    "A Letter for You" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "あなたへの返書"
+    "Microphone or speech recognition is not allowed. Please allow them in the Settings app.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マイクまたは音声認識が許可されていません。設定アプリから許可してください。"
           }
         }
       }
     },
-    "Original" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "原文"
+    "Voice input could not be started. Please try typing instead.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いま音声入力を開始できませんでした。キーボードでの入力をお試しください。"
           }
         }
       }
     },
-    "Source" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "出典"
+    "IGEN is an app of encouragement and cannot provide professional support. The services below are there to listen to you.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偉言は励ましのアプリで、専門の支援をお届けすることはできません。下記の窓口が、あなたの話を聞いてくれます。"
           }
         }
       }
     },
-    "The letter could not be delivered. Please try again later." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "返書をお届けできませんでした。しばらくしてからもう一度お試しください。"
+    "No letter has been sent for this consultation.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このご相談への返書はお送りしていません。"
           }
         }
       }
     },
-    "Today's free letter has already been delivered." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "きょうの無料の返書はお届け済みです。"
+    "Back to Home": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ホームにもどる"
           }
         }
       }
     },
-    "Microphone or speech recognition is not allowed. Please allow them in the Settings app." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "マイクまたは音声認識が許可されていません。設定アプリから許可してください。"
+    "Thank you for telling me something so important.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "たいせつなお話を、ありがとうございます。"
           }
         }
       }
     },
-    "Voice input could not be started. Please try typing instead." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "いま音声入力を開始できませんでした。キーボードでの入力をお試しください。"
+    "%@ / month": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ / 月"
           }
         }
       }
     },
-    "IGEN is an app of encouragement and cannot provide professional support. The services below are there to listen to you." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "偉言は励ましのアプリで、専門の支援をお届けすることはできません。下記の窓口が、あなたの話を聞いてくれます。"
+    "%@ / 1 letter": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ / 1通"
           }
         }
       }
     },
-    "No letter has been sent for this consultation." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このご相談への返書はお送りしていません。"
+    "Prices could not be loaded. Tap to retry.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "価格を読み込めませんでした。タップして再試行できます。"
           }
         }
       }
     },
-    "Back to Home" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホームにもどる"
+    "Terms of Service (Japanese)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "利用規約"
           }
         }
       }
     },
-    "Thank you for telling me something so important." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "たいせつなお話を、ありがとうございます。"
+    "Privacy Policy (Japanese)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライバシーポリシー"
+          }
+        }
+      }
+    },
+    "Talk on any night you need, without the once-a-day limit": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1日1通の枠を気にせず、話したい夜に話せます"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
