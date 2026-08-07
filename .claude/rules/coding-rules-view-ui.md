@@ -19,7 +19,7 @@ paths:
 - String型の変数で表示内容を決定しない。Localizable.xcstrings の自動生成の対象外になるから
 - TextやTextFieldなど、UIに表示される文字列は、TextやTextFieldに直接リテラルで渡す
 - `let text: LocalizedStringKey` にしろということではありません。引数を受け取ったり変数を渡す書き方はやめてください
-- 例外: 格言・ことわざの本文・原文・出典・返書本文、および相談本文などのユーザーが入力したコンテンツはデータであり、変数のまま `Text` に渡してよい（localization-guidelines.md 参照）
+- 例外: 格言・ことわざの本文・原文・出典・偉人名・返書本文、および相談本文などのユーザーが入力したコンテンツはデータであり、変数のまま `Text` に渡してよい（localization-guidelines.md 参照）
 
 ### .padding
 
