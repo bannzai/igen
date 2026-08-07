@@ -14,6 +14,7 @@ enum LettersStore {
   static func fetchLetters(
     cursor: DocumentSnapshot?
   ) async throws -> (letters: [Letter], cursor: DocumentSnapshot?) {
+    // 起動時の匿名サインインが完了していなくても、空の履歴を正常結果として確定させないよう認証を確保してから読む
     let uid = try await FirebaseSetup.ensureAnonymousUser()
     var query: Query = Firestore.firestore()
       .collection("users")
