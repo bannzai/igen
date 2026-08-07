@@ -55,7 +55,7 @@ export function createRevenueCatEntitlementChecker(options: {
             grace_period_expires_date?: string | null;
           }
         >;
-        non_subscriptions?: Record<string, unknown[]>;
+        non_subscriptions?: Record<string, { is_sandbox?: boolean }[]>;
       };
     };
     const entitlement =
@@ -70,10 +70,16 @@ export function createRevenueCatEntitlementChecker(options: {
         new Date(entitlement.expires_date) > now ||
         (entitlement.grace_period_expires_date != null &&
           new Date(entitlement.grace_period_expires_date) > now));
+    // Sandbox 購入 (TestFlight 等) は課金されていないため、本番の利用枠として数えない
+    // (Emulator 実行時は開発検証のため数える)
+    const ticketPurchases =
+      body.subscriber?.non_subscriptions?.[TICKET_PRODUCT_ID] ?? [];
+    const countsSandbox = process.env.FUNCTIONS_EMULATOR === "true";
     return {
       unlimited,
-      ticketsPurchased:
-        body.subscriber?.non_subscriptions?.[TICKET_PRODUCT_ID]?.length ?? 0,
+      ticketsPurchased: ticketPurchases.filter(
+        (purchase) => countsSandbox || purchase.is_sandbox !== true,
+      ).length,
     };
   };
 }

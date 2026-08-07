@@ -11,6 +11,9 @@ enum PurchasesSetup {
   /// 聞き放題サブスクの entitlement 識別子。backend/functions/src/entitlement.ts と揃える
   static let unlimitedEntitlementID = "unlimited"
 
+  /// 相談チケット (consumable) のストア商品 id。backend/functions/src/entitlement.ts の TICKET_PRODUCT_ID と揃える
+  static let ticketProductID = "igen_ticket_1"
+
   static var isConfigured: Bool {
     apiKey != ""
   }
