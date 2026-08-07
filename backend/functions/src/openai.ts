@@ -10,6 +10,12 @@ import type { Quote } from "./quotesDb";
 // 相談本文の送信上限。入力 UI は数百字を想定しており、異常に長い入力で生成コストが膨らむのを防ぐ
 export const MAX_CONCERN_CHARS = 2000;
 
+// 生成の出力トークン上限。返書 1 通ぶんの JSON には十分で、モデルの暴走による費用増を抑える
+const MAX_COMPLETION_TOKENS = 2048;
+
+/** モデルが応答を拒否した (refusal を返した) ことを表すエラー。呼び出し元で危機の二次判定に分岐する */
+export class OpenAIRefusalError extends Error {}
+
 // structured outputs (strict) で応答形状を保証するスキーマ (ADR 0002)。
 // quoteId は名言 DB の id 一覧を enum に埋め込み、DB に無い格言を返せないようにする
 function letterSchema(quotes: Quote[]): object {
@@ -76,11 +82,12 @@ export function createOpenAILetterComposer(
 ): ComposeLetterFn {
   // Functions の timeoutSeconds (300 秒) より先に SDK 側で必ず失敗させ、無料枠の返却と
   // エラーレスポンス送信の時間を残す (SDK 既定の 10 分では実行環境が先に強制終了される)。
-  // 最悪時間 = timeout 70 秒 × SDK 試行 2 回 (maxRetries 1) × 検証ループ 2 試行 = 280 秒 < 300 秒
+  // SDK の自動リトライは Retry-After の待機が積算されて総時間を読めなくするため無効化し、
+  // 一時エラーの再試行は下の検証ループ (2 試行) に任せる。最悪時間 = 70 秒 × 2 試行 = 140 秒 < 300 秒
   const client = new OpenAI({
     apiKey: options.apiKey,
     timeout: 70_000,
-    maxRetries: 1,
+    maxRetries: 0,
   });
 
   return async (input) => {
@@ -108,6 +115,7 @@ Compose the letter of reply.`;
     for (let attempt = 0; attempt < 2; attempt++) {
       const completion = await client.chat.completions.create({
         model: options.model,
+        max_completion_tokens: MAX_COMPLETION_TOKENS,
         messages: [
           { role: "system", content: LETTER_SYSTEM_PROMPT },
           { role: "user", content: userMessage },
@@ -129,7 +137,7 @@ Compose the letter of reply.`;
       if (message.refusal) {
         // refusal 本文には相談内容の引用が含まれうる。相談はセンシティブデータとして
         // ログに残さないため、例外メッセージへモデル由来の本文を入れない
-        throw new Error("openai refused the request");
+        throw new OpenAIRefusalError("openai refused the request");
       }
       // 出力上限到達などで途中終了した応答は JSON が不完全なため、解析せず再試行に回す
       if (choice.finish_reason !== "stop") {
@@ -144,11 +152,10 @@ Compose the letter of reply.`;
       let composition: LetterComposition;
       try {
         composition = JSON.parse(message.content) as LetterComposition;
-      } catch (parseError) {
-        // structured outputs でも途中終了した応答では JSON が壊れうるため、throw せず再試行に回す
-        lastError = new Error(
-          `openai response is not valid JSON: ${parseError}`,
-        );
+      } catch {
+        // structured outputs でも途中終了した応答では JSON が壊れうるため、throw せず再試行に回す。
+        // SyntaxError には入力断片 (モデル出力 = 相談の反復を含みうる) が入るため、固定文言だけを保持する
+        lastError = new Error("openai response is not valid JSON");
         continue;
       }
       // 危機判定が真なら返書本文は破棄される (app.ts が safety を返す) ため、
@@ -186,11 +193,11 @@ const CRISIS_SYSTEM_PROMPT =
 export function createOpenAICrisisClassifier(
   options: OpenAIOptions,
 ): ClassifyCrisisFn {
-  // 出力が boolean 1 つで短いため、返書生成 (120 秒) より短い上限で十分。応答遅延時は呼び出し元が 429 に倒す
+  // 出力が boolean 1 つで短いため、返書生成 (70 秒) より短い上限で十分。応答遅延時は呼び出し元がエラー応答側に倒す
   const client = new OpenAI({
     apiKey: options.apiKey,
     timeout: 60_000,
-    maxRetries: 1,
+    maxRetries: 0,
   });
 
   return async (input) => {

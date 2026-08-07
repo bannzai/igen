@@ -22,6 +22,8 @@ final class SpeechRecognizer {
   private var recognitionTask: SFSpeechRecognitionTask?
   /// installTap 済みかどうか。オーディオ割り込み等でエンジンだけが停止しても、タップを確実に除去するために追跡する
   private var tapInstalled = false
+  /// 録音セッションの世代。古いストリームの終了処理が、再開した新しい録音を停止しないよう照合する
+  private var sessionID = UUID()
 
   /// 許可を確認してから録音を開始し、認識テキスト (partial 含む) を流すストリームを返す
   func start() async throws -> AsyncThrowingStream<String, Error> {
@@ -83,9 +85,13 @@ final class SpeechRecognizer {
           continuation.finish(throwing: error)
         }
       }
+      let startedSessionID = sessionID
       continuation.onTermination = { _ in
         Task { @MainActor in
-          self.stop()
+          // 停止→即再開で古いストリームの終了が遅れて届いた場合、新しい録音を止めない
+          if self.sessionID == startedSessionID {
+            self.stop()
+          }
         }
       }
     }
@@ -93,6 +99,8 @@ final class SpeechRecognizer {
 
   /// 録音と認識を止める。start 前・停止後に呼んでも安全 (冪等)
   func stop() {
+    // 世代を進め、以後に届く古いストリームの終了処理を無効化する
+    sessionID = UUID()
     if audioEngine.isRunning {
       audioEngine.stop()
     }
