@@ -49,6 +49,11 @@ struct HomePage: View {
 
             Button {
               Analytics.logEvent("home_archive_button_pressed", parameters: nil)
+              // 音声入力中・開始処理の suspend 中に遷移しても背後で録音が続かないよう、先に停止する
+              listeningTask?.cancel()
+              listeningTask = nil
+              speechRecognizer.stop()
+              listening = false
               archiveIsPresented = true
             } label: {
               // ja: 記録
@@ -59,6 +64,9 @@ struct HomePage: View {
                 .padding(.horizontal, 13)
                 .background(Capsule().fill(Color.igenCard.opacity(0.55)))
                 .overlay(Capsule().stroke(Color.igenGold.opacity(0.32), lineWidth: 1))
+                // 見た目のカプセルは保ちつつ、最小タップターゲット 44pt を確保する (design_handoff_igen/README.md)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
           }
           .padding(.vertical, 8)
@@ -86,15 +94,19 @@ struct HomePage: View {
             }
           )
 
-          if draft.count > IgenAPI.maxConcernChars {
+          // 文字数はバックエンド (text.length = UTF-16 コード単位) と同じ単位で判定する
+          if draft.utf16.count > IgenAPI.maxConcernChars {
             // ja: 2,000字以内でお願いします（いま %lld 字）
-            Text("Please keep it within 2,000 characters (now \(draft.count))")
+            Text("Please keep it within 2,000 characters (now \(draft.utf16.count))")
               .font(.system(size: 12))
               .foregroundStyle(Color(red: 240 / 255, green: 160 / 255, blue: 160 / 255))
           }
 
           HomeAskButton(draft: draft, sending: sending) {
             Analytics.logEvent("home_ask_button_pressed", parameters: ["text_length": draft.count])
+            // 音声入力の開始処理が suspend 中でも送信後に録音が始まらないよう、開始 Task ごとキャンセルする
+            listeningTask?.cancel()
+            listeningTask = nil
             speechRecognizer.stop()
             listening = false
             sending = true
@@ -155,6 +167,8 @@ struct HomePage: View {
       return
     }
     listening = true
+    // 部分認識結果は全文置き換えで届くため、開始時点の下書きを保持して認識結果を末尾に追記する
+    let baseDraft = draft
     listeningTask = Task {
       do {
         let transcripts = try await speechRecognizer.start()
@@ -163,7 +177,7 @@ struct HomePage: View {
           speechRecognizer.stop()
         } else {
           for try await transcript in transcripts {
-            draft = transcript
+            draft = baseDraft.isEmpty ? transcript : baseDraft + transcript
           }
         }
       } catch is CancellationError {

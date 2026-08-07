@@ -9,14 +9,14 @@ struct ReplyPage: View {
   /// 演出の実行回数。初回はリッチ、2 回目以降は短縮する (テンポを守る)
   @AppStorage("ritualCount") var ritualCount = 0
   @State var ritualFinished = false
-  @Environment(\.dismiss) var dismiss
 
   var body: some View {
     ZStack {
       StarfieldBackground()
 
       if ritualFinished || !showsRitual {
-        letterContent
+        // 再訪 (showsRitual == false) ではブロックの stagger 出現も無効化して即時表示する
+        ReplyLetterContent(letter: letter, revealsBlocks: showsRitual)
       } else {
         ReplyRitualOverlay(letter: letter, short: ritualCount > 0) {
           ritualCount += 1
@@ -29,130 +29,6 @@ struct ReplyPage: View {
     .toolbar(.hidden, for: .navigationBar)
   }
 
-  private var letterContent: some View {
-    ScrollView {
-      VStack(spacing: 24) {
-        // ja: あなたへの返書
-        Text("A Letter for You")
-          .font(.system(size: 16, weight: .semibold, design: .serif))
-          .tracking(4)
-          .foregroundStyle(Color.igenGoldBright)
-          .igenReveal(0)
-
-        Text(letter.dateText())
-          .font(.system(size: 11))
-          .foregroundStyle(Color.igenText.opacity(0.5))
-          .igenReveal(0)
-
-        if let person = letter.person {
-          VStack(spacing: 8) {
-            ConstellationAvatar(constellation: ConstellationData.constellation(for: person.id))
-              .frame(width: 130, height: 130)
-            Text(person.name.localized(letter.language))
-              .font(.system(size: 20, weight: .semibold, design: .serif))
-              .tracking(3)
-              .foregroundStyle(Color.igenText)
-            HStack(spacing: 4) {
-              Text(person.title.localized(letter.language))
-              Text(verbatim: "—")
-              Text(verbatim: person.eraText(language: letter.language))
-            }
-            .font(.system(size: 11))
-            .foregroundStyle(Color.igenText.opacity(0.6))
-          }
-          .igenReveal(1)
-        } else if let diagram = letter.diagram {
-          ReplyDiagramCard(diagram: diagram)
-            .igenReveal(1)
-        }
-
-        Text(letter.oneliner)
-          .font(.system(size: 14))
-          .lineSpacing(9)
-          .foregroundStyle(Color.igenText)
-          .igenReveal(2)
-
-        VStack(spacing: 12) {
-          goldHairline
-          Text(letter.quote.text.localized(letter.language))
-            .font(.system(size: 24, weight: .semibold, design: .serif))
-            .multilineTextAlignment(.center)
-            .lineSpacing(12)
-            .foregroundStyle(Color.igenGoldBright)
-            .shadow(color: Color.igenGold.opacity(0.35), radius: 12)
-          goldHairline
-        }
-        .igenReveal(3)
-
-        // 原文はどのロケールでも改変せず併記する (localization-guidelines.md)。
-        // 同一言語でも古文原文などが異なる場合があるため、言語コードではなく表示文との差異で判定する
-        if letter.quote.original != letter.quote.text.localized(letter.language) {
-          ReplyOriginalTextBlock(quote: letter.quote, language: letter.language)
-            .igenReveal(4)
-        }
-
-        VStack(spacing: 8) {
-          // ja: 意味と文脈
-          Text("Meaning & Context")
-            .font(.system(size: 10, weight: .semibold))
-            .tracking(3)
-            .foregroundStyle(Color.igenGold)
-          Text(letter.meaning)
-            .font(.system(size: 14))
-            .lineSpacing(9)
-            .foregroundStyle(Color.igenText)
-        }
-        .igenReveal(5)
-
-        VStack(spacing: 10) {
-          Text(letter.closing)
-            .font(.system(size: 15, design: .serif))
-            .lineSpacing(10)
-            .foregroundStyle(Color.igenText)
-          if let person = letter.person {
-            // ja: — %@ より
-            Text("— from \(person.name.localized(letter.language))")
-              .font(.system(size: 13, design: .serif))
-              .foregroundStyle(Color.igenText.opacity(0.7))
-              .frame(maxWidth: .infinity, alignment: .trailing)
-          } else {
-            // ja: — 偉言 より
-            Text("— from IGEN")
-              .font(.system(size: 13, design: .serif))
-              .foregroundStyle(Color.igenText.opacity(0.7))
-              .frame(maxWidth: .infinity, alignment: .trailing)
-          }
-        }
-        .igenReveal(6)
-
-        ReplySourceBlock(quote: letter.quote, language: letter.language)
-          .igenReveal(7)
-
-        Button {
-          dismiss()
-        } label: {
-          // ja: とじる
-          Text("Close")
-            .font(.system(size: 15))
-            .foregroundStyle(Color.igenText.opacity(0.8))
-            .frame(maxWidth: .infinity)
-            .frame(height: 48)
-            .overlay(
-              Capsule().stroke(Color.igenText.opacity(0.25), lineWidth: 1)
-            )
-        }
-        .igenReveal(8)
-      }
-      .padding(.horizontal, 24)
-      .padding(.vertical, 24)
-    }
-  }
-
-  private var goldHairline: some View {
-    Rectangle()
-      .fill(Color.igenGold.opacity(0.25))
-      .frame(height: 1)
-  }
 }
 
 struct ReplyPage_Previews: PreviewProvider {

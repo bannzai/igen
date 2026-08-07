@@ -17,6 +17,7 @@ struct ArchivePage: View {
         // スクロールしても消えない固定ヘッダー (design_handoff_igen プロトタイプの「返書の記録」画面)
         HStack {
           Button {
+            Analytics.logEvent("archive_home_button_pressed", parameters: nil)
             dismiss()
           } label: {
             // ja: ホーム
@@ -27,6 +28,9 @@ struct ArchivePage: View {
               .padding(.horizontal, 12)
               .background(Capsule().fill(Color.igenCard.opacity(0.55)))
               .overlay(Capsule().stroke(Color.igenText.opacity(0.22), lineWidth: 1))
+              // 見た目のカプセルは保ちつつ、最小タップターゲット 44pt を確保する (design_handoff_igen/README.md)
+              .frame(minHeight: 44)
+              .contentShape(Rectangle())
           }
           Spacer()
           // ja: 返書の記録
@@ -82,7 +86,13 @@ struct ArchivePage: View {
       letters = (letters ?? []) + page.letters
       nextCursor = page.cursor
     } catch {
-      // 追加取得の失敗で画面全体をエラーにしない (既に表示済みの一覧を保つ)。末尾到達で再試行される
+      // 追加取得の失敗で画面全体をエラーにしない (既に表示済みの一覧を保つ)。
+      // 一時的な失敗に備えて少し待ってから 1 回だけ再試行する (スピナーが出たまま止まらないように)
+      try? await Task.sleep(for: .seconds(2))
+      if let page = try? await LettersStore.fetchLetters(cursor: nextCursor) {
+        letters = (letters ?? []) + page.letters
+        nextCursor = page.cursor
+      }
     }
   }
 }
@@ -98,7 +108,9 @@ private struct ArchivePageBody: View {
 
   var body: some View {
     ScrollView {
-      VStack(spacing: 12) {
+      // LazyVStack で末尾のスピナーが「実際に表示された」ときだけ構築されるようにし、
+      // スクロールしていないのに全ページを連続取得しないようにする
+      LazyVStack(spacing: 12) {
         if letters.isEmpty {
           // ja: まだ返書がありません 今夜、最初のお便りをどうぞ
           Text("No letters yet. Write your first tonight.")
@@ -118,7 +130,9 @@ private struct ArchivePageBody: View {
             ProgressView()
               .tint(Color.igenGold)
               .padding(.vertical, 16)
-              .task {
+              // 表示中にページが積まれた場合も letters.count の変化で task を再起動し、
+              // スピナーが見えている限り次ページを取り続ける
+              .task(id: letters.count) {
                 await onReachEnd()
               }
           } else {
