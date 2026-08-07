@@ -75,13 +75,13 @@ struct SafetyPage: View {
 }
 
 /// 相談窓口 1 件。電話番号・URL は表示用のデータとしてそのまま扱う。
-/// 名称・注記は表示言語で切り替える (窓口の選択は地域、文言は言語)。
+/// 名称・注記は Localizable.xcstrings のカタログから表示言語で解決する (窓口の選択は地域、文言は言語)。
 /// **掲載内容 (電話番号・受付時間) はリリース前に必ず最新情報を確認する** (#16 公開前チェックリスト)
 struct SafetyResource: Identifiable {
   var id: String
-  var name: LocalizedText
+  var name: String
   var phoneNumber: String?
-  var note: LocalizedText?
+  var note: String?
   var url: URL?
 
   /// 端末の地域ごとの窓口一覧。表示言語ではなく地域で選ぶ (利用できない国の窓口へ誘導しないため)。
@@ -92,21 +92,25 @@ struct SafetyResource: Identifiable {
       return [
         SafetyResource(
           id: "inochi",
-          name: LocalizedText(ja: "いのちの電話", en: "Inochi no Denwa (Japan Lifeline)"),
+          // ja: いのちの電話
+          name: String(localized: "Inochi no Denwa (Japan Lifeline)"),
           phoneNumber: "0570-783-556",
           note: nil,
           url: nil
         ),
         SafetyResource(
           id: "yorisoi",
-          name: LocalizedText(ja: "よりそいホットライン", en: "Yorisoi Hotline"),
+          // ja: よりそいホットライン
+          name: String(localized: "Yorisoi Hotline"),
           phoneNumber: "0120-279-338",
-          note: LocalizedText(ja: "24時間・通話無料", en: "24 hours, toll-free"),
+          // ja: 24時間・通話無料
+          note: String(localized: "24 hours, toll-free"),
           url: nil
         ),
         SafetyResource(
           id: "mamorouyo",
-          name: LocalizedText(ja: "まもろうよ こころ (厚生労働省)", en: "Mamorou yo Kokoro (MHLW)"),
+          // ja: まもろうよ こころ（厚生労働省）
+          name: String(localized: "Mamorou yo Kokoro (MHLW)"),
           phoneNumber: nil,
           note: nil,
           url: URL(string: "https://www.mhlw.go.jp/mamorouyokokoro/")
@@ -116,9 +120,11 @@ struct SafetyResource: Identifiable {
       return [
         SafetyResource(
           id: "lifeline-988",
-          name: LocalizedText(ja: "988 Suicide & Crisis Lifeline", en: "988 Suicide & Crisis Lifeline"),
+          // ja: 988 Suicide & Crisis Lifeline
+          name: String(localized: "988 Suicide & Crisis Lifeline"),
           phoneNumber: "988",
-          note: LocalizedText(ja: "24時間・無料・秘密厳守 (米国)", en: "24/7, free and confidential (US)"),
+          // ja: 24時間・無料・秘密厳守（米国）
+          note: String(localized: "24/7, free and confidential (US)"),
           url: nil
         )
       ]
@@ -126,9 +132,11 @@ struct SafetyResource: Identifiable {
       return [
         SafetyResource(
           id: "find-a-helpline",
-          name: LocalizedText(ja: "Find a Helpline", en: "Find a Helpline"),
+          // ja: Find a Helpline
+          name: String(localized: "Find a Helpline"),
           phoneNumber: nil,
-          note: LocalizedText(ja: "お住まいの国の相談窓口を探せます", en: "Find support services in your country"),
+          // ja: お住まいの国の相談窓口を探せます
+          note: String(localized: "Find support services in your country"),
           url: URL(string: "https://findahelpline.com/")
         )
       ]
