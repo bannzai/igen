@@ -32,7 +32,7 @@ struct SafetyResourceCardContent: View {
         .foregroundStyle(Color.igenText)
       if let phoneNumber = resource.phoneNumber {
         Text(verbatim: phoneNumber)
-          .font(.system(size: 17, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 17, weight: .semibold))
           .foregroundStyle(Color.igenGoldBright)
       }
       if let note = resource.note {

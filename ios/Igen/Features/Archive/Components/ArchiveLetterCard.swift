@@ -35,7 +35,8 @@ struct ArchiveLetterCard: View {
         )
 
         Text(letter.quote.text.localized(letter.language))
-          .font(.system(size: 12, design: .serif))
+          // 格言はデザインの共通タイポグラフィ指定 (Shippori Mincho 500–700) に合わせて Medium 以上にする
+          .font(.igenSerif(size: 12, weight: .medium))
           .lineLimit(1)
           .foregroundStyle(Color.igenText.opacity(0.8))
       }

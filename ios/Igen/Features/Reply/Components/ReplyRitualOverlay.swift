@@ -42,7 +42,7 @@ struct ReplyRitualOverlay: View {
             VStack(spacing: 8) {
               if let person = letter.person {
                 Text(person.name.localized(letter.language))
-                  .font(.system(size: 24, weight: .semibold, design: .serif))
+                  .font(.igenSerif(size: 24, weight: .semibold))
                   .foregroundStyle(Color.igenText)
                 // ja: %@が、あなたの空に現れました
                 Text("\(person.name.localized(letter.language)) appeared in your sky")
@@ -52,7 +52,7 @@ struct ReplyRitualOverlay: View {
                 // 人物のいないことわざでも、線の完了後に停止して見えないよう完了文言を出す
                 // ja: ことばが、あなたの空に届きました
                 Text("Words have reached your sky")
-                  .font(.system(size: 14, design: .serif))
+                  .font(.igenSerif(size: 14))
                   .foregroundStyle(Color.igenText)
               }
             }
@@ -60,7 +60,7 @@ struct ReplyRitualOverlay: View {
           } else {
             // ja: 星々が、ことばを探しています…
             Text("The stars are searching for words…")
-              .font(.system(size: 14, design: .serif))
+              .font(.igenSerif(size: 14))
               .foregroundStyle(Color.igenText.opacity(0.4 + 0.6 * (0.5 + 0.5 * sin(elapsed * 3))))
           }
 

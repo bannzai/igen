@@ -35,7 +35,7 @@ struct ArchivePage: View {
           Spacer()
           // ja: 返書の記録
           Text("Your Letters")
-            .font(.system(size: 13, weight: .semibold, design: .serif))
+            .font(.igenSerif(size: 13, weight: .semibold))
             .tracking(4)
             .foregroundStyle(Color.igenGoldBright)
           Spacer()

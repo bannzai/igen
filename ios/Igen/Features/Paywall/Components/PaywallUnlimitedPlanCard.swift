@@ -22,18 +22,18 @@ struct PaywallUnlimitedPlanCard: View {
 
       // ja: 聞き放題「星読み」
       Text("Unlimited — 'Hoshiyomi'")
-        .font(.system(size: 17, weight: .semibold, design: .serif))
+        .font(.igenSerif(size: 17, weight: .semibold))
         .foregroundStyle(Color.igenText)
 
       if let priceString = package?.storeProduct.localizedPriceString {
         // ja: %@ / 月
         Text("\(priceString) / month")
-          .font(.system(size: 22, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 22, weight: .semibold))
           .foregroundStyle(Color.igenGoldBright)
       } else {
         // SDK 未設定の間の仮価格 (#16 でストア価格を設定したら package 側の表示になる)
         Text(verbatim: "¥480 / 月")
-          .font(.system(size: 22, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 22, weight: .semibold))
           .foregroundStyle(Color.igenGoldBright)
       }
 
@@ -51,7 +51,7 @@ struct PaywallUnlimitedPlanCard: View {
       } label: {
         // ja: 星読みをはじめる
         Text("Start Hoshiyomi")
-          .font(.system(size: 16, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 16, weight: .semibold))
           .tracking(2)
           .foregroundStyle(Color.igenButtonText)
           .frame(maxWidth: .infinity)

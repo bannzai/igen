@@ -65,7 +65,7 @@ private struct AtlasProfilePageBody: View {
 
         VStack(spacing: 4) {
           Text(encounter.person.name.localized(deviceLanguage))
-            .font(.system(size: 20, weight: .semibold, design: .serif))
+            .font(.igenSerif(size: 20, weight: .semibold))
             .tracking(3)
             .foregroundStyle(Color.igenText)
           HStack(spacing: 4) {
@@ -91,7 +91,8 @@ private struct AtlasProfilePageBody: View {
               .foregroundStyle(Color.igenGold)
             ForEach(letters) { letter in
               Text(letter.quote.text.localized(letter.language))
-                .font(.system(size: 13, design: .serif))
+                // 格言はデザインの共通タイポグラフィ指定 (Shippori Mincho 500–700) に合わせて Medium 以上にする
+                .font(.igenSerif(size: 13, weight: .medium))
                 .lineSpacing(6)
                 .foregroundStyle(Color.igenText)
             }
@@ -110,7 +111,7 @@ private struct AtlasProfilePageBody: View {
           } label: {
             // ja: 返書を読む
             Text("Read the letter")
-              .font(.system(size: 15, weight: .semibold, design: .serif))
+              .font(.igenSerif(size: 15, weight: .semibold))
               .foregroundStyle(Color.igenButtonText)
               .frame(maxWidth: .infinity)
               .frame(height: 48)

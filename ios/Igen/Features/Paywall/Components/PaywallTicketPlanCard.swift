@@ -13,18 +13,18 @@ struct PaywallTicketPlanCard: View {
     VStack(spacing: 8) {
       // ja: 相談チケット「ひとしずく」
       Text("Ticket — 'Hitoshizuku'")
-        .font(.system(size: 15, weight: .semibold, design: .serif))
+        .font(.igenSerif(size: 15, weight: .semibold))
         .foregroundStyle(Color.igenText)
 
       if let priceString = package?.storeProduct.localizedPriceString {
         // ja: %@ / 1通
         Text("\(priceString) / 1 letter")
-          .font(.system(size: 18, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 18, weight: .semibold))
           .foregroundStyle(Color.igenGoldBright)
       } else {
         // SDK 未設定の間の仮価格 (#16 でストア価格を設定したら package 側の表示になる)
         Text(verbatim: "¥160 / 1通")
-          .font(.system(size: 18, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 18, weight: .semibold))
           .foregroundStyle(Color.igenGoldBright)
       }
 
@@ -38,7 +38,7 @@ struct PaywallTicketPlanCard: View {
       } label: {
         // ja: チケットを買う
         Text("Buy a ticket")
-          .font(.system(size: 15, weight: .semibold, design: .serif))
+          .font(.igenSerif(size: 15, weight: .semibold))
           .tracking(2)
           .foregroundStyle(Color.igenTextGold)
           .frame(maxWidth: .infinity)

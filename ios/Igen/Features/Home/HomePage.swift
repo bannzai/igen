@@ -26,7 +26,7 @@ struct HomePage: View {
           HStack {
             // ja: 偉言
             Text("IGEN")
-              .font(.system(size: 20, weight: .bold, design: .serif))
+              .font(.igenSerif(size: 20, weight: .bold))
               .tracking(8)
               .foregroundStyle(Color(red: 245 / 255, green: 223 / 255, blue: 164 / 255))
               .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.45), radius: 16)
@@ -79,63 +79,70 @@ struct HomePage: View {
           }
           .padding(.vertical, 8)
 
-          Spacer()
+          // キーボード表示時に入力カード・マイクが隠れないよう、中央ブロックはスクロール可能にする。
+          // 通常時はデザイン指定どおり中央寄せになるよう、内容の最小高をビューポート高に合わせる
+          GeometryReader { geometry in
+            ScrollView {
+              VStack(spacing: 16) {
+                // ja: きょうのできごと・お悩みを どうぞ
+                Text("Tell me about your day, or what's on your mind")
+                  .font(.igenSerif(size: 22, weight: .semibold))
+                  .multilineTextAlignment(.center)
+                  .lineSpacing(8)
+                  .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
 
-          // ja: きょうのできごと・お悩みを どうぞ
-          Text("Tell me about your day, or what's on your mind")
-            .font(.system(size: 22, weight: .semibold, design: .serif))
-            .multilineTextAlignment(.center)
-            .lineSpacing(8)
-            .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
+                // ja: 書き終えたら、ふさわしい偉人が出典つきの返書を届けます
+                Text("Write it down, and a fitting great figure will send you a letter of reply with its source")
+                  .font(.system(size: 12))
+                  .multilineTextAlignment(.center)
+                  .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255).opacity(0.6))
 
-          // ja: 書き終えたら、ふさわしい偉人が出典つきの返書を届けます
-          Text("Write it down, and a fitting great figure will send you a letter of reply with its source")
-            .font(.system(size: 12))
-            .multilineTextAlignment(.center)
-            .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255).opacity(0.6))
+                HomeInputCard(
+                  draft: $draft,
+                  listening: $listening,
+                  onMicButtonPressed: {
+                    toggleListening()
+                  }
+                )
 
-          HomeInputCard(
-            draft: $draft,
-            listening: $listening,
-            onMicButtonPressed: {
-              toggleListening()
+                // 文字数はバックエンド (text.length = UTF-16 コード単位) と同じ単位で判定する
+                if draft.utf16.count > IgenAPI.maxConcernChars {
+                  // ja: 2,000字以内でお願いします（いま %lld 字）
+                  Text("Please keep it within 2,000 characters (now \(draft.utf16.count))")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color(red: 240 / 255, green: 160 / 255, blue: 160 / 255))
+                }
+
+                HomeAskButton(draft: draft, sending: sending) {
+                  Analytics.logEvent("home_ask_button_pressed", parameters: ["text_length": draft.count])
+                  // 音声入力の開始処理が suspend 中でも送信後に録音が始まらないよう、開始 Task ごとキャンセルする
+                  listeningTask?.cancel()
+                  listeningTask = nil
+                  speechRecognizer.stop()
+                  listening = false
+                  sending = true
+                  Task {
+                    await send()
+                    sending = false
+                  }
+                }
+
+                Button {
+                  Analytics.logEvent("home_paywall_link_pressed", parameters: nil)
+                  paywallSheetIsPresented = true
+                } label: {
+                  // ja: 聞き放題プランをみる
+                  Text("See the unlimited plan")
+                    .font(.system(size: 11))
+                    .underline()
+                    .foregroundStyle(Color.igenText.opacity(0.6))
+                }
+              }
+              .padding(.vertical, 24)
+              .frame(maxWidth: .infinity, minHeight: geometry.size.height)
             }
-          )
-
-          // 文字数はバックエンド (text.length = UTF-16 コード単位) と同じ単位で判定する
-          if draft.utf16.count > IgenAPI.maxConcernChars {
-            // ja: 2,000字以内でお願いします（いま %lld 字）
-            Text("Please keep it within 2,000 characters (now \(draft.utf16.count))")
-              .font(.system(size: 12))
-              .foregroundStyle(Color(red: 240 / 255, green: 160 / 255, blue: 160 / 255))
+            .scrollIndicators(.hidden)
           }
-
-          HomeAskButton(draft: draft, sending: sending) {
-            Analytics.logEvent("home_ask_button_pressed", parameters: ["text_length": draft.count])
-            // 音声入力の開始処理が suspend 中でも送信後に録音が始まらないよう、開始 Task ごとキャンセルする
-            listeningTask?.cancel()
-            listeningTask = nil
-            speechRecognizer.stop()
-            listening = false
-            sending = true
-            Task {
-              await send()
-              sending = false
-            }
-          }
-
-          Button {
-            Analytics.logEvent("home_paywall_link_pressed", parameters: nil)
-            paywallSheetIsPresented = true
-          } label: {
-            // ja: 聞き放題プランをみる
-            Text("See the unlimited plan")
-              .font(.system(size: 11))
-              .underline()
-              .foregroundStyle(Color.igenText.opacity(0.6))
-          }
-
-          Spacer()
         }
         .padding(.horizontal, 24)
 

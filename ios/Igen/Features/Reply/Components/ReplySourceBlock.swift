@@ -35,8 +35,7 @@ struct ReplySourceBlock: View {
               .font(.system(size: 11))
               .foregroundStyle(Color.igenText.opacity(0.5))
             Text(origTitle)
-              .font(.system(size: 13, design: .serif))
-              .italic()
+              .font(.igenOriginalText(size: 13, originalLanguage: quote.originalLanguage))
               .foregroundStyle(Color.igenText)
           }
         }
