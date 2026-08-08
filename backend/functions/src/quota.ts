@@ -111,6 +111,29 @@ export async function releaseTicket(
   firestore: Firestore,
   uid: string,
 ): Promise<void> {
+  // 購入したチケットは失われると回復手段がないため、一時障害では諦めずに数回リトライする
+  await withRetry(() => releaseTicketOnce(firestore, uid));
+}
+
+/** 一時障害向けの単純なリトライ (指数バックオフ)。すべて失敗したら最後の例外を投げる */
+async function withRetry(operation: () => Promise<void>): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await operation();
+      return;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 200 * 2 ** attempt));
+    }
+  }
+  throw lastError;
+}
+
+async function releaseTicketOnce(
+  firestore: Firestore,
+  uid: string,
+): Promise<void> {
   const userRef = firestore.collection("users").doc(uid);
   await firestore.runTransaction(async (transaction) => {
     const ticketsUsed =

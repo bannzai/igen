@@ -126,6 +126,14 @@ struct PaywallPage: View {
     .alert("Your purchases have been restored.", isPresented: $restoreDoneAlertIsPresented) {}
     .task {
       Analytics.logEvent("paywall_shown", parameters: nil)
+      // 起動直後は匿名認証・RevenueCat の初期化が終わっていないことがあるため、
+      // 使えるようになるまで短い間隔で待ってから取得する (数秒で諦めて準備中の表示に倒す)
+      for _ in 0..<10 {
+        if PurchasesSetup.isAvailable {
+          break
+        }
+        try? await Task.sleep(for: .milliseconds(500))
+      }
       await loadOfferings()
     }
   }
