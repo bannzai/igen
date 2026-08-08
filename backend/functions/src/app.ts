@@ -76,6 +76,9 @@ export function createApp(deps: AppDeps): Express {
   // 相談を受け取り返書を生成する。
   // フロー: 認証 → 入力検証 → 危機ワード判定 → 無料枠消費 → LLM マッチング → 保存
   app.post("/letters", async (req: Request, res: Response) => {
+    // 相談の受信時刻。無料枠の日付判定と、返書に保存する consultedAt (履歴の日付表示の基準) に同じ時刻を使う。
+    // 認証や再送照会の待ち時間で日付をまたいでもずれないよう、最初の非同期処理より前に確定する
+    const receivedAt = new Date();
     const uid = await authenticate(deps, req);
     if (uid === null) {
       sendError(
@@ -161,9 +164,6 @@ export function createApp(deps: AppDeps): Express {
         return;
       }
     }
-
-    // 相談の受信時刻。無料枠の日付判定と、返書に保存する consultedAt (履歴の日付表示の基準) に同じ時刻を使う
-    const receivedAt = new Date();
 
     // 利用枠の判定に失敗・超過しても危機判定は完了させる (キーワード判定の取りこぼしを LLM で補完する二段構え)。
     // 購入状態の照会に失敗した場合もこの判定を先に済ませ、危機相談にエラーだけを返さない。

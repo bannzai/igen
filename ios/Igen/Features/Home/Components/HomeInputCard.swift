@@ -47,7 +47,8 @@ struct HomeInputCard: View {
             .foregroundStyle(Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255))
         }
         Spacer()
-        Text("\(draft.count)")
+        // 上限判定 (バックエンドの text.length) と同じ UTF-16 コード単位で表示する
+        Text("\(draft.utf16.count)")
           .font(.system(size: 12))
           .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255).opacity(0.5))
       }
