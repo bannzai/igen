@@ -14,6 +14,7 @@ struct IgenApp: App {
           do {
             let uid = try await FirebaseSetup.ensureAnonymousUser()
             Logger(subsystem: "com.bannzai.Igen", category: "auth").info("anonymous sign-in ok: uid=\(uid)")
+            PurchasesSetup.configure(appUserID: uid)
           } catch {
             // サインイン失敗 (Auth エミュレータ未起動など) でアプリを止めない。次回起動時に再試行される
             Logger(subsystem: "com.bannzai.Igen", category: "auth").error("anonymous sign-in failed: \(error)")

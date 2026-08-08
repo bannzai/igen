@@ -4,6 +4,10 @@ import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
 import { createApp } from "./app";
 import {
+  createNoEntitlementChecker,
+  createRevenueCatEntitlementChecker,
+} from "./entitlement";
+import {
   createFakeCrisisClassifier,
   createFakeLetterComposer,
 } from "./fakeLlm";
@@ -15,6 +19,7 @@ import {
 } from "./openai";
 
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
+const revenuecatApiKey = defineSecret("REVENUECAT_API_KEY");
 
 // シークレット (OPENAI_API_KEY) はハンドラ実行時にしか読めないため、
 // アプリはコールドスタート後の初回リクエストで一度だけ組み立てる
@@ -27,12 +32,20 @@ export const api = onRequest(
   {
     region: "asia-northeast1",
     timeoutSeconds: 300,
-    secrets: [openaiApiKey],
+    secrets: [openaiApiKey, revenuecatApiKey],
     invoker: "public",
     maxInstances: 10,
   },
   (req, res) => {
     if (app === undefined) {
+      // Emulator では secret が未設定のことがあるため、取得できなければ購入なし扱いにする
+      const revenuecatKey = (() => {
+        try {
+          return revenuecatApiKey.value();
+        } catch {
+          return "";
+        }
+      })();
       // フェイク LLM は Emulator でのローカル開発専用。本番環境に IGEN_FAKE_LLM が
       // 誤って設定されても定型返書・フェイク危機判定へ切り替わらないよう、Emulator 実行時のみ許可する
       const usesFakeLlm =
@@ -51,6 +64,10 @@ export const api = onRequest(
           ? createFakeCrisisClassifier()
           : createOpenAICrisisClassifier(openaiOptions),
         verifyIdToken: (idToken) => getAuth().verifyIdToken(idToken),
+        checkEntitlement:
+          revenuecatKey === ""
+            ? createNoEntitlementChecker()
+            : createRevenueCatEntitlementChecker({ apiKey: revenuecatKey }),
       });
     }
     app(req, res);

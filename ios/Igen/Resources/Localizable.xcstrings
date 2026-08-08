@@ -671,6 +671,216 @@
         }
       }
     },
+    "See the unlimited plan": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聞き放題プランをみる"
+          }
+        }
+      }
+    },
+    "Your night sky, unlimited.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "夜空を、聞き放題に。"
+          }
+        }
+      }
+    },
+    "Free letters arrive once a day. For the nights you want to talk more.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無料の返書は 1日1通。もっと話したい夜のために。"
+          }
+        }
+      }
+    },
+    "Most popular": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いちばん人気"
+          }
+        }
+      }
+    },
+    "Unlimited — 'Hoshiyomi'": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聞き放題「星読み」"
+          }
+        }
+      }
+    },
+    "Unlimited letters": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返書無制限"
+          }
+        }
+      }
+    },
+    "Start Hoshiyomi": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "星読みをはじめる"
+          }
+        }
+      }
+    },
+    "Ticket — 'Hitoshizuku'": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相談チケット「ひとしずく」"
+          }
+        }
+      }
+    },
+    "Just one more letter, for tonight.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今夜だけ、もう一通。"
+          }
+        }
+      }
+    },
+    "Buy a ticket": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チケットを買う"
+          }
+        }
+      }
+    },
+    "Restore purchases": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入の復元"
+          }
+        }
+      }
+    },
+    "Payment is processed by the App Store. You can cancel anytime.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お支払いは App Store 経由。いつでも解約できます。"
+          }
+        }
+      }
+    },
+    "The purchase could not be completed. Please try again later.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入を完了できませんでした。しばらくしてからもう一度お試しください。"
+          }
+        }
+      }
+    },
+    "Purchases are not available yet. Please check back soon.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入はただいま準備中です。もうしばらくお待ちください。"
+          }
+        }
+      }
+    },
+    "Your purchases have been restored.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入情報を確認しました。"
+          }
+        }
+      }
+    },
+    "%@ / month": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ / 月"
+          }
+        }
+      }
+    },
+    "%@ / 1 letter": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ / 1通"
+          }
+        }
+      }
+    },
+    "Prices could not be loaded. Tap to retry.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "価格を読み込めませんでした。タップして再試行できます。"
+          }
+        }
+      }
+    },
+    "Terms of Service (Japanese)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "利用規約"
+          }
+        }
+      }
+    },
+    "Privacy Policy (Japanese)": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライバシーポリシー"
+          }
+        }
+      }
+    },
+    "Talk on any night you need, without the once-a-day limit": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1日1通の枠を気にせず、話したい夜に話せます"
+          }
+        }
+      }
+    },
     "Words have reached your sky": {
       "localizations": {
         "ja": {

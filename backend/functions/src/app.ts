@@ -1,6 +1,7 @@
 import express, { type Express, type Request, type Response } from "express";
 import { logger } from "firebase-functions";
 import { detectCrisis } from "./crisis";
+import type { CheckEntitlementFn } from "./entitlement";
 import { db } from "./firestore";
 import type {
   ClassifyCrisisFn,
@@ -9,7 +10,12 @@ import type {
 } from "./letter";
 import { validateLetterComposition } from "./letter";
 import { MAX_CONCERN_CHARS, OpenAIRefusalError } from "./openai";
-import { consumeFreeQuota, releaseFreeQuota } from "./quota";
+import {
+  consumeFreeQuota,
+  consumeTicket,
+  releaseFreeQuota,
+  releaseTicket,
+} from "./quota";
 import { quotes } from "./quotesDb";
 import { findLetterByRequestId, saveLetter } from "./store";
 
@@ -21,7 +27,12 @@ export interface AppDeps {
   classifyCrisis: ClassifyCrisisFn;
   /** Firebase ID トークンを検証して uid を返す。実装は firebase-admin の verifyIdToken */
   verifyIdToken: (idToken: string) => Promise<{ uid: string }>;
+  /** RevenueCat の購入状態を確認する。実装は entitlement.ts */
+  checkEntitlement: CheckEntitlementFn;
 }
+
+/** 今回の返書の利用枠がどこから来たか。失敗時の返却先を揃えるために持ち回る */
+type AccessGrant = "free" | "unlimited" | "ticket";
 
 /** 共通エラー形状でレスポンスを返す。 */
 function sendError(
@@ -155,6 +166,7 @@ export function createApp(deps: AppDeps): Express {
     }
 
     // 利用枠の判定に失敗・超過しても危機判定は完了させる (キーワード判定の取りこぼしを LLM で補完する二段構え)。
+    // 購入状態の照会に失敗した場合もこの判定を先に済ませ、危機相談にエラーだけを返さない。
     // 判定自体の失敗はキーワード判定を通過済みのためエラー応答側に倒す
     const respondedWithSafety = async (): Promise<boolean> => {
       const crisis = await deps
@@ -172,7 +184,9 @@ export function createApp(deps: AppDeps): Express {
       return crisis;
     };
 
+    // 無料枠 → サブスク (聞き放題) → 購入済みチケットの順に利用枠を確保する。
     // 無料枠の「1 日」の境界は quota.ts が保存済み timeZone で固定する (timeZone 切り替えによるリセット悪用の防止)
+    let accessGrant: AccessGrant = "free";
     let quota: { consumed: boolean; date: string };
     try {
       quota = await consumeFreeQuota(db, uid, receivedAt, timeZone ?? "UTC");
@@ -191,25 +205,78 @@ export function createApp(deps: AppDeps): Express {
       return;
     }
     if (!quota.consumed) {
-      if (await respondedWithSafety()) {
+      // 購入状態の照会・チケット消費の失敗は「購入なし」(= 429 → ペイウォール表示) に変換せず、
+      // 再試行可能な障害として 503 を返す (支払い済みユーザーを枠超過扱いにして再購入を促さないため)
+      let entitlement: { unlimited: boolean; ticketsPurchased: number };
+      try {
+        entitlement = await deps.checkEntitlement(uid);
+      } catch (error) {
+        logger.error("entitlement check failed", { uid, error: `${error}` });
+        if (await respondedWithSafety()) {
+          return;
+        }
+        sendError(
+          res,
+          503,
+          "entitlement_unavailable",
+          "failed to check purchases",
+        );
         return;
       }
-      sendError(
-        res,
-        429,
-        "free_quota_exceeded",
-        "free letters for today are used up",
-      );
-      return;
+      let ticketConsumed: boolean;
+      try {
+        ticketConsumed = entitlement.unlimited
+          ? false
+          : await consumeTicket(db, uid, entitlement.ticketsPurchased);
+      } catch (error) {
+        logger.error("ticket transaction failed", { uid, error: `${error}` });
+        if (await respondedWithSafety()) {
+          return;
+        }
+        sendError(
+          res,
+          503,
+          "entitlement_unavailable",
+          "failed to check purchases",
+        );
+        return;
+      }
+      if (entitlement.unlimited) {
+        accessGrant = "unlimited";
+      } else if (ticketConsumed) {
+        accessGrant = "ticket";
+      } else {
+        if (await respondedWithSafety()) {
+          return;
+        }
+        sendError(
+          res,
+          429,
+          "free_quota_exceeded",
+          "free letters for today are used up",
+        );
+        return;
+      }
     }
 
-    // 返書を返さずに終わる場合に、消費した無料枠を元へ戻す。
+    // 返書を返さずに終わる場合に、消費した利用枠 (無料枠またはチケット) を元へ戻す。
     // 補償の失敗でレスポンス (特にセーフティ応答) を失わないよう、失敗はログに留める
-    const refundFreeQuota = async (): Promise<void> => {
+    const refundAccess = async (): Promise<void> => {
       try {
-        await releaseFreeQuota(db, uid, quota.date);
+        if (accessGrant === "free") {
+          await releaseFreeQuota(db, uid, quota.date);
+        } else if (accessGrant === "ticket") {
+          await releaseTicket(db, uid);
+        }
       } catch (error) {
-        logger.error("free quota release failed", { uid, error: `${error}` });
+        // 購入したチケットの返却に失敗した場合は、無料枠の返却失敗と区別して記録する
+        // (回復手段がないため、運用で検知して個別に補償できるようにする)
+        logger.error("access refund failed", {
+          uid,
+          accessGrant,
+          ticketLost: accessGrant === "ticket",
+          error: `${error}`,
+        });
       }
     };
 
@@ -219,9 +286,9 @@ export function createApp(deps: AppDeps): Express {
         language: letterLanguage,
         quotes,
       });
-      // LLM 側の危機判定 (キーワード判定の取りこぼしを補完)。返書は返さず、無料枠を戻す
+      // LLM 側の危機判定 (キーワード判定の取りこぼしを補完)。返書は返さず、利用枠を戻す
       if (composition.crisis) {
-        await refundFreeQuota();
+        await refundAccess();
         res.json({ type: "safety" });
         return;
       }
@@ -245,7 +312,7 @@ export function createApp(deps: AppDeps): Express {
         letter: { id: saved.id, ...saved.letter },
       });
     } catch (error) {
-      await refundFreeQuota();
+      await refundAccess();
       // モデルが応答を拒否したケースは安全上の拒否である可能性が高いため、
       // 通常の生成失敗と分けて危機の二次判定を行い、危機的なら安全案内を優先する
       if (

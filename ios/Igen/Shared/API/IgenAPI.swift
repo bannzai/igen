@@ -102,7 +102,9 @@ enum IgenAPI {
     if let refreshedResponse, refreshedResponse.statusCode != 401 {
       return try parseLetterResponse(refreshedResponse)
     }
-    _ = try await FirebaseSetup.resetAnonymousUser()
+    let resetUid = try await FirebaseSetup.resetAnonymousUser()
+    // 購入とサーバーの entitlement 照会が同じ UID を見るよう、RevenueCat 側も新しい UID へ切り替える
+    await PurchasesSetup.logIn(appUserID: resetUid)
     return try parseLetterResponse(
       try await postLetter(
         text: text,
@@ -121,8 +123,12 @@ enum IgenAPI {
     requestId: String,
     forcesTokenRefresh: Bool
   ) async throws -> (statusCode: Int, data: Data) {
-    // 起動時の匿名サインインが未完了・失敗していても、送信時に再確保して自己回復する
-    _ = try await FirebaseSetup.ensureAnonymousUser()
+    // 起動時の匿名サインインが未完了・失敗していても、送信時に再確保して自己回復する。
+    // その経路でも購入機能が使えるよう、RevenueCat の初期化も再試行する (どちらも冪等)
+    let uid = try await FirebaseSetup.ensureAnonymousUser()
+    PurchasesSetup.configure(appUserID: uid)
+    // ensureAnonymousUser が無効ユーザーを作り直した場合も RevenueCat を同じ UID へ揃える (UID 一致なら no-op)
+    await PurchasesSetup.logIn(appUserID: uid)
     guard let user = Auth.auth().currentUser else {
       throw APIError.unauthenticated
     }
