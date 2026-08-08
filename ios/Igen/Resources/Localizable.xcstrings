@@ -431,6 +431,56 @@
         }
       }
     },
+    "Create a share card": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共有カードを作る"
+          }
+        }
+      }
+    },
+    "Share Card": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共有カード"
+          }
+        }
+      }
+    },
+    "Share": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "シェア"
+          }
+        }
+      }
+    },
+    "Your worry is not included in the card": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "悩みの本文はカードに含まれません"
+          }
+        }
+      }
+    },
+    "IGEN — Letters from the Greats": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IGEN — 偉人からの返書"
+          }
+        }
+      }
+    },
     "A Letter for You": {
       "localizations": {
         "ja": {
@@ -517,6 +567,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "ことばが、あなたの空に届きました"
+          }
+        }
+      }
+    },
+    "Proverb": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ことわざ"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もどる"
+          }
+        }
+      }
+    },
+    "Save image": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画像を保存"
+          }
+        }
+      }
+    },
+    "The share card has been saved to your photos.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共有カードを写真に保存しました。"
+          }
+        }
+      }
+    },
+    "The card could not be saved. Please allow adding to Photos in the Settings app.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存できませんでした。設定アプリで写真への追加を許可してください。"
           }
         }
       }

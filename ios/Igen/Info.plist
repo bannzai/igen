@@ -20,6 +20,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>igen saves your share card image to your photo library when you choose to.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>igen uses the microphone so you can speak your worries instead of typing them.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

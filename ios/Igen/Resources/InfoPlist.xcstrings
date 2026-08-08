@@ -18,6 +18,23 @@
         }
       }
     },
+    "NSPhotoLibraryAddUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "igen saves your share card image to your photo library when you choose to."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "igen は、保存を選んだときに共有カードの画像をフォトライブラリに保存します。"
+          }
+        }
+      }
+    },
     "NSSpeechRecognitionUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
