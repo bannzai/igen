@@ -45,6 +45,9 @@ final class SpeechRecognizer {
     guard let recognizer = SFSpeechRecognizer(locale: recognitionLocale), recognizer.isAvailable else {
       throw SpeechError.recognizerUnavailable
     }
+    // 権限確認の待機中に停止された場合は、タップ設置・エンジン起動へ進まない
+    // (再開処理と重なると同じ bus への二重 installTap になるため)
+    try Task.checkCancellation()
 
     let request = SFSpeechAudioBufferRecognitionRequest()
     request.shouldReportPartialResults = true

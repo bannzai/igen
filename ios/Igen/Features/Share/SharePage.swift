@@ -50,8 +50,8 @@ struct SharePage: View {
           }
           .padding(.horizontal, 18)
 
-          ShareCardView(letter: letter)
-            .shadow(color: Color.igenGold.opacity(0.35), radius: 24)
+          // プレビューと書き出し画像を同じ装飾で揃えるため、グロー付きの View を共有する
+          ShareCardWithGlow(letter: letter)
 
           // ja: 悩みの本文はカードに含まれません
           Text("Your worry is not included in the card")
@@ -134,7 +134,8 @@ struct SharePage: View {
     .onAppear {
       // 相談本文は Analytics に送らない (.claude/rules/coding-rules-analytics.md)
       Analytics.logEvent("share_card_shown", parameters: ["quote_id": letter.quoteId])
-      let renderer = ImageRenderer(content: ShareCardView(letter: letter))
+      // 影を描くための余白ごとレンダリングして、共有・保存する画像にもグローを残す
+      let renderer = ImageRenderer(content: ShareCardWithGlow(letter: letter).padding(24))
       renderer.scale = displayScale
       cardImage = renderer.uiImage
     }
