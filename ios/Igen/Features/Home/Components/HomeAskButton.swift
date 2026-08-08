@@ -47,7 +47,8 @@ struct HomeAskButton: View {
       // 「視差効果を減らす」設定では明滅させない。
       // withAnimation でこの状態変化だけにアニメーションを閉じ、初回レイアウトを巻き込まない
       if !reduceMotion {
-        withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
+        // autoreverses は往路・復路それぞれに duration を使うため、往復 4 秒周期にするには片道 2 秒にする
+        withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
           glowPulsing = true
         }
       }
