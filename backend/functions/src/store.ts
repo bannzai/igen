@@ -74,5 +74,7 @@ export async function findLetterByRequestId(
   if (document === undefined) {
     return null;
   }
-  return { id: document.id, letter: document.data() };
+  // JSON レスポンスに載せるため、クライアントの Codable が解釈できない Timestamp フィールドを除外する
+  const { createdAt, updatedAt, ...letter } = document.data();
+  return { id: document.id, letter };
 }
