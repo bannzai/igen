@@ -42,7 +42,7 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 | originalLanguage | string | 原文の言語（ISO 639-1: la, zh, de, ja 等） |
 | personId | string \| null | 発祥人物。ことわざ等で特定できない場合は null（返書画面では図解カードで表示） |
 | themes | string[] | マッチングの手がかりになるテーマタグ（ja） |
-| source | { work: {ja,en}, detail?: {ja,en}, origTitle?: string, year?: string } | **出典。work は必須**（文献名・箇所・成立年） |
+| source | { work: {ja,en}, detail?: {ja,en}, origTitle?: string, year?: {ja,en} } | **出典。work は必須**（文献名・箇所・成立年）。year は表示ロケールに応じて切り替える（クライアントでは翻訳しない） |
 | createdAt / updatedAt | Timestamp | seed 時にサーバータイムスタンプで付与 |
 
 - **出典のないデータ・LLM が生成した文を入れない**（偽名言対策。PROJECT.md リスク 1）。原文・出典の必須性は整合性テストで検証する

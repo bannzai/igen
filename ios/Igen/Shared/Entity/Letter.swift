@@ -25,7 +25,8 @@ struct LetterQuoteSource: Codable, Hashable {
   var work: LocalizedText
   var detail: LocalizedText?
   var origTitle: String?
-  var year: String?
+  /// 成立年の表記。表示ロケールに応じて切り替える (クライアントでは翻訳しない)
+  var year: LocalizedText?
 }
 
 /// 返書の話者 (persons のスナップショット)。ことわざ等で人物がいない場合は Letter.person が nil
@@ -38,6 +39,26 @@ struct LetterPerson: Codable, Hashable {
   var bio: LocalizedText
   /// 没後 70 年経過 (パブリックドメイン) の確認結果 (persons スナップショットの権利確認情報)
   var publicDomain: LetterPersonPublicDomain?
+
+  /// 生没年の表示。紀元前は負数で保持しているため、言語に応じて「前551–前479」「551 BC–479 BC」の形にする。
+  /// 紀元をまたぐ場合 (紀元前生まれ・西暦没) は、英語では没年側にも AD を付けて紀元を明示する
+  func eraText(language: String) -> String {
+    if let born {
+      let diedText =
+        born < 0 && died > 0 && language != "ja"
+        ? "\(died) AD"
+        : Self.yearText(year: died, language: language)
+      return "\(Self.yearText(year: born, language: language))–\(diedText)"
+    }
+    return "?–\(Self.yearText(year: died, language: language))"
+  }
+
+  private static func yearText(year: Int, language: String) -> String {
+    if year < 0 {
+      return language == "ja" ? "前\(-year)" : "\(-year) BC"
+    }
+    return "\(year)"
+  }
 }
 
 /// 収録人物のパブリックドメイン確認結果

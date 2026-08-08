@@ -42,7 +42,8 @@ export interface Quote {
     work: LocalizedText;
     detail?: LocalizedText;
     origTitle?: string;
-    year?: string;
+    /** 成立年の表記。表示ロケールに応じて切り替える (クライアントでは翻訳しない) */
+    year?: LocalizedText;
   };
 }
 
@@ -135,10 +136,7 @@ function assertQuoteSchema(quote: Quote): void {
   ) {
     errors.push("source.origTitle");
   }
-  if (
-    quote.source?.year !== undefined &&
-    typeof quote.source.year !== "string"
-  ) {
+  if (quote.source?.year !== undefined && !isLocalizedText(quote.source.year)) {
     errors.push("source.year");
   }
   if (errors.length > 0) {
