@@ -175,8 +175,10 @@ struct HomePage: View {
       return
     }
     listening = true
-    // 部分認識結果は全文置き換えで届くため、開始時点の下書きを保持して認識結果を末尾に追記する
+    // 部分認識結果は全文置き換えで届くため、開始時点の下書きを保持して認識結果を末尾に追記する。
+    // 既存本文が空白・改行で終わっていなければ区切りを入れ、単語や文が結合しないようにする
     let baseDraft = draft
+    let separator = baseDraft.last.map { $0.isWhitespace || $0.isNewline } == true ? "" : " "
     listeningTask = Task {
       do {
         let transcripts = try await speechRecognizer.start()
@@ -187,7 +189,7 @@ struct HomePage: View {
           // 押下 (home_mic_button_pressed) と分けて、認識開始の成功を記録する (権限拒否・開始失敗の離脱率を出すため)
           Analytics.logEvent("home_mic_started", parameters: nil)
           for try await transcript in transcripts {
-            draft = baseDraft.isEmpty ? transcript : baseDraft + transcript
+            draft = baseDraft.isEmpty ? transcript : baseDraft + separator + transcript
           }
         }
       } catch is CancellationError {
