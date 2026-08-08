@@ -53,11 +53,12 @@ export function createRevenueCatEntitlementChecker(options: {
           {
             expires_date: string | null;
             grace_period_expires_date?: string | null;
-            /** 購入元のストア。Sandbox 購入は "app_store_sandbox"/"play_store_sandbox" などになる */
-            store?: string;
-            is_sandbox?: boolean;
+            /** entitlement を満たしている購読商品の識別子 (subscriptions のキー) */
+            product_identifier?: string;
           }
         >;
+        /** 購読の明細。Sandbox 判定 (is_sandbox) はこちらに入る */
+        subscriptions?: Record<string, { is_sandbox?: boolean }>;
         non_subscriptions?: Record<string, { is_sandbox?: boolean }[]>;
       };
     };
@@ -70,9 +71,12 @@ export function createRevenueCatEntitlementChecker(options: {
     // App Store の Billing Grace Period 中は expires_date が過去でも
     // grace_period_expires_date まで有効として扱う (支払い再試行中の購読者を拒否しない)
     const now = new Date();
-    const isSandboxEntitlement =
-      entitlement?.is_sandbox === true ||
-      (entitlement?.store?.includes("sandbox") ?? false);
+    // Sandbox 判定は subscriber.subscriptions 側に入る (entitlement 要素には含まれない)
+    const subscription =
+      entitlement?.product_identifier === undefined
+        ? undefined
+        : body.subscriber?.subscriptions?.[entitlement.product_identifier];
+    const isSandboxEntitlement = subscription?.is_sandbox === true;
     const unlimited =
       entitlement !== undefined &&
       (countsSandbox || !isSandboxEntitlement) &&

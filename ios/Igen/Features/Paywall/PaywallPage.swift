@@ -142,6 +142,8 @@ struct PaywallPage: View {
   /// offering を取得する。失敗したら再試行導線を表示する
   private func loadOfferings() async {
     if !PurchasesSetup.isAvailable {
+      // 初期化が終わらない場合も失敗状態にして再試行導線を出す (シートを開き直さずに読み直せるように)
+      offeringsLoadFailed = true
       return
     }
     offeringsLoadFailed = false

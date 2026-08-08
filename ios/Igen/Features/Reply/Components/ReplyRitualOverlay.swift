@@ -52,7 +52,7 @@ struct ReplyRitualOverlay: View {
                 // 人物のいないことわざでも、線の完了後に停止して見えないよう完了文言を出す
                 // ja: ことばが、あなたの空に届きました
                 Text("Words have reached your sky")
-                  .font(.system(size: 14, design: .serif))
+                  .font(.igenSerif(size: 14))
                   .foregroundStyle(Color.igenText)
               }
             }

@@ -80,7 +80,9 @@ struct ShareCardView: View {
       line += " — \(detail.localized(letter.language))"
     }
     if let year = letter.quote.source.year {
-      line += " ・ \(year.localized(letter.language))"
+      // 区切り記号も表示言語に合わせる (英語カードに和文用の中黒を混ぜない)
+      let separator = letter.language == "ja" ? " ・ " : " · "
+      line += separator + year.localized(letter.language)
     }
     return line
   }
