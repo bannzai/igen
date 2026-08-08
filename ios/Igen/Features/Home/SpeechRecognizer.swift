@@ -40,7 +40,9 @@ final class SpeechRecognizer {
     if await AVAudioApplication.requestRecordPermission() == false {
       throw SpeechError.notAuthorized
     }
-    guard let recognizer = SFSpeechRecognizer(locale: .autoupdatingCurrent), recognizer.isAvailable else {
+    // 端末ロケールではなくアプリに適用中のローカライズで認識器を選ぶ (アプリ単位の言語切り替えに追随)
+    let recognitionLocale = Locale(identifier: Bundle.main.preferredLocalizations.first ?? "en")
+    guard let recognizer = SFSpeechRecognizer(locale: recognitionLocale), recognizer.isAvailable else {
       throw SpeechError.recognizerUnavailable
     }
 
