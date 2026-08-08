@@ -161,6 +161,7 @@ struct AtlasMetConstellation: View {
   /// 点灯演出が完了したか。完了後は TimelineView を止め、毎フレームの再評価を続けない
   @State var revealFinished = false
   @Environment(\.accessibilityReduceMotion) var reduceMotion
+  @Environment(\.scenePhase) var scenePhase
 
   var body: some View {
     Button {
@@ -180,10 +181,14 @@ struct AtlasMetConstellation: View {
           }
           .task {
             // 線の描き上がり (0.6s 遅延 + 1.6s) が終わったら静的表示へ切り替え、表示済みとして記録する。
-            // 演出の途中で画面を離れた (sleep がキャンセルされた) 場合は記録せず、次回また演出を流す
+            // 演出の途中で画面を離れた (sleep がキャンセルされた) 場合や、バックグラウンドで
+            // 演出を見ていなかった場合は記録せず、次回また演出を流す
             do {
               try await Task.sleep(for: .seconds(2.4))
             } catch {
+              return
+            }
+            if scenePhase != .active {
               return
             }
             revealFinished = true
@@ -199,7 +204,8 @@ struct AtlasMetConstellation: View {
               }
             }
         }
-        Text(encounter.person.name.localized(Locale.autoupdatingCurrent.language.languageCode?.identifier == "ja" ? "ja" : "en"))
+        // 端末言語ではなくアプリに適用中のローカライズで判定する (アプリ単位の言語切り替えに追随)
+        Text(encounter.person.name.localized(Bundle.main.preferredLocalizations.first == "ja" ? "ja" : "en"))
           .font(.system(size: 10))
           .foregroundStyle(Color.igenTextGold)
       }

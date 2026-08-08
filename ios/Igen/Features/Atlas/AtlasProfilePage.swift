@@ -23,7 +23,13 @@ struct AtlasProfilePage: View {
       }
       .task {
         // 取得失敗はもらった言葉ブロックの非表示に留める (プロフィール自体は encounter だけで表示できる)
-        letters = (try? await LettersStore.fetchLetters(personId: encounter.personId)) ?? []
+        do {
+          letters = try await LettersStore.fetchLetters(personId: encounter.personId)
+          // 押下 (atlas_person_button_pressed) と分けて、プロフィールが正常に読み込めた数を記録する
+          Analytics.logEvent("atlas_profile_loaded", parameters: nil)
+        } catch {
+          letters = []
+        }
       }
     }
   }
@@ -85,7 +91,8 @@ private struct AtlasProfilePageBody: View {
               .foregroundStyle(Color.igenGold)
             ForEach(letters) { letter in
               Text(letter.quote.text.localized(letter.language))
-                .font(.igenSerif(size: 13))
+                // 格言はデザインの共通タイポグラフィ指定 (Shippori Mincho 500–700) に合わせて Medium 以上にする
+                .font(.igenSerif(size: 13, weight: .medium))
                 .lineSpacing(6)
                 .foregroundStyle(Color.igenText)
             }
@@ -127,9 +134,9 @@ private struct AtlasProfilePageBody: View {
     }
   }
 
-  /// シートの表示言語 (端末ロケール)
+  /// シートの表示言語 (アプリに適用中のローカライズ。アプリ単位の言語切り替えに追随する)
   private var deviceLanguage: String {
-    Locale.autoupdatingCurrent.language.languageCode?.identifier == "ja" ? "ja" : "en"
+    Bundle.main.preferredLocalizations.first == "ja" ? "ja" : "en"
   }
 }
 

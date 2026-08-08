@@ -95,6 +95,8 @@ struct Letter: Codable, Hashable, Identifiable {
   var consultedAt: Date?
   /// Firestore から読む場合のみ入る (レスポンスには含まれない)
   var createdAt: Date?
+  /// Firestore から読む場合のみ入る (レスポンスには含まれない)
+  var updatedAt: Date?
 
   /// 相談日の表示。相談時のタイムゾーンで固定し (別のタイムゾーンで開いても日付が変わらない)、
   /// 返書の言語のロケールでフォーマットする (端末が第三言語でも表示言語が混在しない)。

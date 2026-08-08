@@ -16,6 +16,16 @@ function resolveFreeLettersPerDay(): number {
 }
 export const FREE_LETTERS_PER_DAY = resolveFreeLettersPerDay();
 
+/** IANA タイムゾーン名として解釈できるか */
+function isValidTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-CA", { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** timeZone における日付 (YYYY-MM-DD)。無料枠の「1 日」の境界に使う。 */
 export function localDate(date: Date, timeZone: string): string {
   try {
@@ -44,7 +54,11 @@ export async function consumeFreeQuota(
   return firestore.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(userRef);
     const freeQuota = snapshot.data()?.freeQuota;
-    const timeZone = freeQuota?.timeZone ?? requestedTimeZone;
+    // 不正なタイムゾーン名を保存すると以後の日次境界が永続的に UTC フォールバックになるため、
+    // 保存前に検証して不正なら正規化した UTC を保存する
+    const timeZone =
+      freeQuota?.timeZone ??
+      (isValidTimeZone(requestedTimeZone) ? requestedTimeZone : "UTC");
     const date = localDate(now, timeZone);
     if (freeQuota?.date === date && freeQuota.count >= FREE_LETTERS_PER_DAY) {
       return { consumed: false, date };

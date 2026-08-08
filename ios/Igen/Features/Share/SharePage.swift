@@ -1,4 +1,5 @@
 import FirebaseAnalytics
+import Photos
 import SwiftUI
 
 /// 共有カードのプレビューとシェア導線。返書画面・振り返り詳細から開く
@@ -9,6 +10,7 @@ struct SharePage: View {
   @State var cardImage: UIImage?
   @State var shareActivitySheetIsPresented = false
   @State var saveDoneAlertIsPresented = false
+  @State var saveErrorAlertIsPresented = false
 
   var body: some View {
     ZStack {
@@ -78,9 +80,9 @@ struct SharePage: View {
             // デザイン指定の独立した保存導線 (共有シートを経由せずフォトライブラリへ保存できる)
             Button {
               Analytics.logEvent("share_save_button_pressed", parameters: ["quote_id": letter.quoteId])
-              UIImageWriteToSavedPhotosAlbum(cardImage, nil, nil, nil)
-              Analytics.logEvent("share_card_saved", parameters: ["quote_id": letter.quoteId])
-              saveDoneAlertIsPresented = true
+              Task {
+                await save(cardImage: cardImage)
+              }
             } label: {
               // ja: 画像を保存
               Text("Save image")
@@ -119,12 +121,30 @@ struct SharePage: View {
     }
     // ja: 共有カードを写真に保存しました
     .alert("The share card has been saved to your photos.", isPresented: $saveDoneAlertIsPresented) {}
+    // ja: 保存できませんでした 設定アプリで写真への追加を許可してください
+    .alert(
+      "The card could not be saved. Please allow adding to Photos in the Settings app.",
+      isPresented: $saveErrorAlertIsPresented
+    ) {}
     .onAppear {
       // 相談本文は Analytics に送らない (.claude/rules/coding-rules-analytics.md)
       Analytics.logEvent("share_card_shown", parameters: ["quote_id": letter.quoteId])
       let renderer = ImageRenderer(content: ShareCardView(letter: letter))
       renderer.scale = displayScale
       cardImage = renderer.uiImage
+    }
+  }
+
+  /// カード画像をフォトライブラリへ保存する。権限拒否・書き込み失敗では成功を装わない
+  private func save(cardImage: UIImage) async {
+    do {
+      try await PHPhotoLibrary.shared().performChanges {
+        PHAssetChangeRequest.creationRequestForAsset(from: cardImage)
+      }
+      Analytics.logEvent("share_card_saved", parameters: ["quote_id": letter.quoteId])
+      saveDoneAlertIsPresented = true
+    } catch {
+      saveErrorAlertIsPresented = true
     }
   }
 }
