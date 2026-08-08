@@ -24,19 +24,18 @@ enum IgenAPI {
   /// 相談本文の送信上限。バックエンド (backend/functions/src/openai.ts の MAX_CONCERN_CHARS) と同じ値
   static let maxConcernChars = 2000
 
-  /// Emulator 開発かどうか (FirebaseSetup の Emulator フォールバックと同じ判定)
+  /// Emulator 開発かどうか。判定は FirebaseSetup.usesEmulator と共有する
+  /// (Debug は既定で Functions エミュレータ、IGEN_USE_PROD=1 または Release で実プロジェクト)
   private static var usesEmulator: Bool {
-    Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") == nil
+    FirebaseSetup.usesEmulator
   }
 
-  /// API のベース URL。GoogleService-Info.plist が無い間は Functions エミュレータに向ける
-  /// (実プロジェクト作成後に本番 URL を設定する)
+  /// API のベース URL。Emulator 開発では Functions エミュレータ、それ以外は実プロジェクト igen-prod に向ける
   static var baseURL: URL {
     if usesEmulator {
       return URL(string: "http://127.0.0.1:5201/demo-igen/asia-northeast1/api")!
     }
-    // Firebase 実プロジェクト作成後 (issue #4) にデプロイ先の URL へ差し替える
-    return URL(string: "https://asia-northeast1-igen.cloudfunctions.net/api")!
+    return URL(string: "https://asia-northeast1-igen-prod.cloudfunctions.net/api")!
   }
 
   /// 相談本文を送り、返書または safety を受け取る。

@@ -18,16 +18,27 @@ enum FirebaseSetup {
     FirebaseApp.app()?.options.projectID
   }
 
+  /// ローカル開発で Emulator (demo-igen) を使うかどうか。
+  /// GoogleService-Info.plist は常時バンドルされるため、plist の有無ではなく明示的に切り替える。
+  /// Debug ビルドは既定で Emulator に向け、誤って実プロジェクトへ開発データを書いたり
+  /// 実 LLM の費用を発生させたりしない。実プロジェクトで確認したいときは
+  /// 環境変数 IGEN_USE_PROD=1 (simctl では SIMCTL_CHILD_IGEN_USE_PROD=1) を付けて起動する。
+  /// Release ビルドは常に実プロジェクト
+  static var usesEmulator: Bool {
+    #if DEBUG
+      return ProcessInfo.processInfo.environment["IGEN_USE_PROD"] != "1"
+    #else
+      return false
+    #endif
+  }
+
   /// Firebase を初期化する。既に初期化済みなら何もしない (冪等)
   static func configure() {
     if FirebaseApp.app() != nil {
       return
     }
-    if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
-      FirebaseApp.configure()
-    } else {
-      // Firebase 実プロジェクトの作成はオーナー承認が必要なため、承認までは
-      // Emulator (demo-igen) 向けのダミーオプションで初期化する (issue #4)
+    if usesEmulator {
+      // Emulator (demo-igen) 向けのダミーオプションで初期化する
       let options = FirebaseOptions(
         googleAppID: "1:000000000000:ios:0000000000000000",
         gcmSenderID: "000000000000"
@@ -43,6 +54,8 @@ enum FirebaseSetup {
       settings.host = "127.0.0.1:\(firestoreEmulatorPort)"
       settings.isSSLEnabled = false
       Firestore.firestore().settings = settings
+    } else {
+      FirebaseApp.configure()
     }
   }
 

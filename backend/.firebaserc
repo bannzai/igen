@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "demo-igen"
+    "default": "demo-igen",
+    "prod": "igen-prod"
   }
 }
