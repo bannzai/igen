@@ -269,7 +269,14 @@ export function createApp(deps: AppDeps): Express {
           await releaseTicket(db, uid);
         }
       } catch (error) {
-        logger.error("access refund failed", { uid, error: `${error}` });
+        // 購入したチケットの返却に失敗した場合は、無料枠の返却失敗と区別して記録する
+        // (回復手段がないため、運用で検知して個別に補償できるようにする)
+        logger.error("access refund failed", {
+          uid,
+          accessGrant,
+          ticketLost: accessGrant === "ticket",
+          error: `${error}`,
+        });
       }
     };
 
