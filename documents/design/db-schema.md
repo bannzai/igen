@@ -86,6 +86,22 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 
 - 危機ワード検知時（`type: "safety"` 応答）は相談を**保存しない**（センシティブデータを残さない）
 
+### users/{uid}/encounters/{personId} — 偉人図鑑（星図）の出会い状態
+
+書き込みは Functions のみ（返書生成時に自動で追加）。星図画面はクライアントがここを直接 read する。
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| personId | string | 出会った人物。ドキュメント id と一致 |
+| person | Person スナップショット | 図鑑プロフィールの表示用 |
+| lastQuoteId | string | 最後にもらった言葉 |
+| createdAt | Timestamp | **初回の出会い**。再度の出会いでは更新しない |
+| updatedAt | Timestamp | サーバータイムスタンプ |
+
 ## インデックス
 
-`backend/firestore.indexes.json` に定義する（現状なし）。
+`backend/firestore.indexes.json` に定義する。
+
+| コレクション | フィールド | 用途 |
+|---|---|---|
+| letters | personId ASC, consultedAt DESC | 星図のプロフィールで「その偉人からもらった返書」を相談の新しい順に取得するクエリ（`LettersStore.fetchLetters(personId:)`）。振り返り一覧も consultedAt の単一フィールドで並べる |

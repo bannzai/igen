@@ -52,17 +52,45 @@ export async function saveLetter(
     closing: input.composition.closing,
     diagram: input.composition.diagram,
   };
-  const ref = await firestore
+  // 返書と出会い (encounters) は同一トランザクションで確定させる。
+  // 別書き込みにすると encounter 側だけ失敗したとき返書だけが残り、
+  // 再試行での履歴重複や星図との不整合が生じるため
+  const letterRef = firestore
     .collection("users")
     .doc(uid)
     .collection("letters")
-    .add({
+    .doc();
+  await firestore.runTransaction(async (transaction) => {
+    if (letter.personId !== null && letter.person !== null) {
+      const encounterRef = firestore
+        .collection("users")
+        .doc(uid)
+        .collection("encounters")
+        .doc(letter.personId);
+      // 既に出会っている場合は createdAt (初回の出会い) を保持したまま更新する (冪等)
+      const snapshot = await transaction.get(encounterRef);
+      transaction.set(
+        encounterRef,
+        {
+          personId: letter.personId,
+          person: letter.person,
+          lastQuoteId: quote.id,
+          ...(snapshot.exists
+            ? {}
+            : { createdAt: FieldValue.serverTimestamp() }),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
+    transaction.set(letterRef, {
       ...letter,
       consultedAt: Timestamp.fromDate(input.consultedAt),
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
-  return { id: ref.id, letter };
+  });
+  return { id: letterRef.id, letter };
 }
 
 /**

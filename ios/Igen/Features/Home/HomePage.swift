@@ -15,6 +15,7 @@ struct HomePage: View {
   @State var speechUnavailableAlertIsPresented = false
   @State var safetyNoticeIsPresented = false
   @State var archiveIsPresented = false
+  @State var atlasIsPresented = false
 
   var body: some View {
     NavigationStack {
@@ -31,6 +32,28 @@ struct HomePage: View {
               .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.45), radius: 16)
 
             Spacer()
+
+            Button {
+              Analytics.logEvent("home_atlas_button_pressed", parameters: nil)
+              // 音声入力中・開始処理の suspend 中に遷移しても背後で録音が続かないよう、先に停止する
+              listeningTask?.cancel()
+              listeningTask = nil
+              speechRecognizer.stop()
+              listening = false
+              atlasIsPresented = true
+            } label: {
+              // ja: 星図
+              Text("Star Atlas")
+                .font(.system(size: 11))
+                .foregroundStyle(Color.igenTextGold)
+                .padding(.vertical, 7)
+                .padding(.horizontal, 13)
+                .background(Capsule().fill(Color.igenCard.opacity(0.55)))
+                .overlay(Capsule().stroke(Color.igenGold.opacity(0.32), lineWidth: 1))
+                // 見た目のカプセルは保ちつつ、最小タップターゲット 44pt を確保する (design_handoff_igen/README.md)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+            }
 
             Button {
               Analytics.logEvent("home_archive_button_pressed", parameters: nil)
@@ -114,6 +137,9 @@ struct HomePage: View {
       }
       .navigationDestination(isPresented: $archiveIsPresented) {
         ArchivePage()
+      }
+      .navigationDestination(isPresented: $atlasIsPresented) {
+        AtlasPage()
       }
       // ja: 返書をお届けできませんでした しばらくしてからもう一度お試しください
       .alert("The letter could not be delivered. Please try again later.", isPresented: $sendErrorAlertIsPresented) {}
