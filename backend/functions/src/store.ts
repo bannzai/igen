@@ -14,6 +14,8 @@ export async function saveLetter(
   input: {
     concern: string;
     language: LetterLanguage;
+    /** POST の冪等化に使うクライアント生成 ID。再送時の重複生成を防ぐ。未指定なら null */
+    requestId: string | null;
     composition: LetterComposition;
   },
 ): Promise<{ id: string; letter: Record<string, unknown> }> {
@@ -24,6 +26,7 @@ export async function saveLetter(
   const letter = {
     concern: input.concern,
     language: input.language,
+    requestId: input.requestId,
     quoteId: quote.id,
     quote: {
       kind: quote.kind,
@@ -50,4 +53,28 @@ export async function saveLetter(
       updatedAt: FieldValue.serverTimestamp(),
     });
   return { id: ref.id, letter };
+}
+
+/**
+ * requestId で保存済みの返書を照会する (POST /letters の冪等化)。無ければ null
+ */
+export async function findLetterByRequestId(
+  firestore: Firestore,
+  uid: string,
+  requestId: string,
+): Promise<{ id: string; letter: Record<string, unknown> } | null> {
+  const snapshot = await firestore
+    .collection("users")
+    .doc(uid)
+    .collection("letters")
+    .where("requestId", "==", requestId)
+    .limit(1)
+    .get();
+  const document = snapshot.docs[0];
+  if (document === undefined) {
+    return null;
+  }
+  // JSON レスポンスに載せるため、クライアントの Codable が解釈できない Timestamp フィールドを除外する
+  const { createdAt, updatedAt, ...letter } = document.data();
+  return { id: document.id, letter };
 }

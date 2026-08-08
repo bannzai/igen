@@ -20,6 +20,10 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>igen uses the microphone so you can speak your worries instead of typing them.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>igen converts your voice to text to fill in your consultation.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -1,12 +1,162 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Please keep it within 2,000 characters (now %lld)" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2,000字以内でお願いします（いま %lld 字）"
+          }
+        }
+      }
+    },
+    "IGEN" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "偉言"
+          }
+        }
+      }
+    },
     "Tell me about your day, or what's on your mind" : {
       "localizations" : {
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "きょうのできごと・お悩みを どうぞ"
+          }
+        }
+      }
+    },
+    "Write it down, and a fitting great figure will send you a letter of reply with its source" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "書き終えたら、ふさわしい偉人が出典つきの返書を届けます"
+          }
+        }
+      }
+    },
+    "e.g. Lately, I can't stop thinking before I fall asleep…" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例: 最近、眠る前に考えごとが止まらない…"
+          }
+        }
+      }
+    },
+    "Ask the Greats" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "偉人に聞く"
+          }
+        }
+      }
+    },
+    "The stars are searching for words…" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星々が、ことばを探しています…"
+          }
+        }
+      }
+    },
+    "Listening…" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "聞いています…"
+          }
+        }
+      }
+    },
+    "A Letter for You" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたへの返書"
+          }
+        }
+      }
+    },
+    "Original" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原文"
+          }
+        }
+      }
+    },
+    "Source" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出典"
+          }
+        }
+      }
+    },
+    "The letter could not be delivered. Please try again later." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返書をお届けできませんでした。しばらくしてからもう一度お試しください。"
+          }
+        }
+      }
+    },
+    "Today's free letter has already been delivered." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "きょうの無料の返書はお届け済みです。"
+          }
+        }
+      }
+    },
+    "Microphone or speech recognition is not allowed. Please allow them in the Settings app." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイクまたは音声認識が許可されていません。設定アプリから許可してください。"
+          }
+        }
+      }
+    },
+    "Voice input could not be started. Please try typing instead." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いま音声入力を開始できませんでした。キーボードでの入力をお試しください。"
+          }
+        }
+      }
+    },
+    "Thank you for telling me something so important." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "たいせつなお話を、ありがとうございます。"
           }
         }
       }

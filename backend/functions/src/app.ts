@@ -11,7 +11,7 @@ import { validateLetterComposition } from "./letter";
 import { MAX_CONCERN_CHARS, OpenAIRefusalError } from "./openai";
 import { consumeFreeQuota, releaseFreeQuota } from "./quota";
 import { quotes } from "./quotesDb";
-import { saveLetter } from "./store";
+import { findLetterByRequestId, saveLetter } from "./store";
 
 /** createApp へ注入する外部依存。テストではモックする。 */
 export interface AppDeps {
@@ -76,9 +76,18 @@ export function createApp(deps: AppDeps): Express {
       return;
     }
 
-    const { text, language, timeZone } = req.body ?? {};
+    const { text, language, timeZone, requestId } = req.body ?? {};
     if (typeof text !== "string" || text.trim() === "") {
       sendError(res, 400, "invalid_request", "body field 'text' is required");
+      return;
+    }
+    if (requestId !== undefined && typeof requestId !== "string") {
+      sendError(
+        res,
+        400,
+        "invalid_request",
+        "body field 'requestId' must be a string",
+      );
       return;
     }
     if (text.length > MAX_CONCERN_CHARS) {
@@ -111,10 +120,35 @@ export function createApp(deps: AppDeps): Express {
     const letterLanguage: LetterLanguage = language ?? "ja";
 
     // 危機ワードを検知したら返書は生成しない (無料枠も消費しない)。
+    // 再送照会よりも先に判定し、本文だけ差し替えた再送でも安全案内を優先する。
     // 相談本文はセンシティブなデータとして扱い、保存もしない
     if (detectCrisis(text)) {
       res.json({ type: "safety" });
       return;
+    }
+
+    // 同じ requestId の返書が保存済みなら再生成せずそれを返す (POST の冪等化)。
+    // 応答の受信前に通信が切れた場合でも、クライアントは同じ requestId の再送で保存済みの返書を回収できる
+    if (requestId !== undefined) {
+      const existing = await findLetterByRequestId(db, uid, requestId).catch(
+        (error) => {
+          // 照会の一時的な失敗では通常フローに進める (再生成されても requestId で重複は防がれる前提が崩れるだけ)
+          logger.error("letter replay lookup failed", {
+            uid,
+            error: `${error}`,
+          });
+          return null;
+        },
+      );
+      if (existing !== null) {
+        // letter 内にも id を含める (クライアントの Codable が Letter 単体でデコードできるように)
+        res.json({
+          type: "letter",
+          id: existing.id,
+          letter: { id: existing.id, ...existing.letter },
+        });
+        return;
+      }
     }
 
     // 利用枠の判定に失敗・超過しても危機判定は完了させる (キーワード判定の取りこぼしを LLM で補完する二段構え)。
@@ -196,9 +230,15 @@ export function createApp(deps: AppDeps): Express {
       const saved = await saveLetter(db, uid, {
         concern: text,
         language: letterLanguage,
+        requestId: requestId ?? null,
         composition,
       });
-      res.json({ type: "letter", id: saved.id, letter: saved.letter });
+      // letter 内にも id を含める (クライアントの Codable が Letter 単体でデコードできるように)
+      res.json({
+        type: "letter",
+        id: saved.id,
+        letter: { id: saved.id, ...saved.letter },
+      });
     } catch (error) {
       await refundFreeQuota();
       // モデルが応答を拒否したケースは安全上の拒否である可能性が高いため、
