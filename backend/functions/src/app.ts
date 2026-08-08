@@ -9,7 +9,7 @@ import type {
   LetterLanguage,
 } from "./letter";
 import { validateLetterComposition } from "./letter";
-import { MAX_CONCERN_CHARS } from "./openai";
+import { MAX_CONCERN_CHARS, OpenAIRefusalError } from "./openai";
 import {
   consumeFreeQuota,
   consumeTicket,
@@ -165,6 +165,25 @@ export function createApp(deps: AppDeps): Express {
     // 相談の受信時刻。無料枠の日付判定と、返書に保存する consultedAt (履歴の日付表示の基準) に同じ時刻を使う
     const receivedAt = new Date();
 
+    // 利用枠の判定に失敗・超過しても危機判定は完了させる (キーワード判定の取りこぼしを LLM で補完する二段構え)。
+    // 購入状態の照会に失敗した場合もこの判定を先に済ませ、危機相談にエラーだけを返さない。
+    // 判定自体の失敗はキーワード判定を通過済みのためエラー応答側に倒す
+    const respondedWithSafety = async (): Promise<boolean> => {
+      const crisis = await deps
+        .classifyCrisis({ concern: text })
+        .catch((error) => {
+          logger.error("crisis classification failed", {
+            uid,
+            error: `${error}`,
+          });
+          return false;
+        });
+      if (crisis) {
+        res.json({ type: "safety" });
+      }
+      return crisis;
+    };
+
     // 無料枠 → サブスク (聞き放題) → 購入済みチケットの順に利用枠を確保する。
     // 無料枠の「1 日」の境界は quota.ts が保存済み timeZone で固定する (timeZone 切り替えによるリセット悪用の防止)
     let accessGrant: AccessGrant = "free";
@@ -173,6 +192,10 @@ export function createApp(deps: AppDeps): Express {
       quota = await consumeFreeQuota(db, uid, receivedAt, timeZone ?? "UTC");
     } catch (error) {
       logger.error("free quota transaction failed", { uid, error: `${error}` });
+      // Firestore が利用不能でも危機相談には安全案内を優先する
+      if (await respondedWithSafety()) {
+        return;
+      }
       sendError(
         res,
         503,
@@ -182,25 +205,6 @@ export function createApp(deps: AppDeps): Express {
       return;
     }
     if (!quota.consumed) {
-      // 利用枠がなくても危機判定は完了させる (キーワード判定の取りこぼしを LLM で補完する二段構え)。
-      // 購入状態の照会に失敗した場合もこの判定を先に済ませ、危機相談に 503 を返さない。
-      // 判定自体の失敗はキーワード判定を通過済みのためエラー応答側に倒す
-      const respondedWithSafety = async (): Promise<boolean> => {
-        const crisis = await deps
-          .classifyCrisis({ concern: text })
-          .catch((error) => {
-            logger.error("crisis classification failed", {
-              uid,
-              error: `${error}`,
-            });
-            return false;
-          });
-        if (crisis) {
-          res.json({ type: "safety" });
-        }
-        return crisis;
-      };
-
       // 購入状態の照会・チケット消費の失敗は「購入なし」(= 429 → ペイウォール表示) に変換せず、
       // 再試行可能な障害として 503 を返す (支払い済みユーザーを枠超過扱いにして再購入を促さないため)
       let entitlement: { unlimited: boolean; ticketsPurchased: number };
@@ -302,6 +306,14 @@ export function createApp(deps: AppDeps): Express {
       });
     } catch (error) {
       await refundAccess();
+      // モデルが応答を拒否したケースは安全上の拒否である可能性が高いため、
+      // 通常の生成失敗と分けて危機の二次判定を行い、危機的なら安全案内を優先する
+      if (
+        error instanceof OpenAIRefusalError &&
+        (await respondedWithSafety())
+      ) {
+        return;
+      }
       // 相談本文はログに残さない (.claude/rules/firestore-rules.md「データ設計の決めごと」)
       logger.error("letter composition failed", { uid, error: `${error}` });
       sendError(res, 502, "generation_failed", "failed to compose the letter");
