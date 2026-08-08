@@ -1,57 +1,74 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "NSMicrophoneUsageDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "igen uses the microphone so you can speak your worries instead of typing them."
+  "sourceLanguage": "en",
+  "strings": {
+    "CFBundleDisplayName": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dear Socrates"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "igen は、お悩みをキーボードの代わりに声で話せるよう、マイクを使用します。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偉言"
           }
         }
       }
     },
-    "NSPhotoLibraryAddUsageDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "igen saves your share card image to your photo library when you choose to."
+    "NSMicrophoneUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "igen uses the microphone so you can speak your worries instead of typing them."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "igen は、保存を選んだときに共有カードの画像をフォトライブラリに保存します。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "igen は、お悩みをキーボードの代わりに声で話せるよう、マイクを使用します。"
           }
         }
       }
     },
-    "NSSpeechRecognitionUsageDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "igen converts your voice to text to fill in your consultation."
+    "NSPhotoLibraryAddUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "igen saves your share card image to your photo library when you choose to."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "igen は、相談の入力を埋めるために音声をテキストに変換します。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "igen は、保存を選んだときに共有カードの画像をフォトライブラリに保存します。"
+          }
+        }
+      }
+    },
+    "NSSpeechRecognitionUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "igen converts your voice to text to fill in your consultation."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "igen は、相談の入力を埋めるために音声をテキストに変換します。"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
