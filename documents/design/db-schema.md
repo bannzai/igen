@@ -54,10 +54,34 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
   - Emulator へ投入する場合: `FIRESTORE_EMULATOR_HOST=127.0.0.1:8282 npm run seed`（エミュレータを起動しておく）
   - 実プロジェクトへ投入する場合: `GCLOUD_PROJECT=<project-id> npm run seed`（`GCLOUD_PROJECT` 未設定だと `demo-igen` にフォールバックするため必ず指定する。Firebase プロジェクト作成は issue #4）
 
-### users/{uid}（issue #6 で定義）
+### users/{uid} — ユーザーの利用状況
 
-- 相談と返書の履歴を `users/{uid}` 配下に保存する
-- 無料枠（1 日 1 通）の判定に使う利用状況もここに置く
+書き込みは Functions のみ。クライアントは自分の uid 配下を read できる。
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| freeQuota | { date: string, count: number, timeZone: string } | 無料枠（1 日 1 通）の消費状況。timeZone は初回リクエスト時の端末タイムゾーンで固定し（リクエストごとの変更で日付を往復させるリセット悪用の防止）、date はその timeZone での YYYY-MM-DD。日付が変わると新しい date で上書きされる（日次リセット） |
+| createdAt / updatedAt | Timestamp | サーバータイムスタンプ |
+
+- 無料枠の消費・返却はトランザクションで行う（`backend/functions/src/quota.ts`）。LLM 失敗・危機判定で返書を返さなかった場合は返却する
+
+### users/{uid}/letters/{letterId} — 相談と返書
+
+書き込みは Functions のみ（`POST /letters`）。振り返り画面はクライアントがここを直接 read する。
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| concern | string | 相談本文（センシティブデータ。Analytics・ログに載せない） |
+| language | "ja" \| "en" | 返書の言語 |
+| quoteId | string | 名言 DB の参照 |
+| quote | { kind, text: {ja,en}, original, originalLanguage, source } | 名言 DB の値のスナップショット。クライアントは quotes コレクションを読めないため埋め込む。**本文の出どころは常に名言 DB**（ADR 0002） |
+| personId | string \| null | 話者。ことわざ等は null |
+| person | { id, name, born, died, title, bio, publicDomain } \| null | persons のスナップショット |
+| oneliner / meaning / closing | string | LLM が生成する、ひとこと・意味と文脈・結び |
+| diagram | { metaphor, meaning, usage } \| null | 話者がいない場合の図解カード |
+| createdAt / updatedAt | Timestamp | サーバータイムスタンプ |
+
+- 危機ワード検知時（`type: "safety"` 応答）は相談を**保存しない**（センシティブデータを残さない）
 
 ## インデックス
 
