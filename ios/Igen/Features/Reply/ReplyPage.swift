@@ -4,6 +4,8 @@ import SwiftUI
 /// 構成順は固定: 日付 → 話者 (または図解カード) → ひとこと → 格言 → 対訳 → 意味と文脈 → 結び → 出典
 struct ReplyPage: View {
   var letter: Letter
+  /// 振り返りからの再訪では false にして、登場演出をスキップする
+  var showsRitual = true
   /// 演出の実行回数。初回はリッチ、2 回目以降は短縮する (テンポを守る)
   @AppStorage("ritualCount") var ritualCount = 0
   @State var ritualFinished = false
@@ -12,8 +14,9 @@ struct ReplyPage: View {
     ZStack {
       StarfieldBackground()
 
-      if ritualFinished {
-        ReplyLetterContent(letter: letter)
+      if ritualFinished || !showsRitual {
+        // 再訪 (showsRitual == false) ではブロックの stagger 出現も無効化して即時表示する
+        ReplyLetterContent(letter: letter, revealsBlocks: showsRitual)
       } else {
         ReplyRitualOverlay(letter: letter, short: ritualCount > 0) {
           ritualCount += 1

@@ -1,4 +1,4 @@
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { Firestore } from "firebase-admin/firestore";
 import type { LetterComposition, LetterLanguage } from "./letter";
 import { findPerson, findQuote } from "./quotesDb";
@@ -14,8 +14,12 @@ export async function saveLetter(
   input: {
     concern: string;
     language: LetterLanguage;
+    /** 相談時の端末タイムゾーン。履歴の日付表示を相談時のまま固定するために保存する。不明なら null */
+    timeZone: string | null;
     /** POST の冪等化に使うクライアント生成 ID。再送時の重複生成を防ぐ。未指定なら null */
     requestId: string | null;
+    /** 相談の受信時刻。履歴の日付表示の基準 (生成完了時の createdAt では深夜送信で翌日にずれるため) */
+    consultedAt: Date;
     composition: LetterComposition;
   },
 ): Promise<{ id: string; letter: Record<string, unknown> }> {
@@ -23,9 +27,14 @@ export async function saveLetter(
   if (quote === undefined) {
     throw new Error(`quoteId not in DB: ${input.composition.quoteId}`);
   }
+  // 返り値の letter は JSON レスポンスにそのまま載るため Timestamp を含めない
+  // (Timestamp は JSON 化するとクライアントの Codable が解釈できない形になる)。
+  // 相談時刻は日付表示の基準としてクライアントが必要とするため、ミリ秒 epoch で含める
   const letter = {
+    consultedAt: input.consultedAt.getTime(),
     concern: input.concern,
     language: input.language,
+    timeZone: input.timeZone,
     requestId: input.requestId,
     quoteId: quote.id,
     quote: {
@@ -49,6 +58,7 @@ export async function saveLetter(
     .collection("letters")
     .add({
       ...letter,
+      consultedAt: Timestamp.fromDate(input.consultedAt),
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
@@ -74,7 +84,16 @@ export async function findLetterByRequestId(
   if (document === undefined) {
     return null;
   }
-  // JSON レスポンスに載せるため、クライアントの Codable が解釈できない Timestamp フィールドを除外する
-  const { createdAt, updatedAt, ...letter } = document.data();
-  return { id: document.id, letter };
+  // JSON レスポンスに載せるため、クライアントの Codable が解釈できない Timestamp フィールドを除外する。
+  // 相談時刻は日付表示の基準としてクライアントが必要とするため、ミリ秒 epoch に変換して残す
+  const { createdAt, updatedAt, consultedAt, ...letter } = document.data();
+  return {
+    id: document.id,
+    letter: {
+      ...letter,
+      ...(consultedAt instanceof Timestamp
+        ? { consultedAt: consultedAt.toMillis() }
+        : {}),
+    },
+  };
 }

@@ -14,6 +14,7 @@ struct HomePage: View {
   @State var speechPermissionAlertIsPresented = false
   @State var speechUnavailableAlertIsPresented = false
   @State var safetyNoticeIsPresented = false
+  @State var archiveIsPresented = false
 
   var body: some View {
     NavigationStack {
@@ -21,14 +22,39 @@ struct HomePage: View {
         StarfieldBackground()
 
         VStack(spacing: 16) {
-          // ja: 偉言
-          Text("IGEN")
-            .font(.system(size: 20, weight: .bold, design: .serif))
-            .tracking(8)
-            .foregroundStyle(Color(red: 245 / 255, green: 223 / 255, blue: 164 / 255))
-            .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.45), radius: 16)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
+          HStack {
+            // ja: 偉言
+            Text("IGEN")
+              .font(.system(size: 20, weight: .bold, design: .serif))
+              .tracking(8)
+              .foregroundStyle(Color(red: 245 / 255, green: 223 / 255, blue: 164 / 255))
+              .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.45), radius: 16)
+
+            Spacer()
+
+            Button {
+              Analytics.logEvent("home_archive_button_pressed", parameters: nil)
+              // 音声入力中・開始処理の suspend 中に遷移しても背後で録音が続かないよう、先に停止する
+              listeningTask?.cancel()
+              listeningTask = nil
+              speechRecognizer.stop()
+              listening = false
+              archiveIsPresented = true
+            } label: {
+              // ja: 記録
+              Text("Archive")
+                .font(.system(size: 11))
+                .foregroundStyle(Color.igenTextGold)
+                .padding(.vertical, 7)
+                .padding(.horizontal, 13)
+                .background(Capsule().fill(Color.igenCard.opacity(0.55)))
+                .overlay(Capsule().stroke(Color.igenGold.opacity(0.32), lineWidth: 1))
+                // 見た目のカプセルは保ちつつ、最小タップターゲット 44pt を確保する (design_handoff_igen/README.md)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+            }
+          }
+          .padding(.vertical, 8)
 
           Spacer()
 
@@ -85,6 +111,9 @@ struct HomePage: View {
       }
       .navigationDestination(item: $letter) { letter in
         ReplyPage(letter: letter)
+      }
+      .navigationDestination(isPresented: $archiveIsPresented) {
+        ArchivePage()
       }
       // ja: 返書をお届けできませんでした しばらくしてからもう一度お試しください
       .alert("The letter could not be delivered. Please try again later.", isPresented: $sendErrorAlertIsPresented) {}

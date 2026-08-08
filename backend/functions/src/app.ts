@@ -65,6 +65,9 @@ export function createApp(deps: AppDeps): Express {
   // 相談を受け取り返書を生成する。
   // フロー: 認証 → 入力検証 → 危機ワード判定 → 無料枠消費 → LLM マッチング → 保存
   app.post("/letters", async (req: Request, res: Response) => {
+    // 相談の受信時刻。無料枠の日付判定と、返書に保存する consultedAt (履歴の日付表示の基準) に同じ時刻を使う。
+    // 認証や再送照会の待ち時間で日付をまたいでもずれないよう、最初の非同期処理より前に確定する
+    const receivedAt = new Date();
     const uid = await authenticate(deps, req);
     if (uid === null) {
       sendError(
@@ -172,7 +175,7 @@ export function createApp(deps: AppDeps): Express {
     // 無料枠の「1 日」の境界は quota.ts が保存済み timeZone で固定する (timeZone 切り替えによるリセット悪用の防止)
     let quota: { consumed: boolean; date: string };
     try {
-      quota = await consumeFreeQuota(db, uid, new Date(), timeZone ?? "UTC");
+      quota = await consumeFreeQuota(db, uid, receivedAt, timeZone ?? "UTC");
     } catch (error) {
       logger.error("free quota transaction failed", { uid, error: `${error}` });
       // Firestore が利用不能でも危機相談には安全案内を優先する
@@ -230,7 +233,9 @@ export function createApp(deps: AppDeps): Express {
       const saved = await saveLetter(db, uid, {
         concern: text,
         language: letterLanguage,
+        timeZone: timeZone ?? null,
         requestId: requestId ?? null,
+        consultedAt: receivedAt,
         composition,
       });
       // letter 内にも id を含める (クライアントの Codable が Letter 単体でデコードできるように)

@@ -5,6 +5,8 @@ import SwiftUI
 /// 構成順は固定: 日付 → 話者 (または図解カード) → ひとこと → 格言 → 対訳 → 意味と文脈 → 結び → 出典
 struct ReplyLetterContent: View {
   var letter: Letter
+  /// 振り返りからの再訪では false にして、stagger 出現を無効化し即時表示する
+  var revealsBlocks = true
 
   @Environment(\.dismiss) var dismiss
 
@@ -44,16 +46,10 @@ struct ReplyLetterContent: View {
 
       ScrollView {
         VStack(spacing: 24) {
-          // 日付は返書の言語に合わせてフォーマットし、端末ロケールが第三言語でも表示言語が混在しないようにする
-          Text(
-            (letter.createdAt ?? .now).formatted(
-              Date.FormatStyle(date: .long, time: .omitted)
-                .locale(Locale(identifier: letter.language == "ja" ? "ja_JP" : "en_US"))
-            )
-          )
-          .font(.system(size: 11))
-          .foregroundStyle(Color.igenText.opacity(0.5))
-          .igenReveal(0)
+          Text(letter.dateText())
+            .font(.system(size: 11))
+            .foregroundStyle(Color.igenText.opacity(0.5))
+            .igenReveal(0, enabled: revealsBlocks)
 
           if let person = letter.person {
             VStack(spacing: 8) {
@@ -71,17 +67,17 @@ struct ReplyLetterContent: View {
               .font(.system(size: 11))
               .foregroundStyle(Color.igenText.opacity(0.6))
             }
-            .igenReveal(1)
+            .igenReveal(1, enabled: revealsBlocks)
           } else if let diagram = letter.diagram {
             ReplyDiagramCard(diagram: diagram)
-              .igenReveal(1)
+              .igenReveal(1, enabled: revealsBlocks)
           }
 
           Text(letter.oneliner)
             .font(.system(size: 14))
             .lineSpacing(9)
             .foregroundStyle(Color.igenText)
-            .igenReveal(2)
+            .igenReveal(2, enabled: revealsBlocks)
 
           VStack(spacing: 12) {
             ReplyGoldHairline()
@@ -93,11 +89,11 @@ struct ReplyLetterContent: View {
               .shadow(color: Color.igenGold.opacity(0.35), radius: 12)
             ReplyGoldHairline()
           }
-          .igenReveal(3)
+          .igenReveal(3, enabled: revealsBlocks)
 
           // 原文は出典の信頼性の要件として、訳文との一致にかかわらず常に併記する (localization-guidelines.md)
           ReplyOriginalTextBlock(quote: letter.quote, language: letter.language)
-            .igenReveal(4)
+            .igenReveal(4, enabled: revealsBlocks)
 
           VStack(spacing: 8) {
             // ja: 意味と文脈
@@ -110,7 +106,7 @@ struct ReplyLetterContent: View {
               .lineSpacing(9)
               .foregroundStyle(Color.igenText)
           }
-          .igenReveal(5)
+          .igenReveal(5, enabled: revealsBlocks)
 
           VStack(spacing: 10) {
             Text(letter.closing)
@@ -131,10 +127,10 @@ struct ReplyLetterContent: View {
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }
           }
-          .igenReveal(6)
+          .igenReveal(6, enabled: revealsBlocks)
 
           ReplySourceBlock(quote: letter.quote, language: letter.language)
-            .igenReveal(7)
+            .igenReveal(7, enabled: revealsBlocks)
 
           Button {
             Analytics.logEvent("reply_close_button_pressed", parameters: nil)
@@ -150,7 +146,7 @@ struct ReplyLetterContent: View {
                 Capsule().stroke(Color.igenText.opacity(0.25), lineWidth: 1)
               )
           }
-          .igenReveal(8)
+          .igenReveal(8, enabled: revealsBlocks)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 24)

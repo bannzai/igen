@@ -155,7 +155,10 @@ enum IgenAPI {
     if response.statusCode != 200 {
       throw APIError.http(statusCode: response.statusCode)
     }
-    let envelope = try JSONDecoder().decode(LetterEnvelope.self, from: response.data)
+    let decoder = JSONDecoder()
+    // レスポンスの日時 (consultedAt) はミリ秒 epoch で届く (backend/functions/src/store.ts)
+    decoder.dateDecodingStrategy = .millisecondsSince1970
+    let envelope = try decoder.decode(LetterEnvelope.self, from: response.data)
     switch envelope.type {
     case "letter":
       if let letter = envelope.letter {
