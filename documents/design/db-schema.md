@@ -104,4 +104,4 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 
 | コレクション | フィールド | 用途 |
 |---|---|---|
-| letters | personId ASC, createdAt DESC | 星図のプロフィールで「その偉人からもらった返書」を新しい順に取得するクエリ（`LettersStore.fetchLetters(personId:)`） |
+| letters | personId ASC, consultedAt DESC | 星図のプロフィールで「その偉人からもらった返書」を相談の新しい順に取得するクエリ（`LettersStore.fetchLetters(personId:)`）。振り返り一覧も consultedAt の単一フィールドで並べる |

@@ -44,7 +44,7 @@ enum LettersStore {
       .document(uid)
       .collection("letters")
       .whereField("personId", isEqualTo: personId)
-      .order(by: "createdAt", descending: true)
+      .order(by: "consultedAt", descending: true)
       .getDocuments()
     return try snapshot.documents.map(decodeLetter(document:))
   }
