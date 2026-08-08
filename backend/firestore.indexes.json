@@ -4,8 +4,14 @@
       "collectionGroup": "letters",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "personId", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "personId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "consultedAt",
+          "order": "DESCENDING"
+        }
       ]
     }
   ],

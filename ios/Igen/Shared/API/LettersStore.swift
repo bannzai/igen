@@ -20,7 +20,9 @@ enum LettersStore {
       .collection("users")
       .document(uid)
       .collection("letters")
-      .order(by: "createdAt", descending: true)
+      // 相談時刻で並べる (生成完了時刻 createdAt では、生成が長引いた返書の順序が相談順と逆転する)。
+      // consultedAt は Functions が必ず保存するため、並びと dateText() の基準が一致する
+      .order(by: "consultedAt", descending: true)
       .limit(to: pageSize)
     if let cursor {
       query = query.start(afterDocument: cursor)
@@ -42,7 +44,7 @@ enum LettersStore {
       .document(uid)
       .collection("letters")
       .whereField("personId", isEqualTo: personId)
-      .order(by: "createdAt", descending: true)
+      .order(by: "consultedAt", descending: true)
       .getDocuments()
     return try snapshot.documents.map(decodeLetter(document:))
   }
