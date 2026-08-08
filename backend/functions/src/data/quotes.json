@@ -1,0 +1,155 @@
+[
+  {
+    "id": "seneca-non-quia-difficilia",
+    "kind": "quote",
+    "text": {
+      "ja": "難しいから挑めないのではない。挑まないから難しくなるのだ。",
+      "en": "It is not because things are difficult that we do not dare; it is because we do not dare that they are difficult."
+    },
+    "original": "Non quia difficilia sunt non audemus, sed quia non audemus difficilia sunt.",
+    "originalLanguage": "la",
+    "personId": "seneca",
+    "themes": ["挑戦", "不安", "一歩を踏み出す"],
+    "source": {
+      "work": {
+        "ja": "倫理書簡集 (ルキリウスへの手紙)",
+        "en": "Moral Letters to Lucilius"
+      },
+      "detail": { "ja": "第104書簡 26節", "en": "Letter 104, section 26" },
+      "origTitle": "Epistulae morales ad Lucilium",
+      "year": "65年頃"
+    }
+  },
+  {
+    "id": "seneca-vita-longa-est",
+    "kind": "quote",
+    "text": {
+      "ja": "人生は、使い方を知れば長い。",
+      "en": "Life is long, if you know how to use it."
+    },
+    "original": "Vita, si uti scias, longa est.",
+    "originalLanguage": "la",
+    "personId": "seneca",
+    "themes": ["時間", "忙しさ", "人生の使い方"],
+    "source": {
+      "work": { "ja": "人生の短さについて", "en": "On the Shortness of Life" },
+      "detail": { "ja": "第2章", "en": "Chapter 2" },
+      "origTitle": "De Brevitate Vitae",
+      "year": "49年頃"
+    }
+  },
+  {
+    "id": "confucius-kachite-aratamezaru",
+    "kind": "quote",
+    "text": {
+      "ja": "過ちを犯して改めない、それこそを過ちという。",
+      "en": "To make a mistake and not correct it: this is what is truly called a mistake."
+    },
+    "original": "過而不改、是謂過矣。",
+    "originalLanguage": "zh",
+    "personId": "confucius",
+    "themes": ["失敗", "反省", "やり直し"],
+    "source": {
+      "work": { "ja": "論語", "en": "The Analects" },
+      "detail": { "ja": "衛霊公第十五", "en": "Book 15 (Wei Ling Gong)" },
+      "origTitle": "論語",
+      "year": "紀元前5世紀頃"
+    }
+  },
+  {
+    "id": "confucius-manande-omowazareba",
+    "kind": "quote",
+    "text": {
+      "ja": "学んで考えなければ身につかない。考えて学ばなければ独りよがりで危うい。",
+      "en": "Learning without thought is labor lost; thought without learning is perilous."
+    },
+    "original": "学而不思則罔、思而不学則殆。",
+    "originalLanguage": "zh",
+    "personId": "confucius",
+    "themes": ["学び", "考えること", "迷い"],
+    "source": {
+      "work": { "ja": "論語", "en": "The Analects" },
+      "detail": { "ja": "為政第二", "en": "Book 2 (Wei Zheng)" },
+      "origTitle": "論語",
+      "year": "紀元前5世紀頃"
+    }
+  },
+  {
+    "id": "nietzsche-was-mich-nicht-umbringt",
+    "kind": "quote",
+    "text": {
+      "ja": "私を殺さないものは、私をより強くする。",
+      "en": "What does not kill me makes me stronger."
+    },
+    "original": "Was mich nicht umbringt, macht mich stärker.",
+    "originalLanguage": "de",
+    "personId": "nietzsche",
+    "themes": ["苦難", "逆境", "成長"],
+    "source": {
+      "work": { "ja": "偶像の黄昏", "en": "Twilight of the Idols" },
+      "detail": { "ja": "箴言と矢 8", "en": "Maxims and Arrows, 8" },
+      "origTitle": "Götzen-Dämmerung",
+      "year": "1889年"
+    }
+  },
+  {
+    "id": "zeami-shoshin-wasuru-bekarazu",
+    "kind": "quote",
+    "text": {
+      "ja": "初心忘るべからず。",
+      "en": "Never forget the beginner's heart."
+    },
+    "original": "初心不可忘",
+    "originalLanguage": "ja",
+    "personId": "zeami",
+    "themes": ["初心", "慣れ", "続けること"],
+    "source": {
+      "work": { "ja": "花鏡", "en": "Kakyo (The Mirror of the Flower)" },
+      "detail": { "ja": "奥段", "en": "Concluding section" },
+      "origTitle": "花鏡",
+      "year": "1424年"
+    }
+  },
+  {
+    "id": "basho-tsukihi-wa-hakutai",
+    "kind": "quote",
+    "text": {
+      "ja": "月日は永遠の旅人であり、来ては去る年もまた旅人である。",
+      "en": "The days and months are travelers of a hundred generations, and the years that come and go are travelers too."
+    },
+    "original": "月日は百代の過客にして、行きかふ年も又旅人也",
+    "originalLanguage": "ja",
+    "personId": "basho",
+    "themes": ["旅", "時の流れ", "変化"],
+    "source": {
+      "work": {
+        "ja": "おくのほそ道",
+        "en": "Oku no Hosomichi (The Narrow Road to the Deep North)"
+      },
+      "detail": { "ja": "冒頭", "en": "Opening passage" },
+      "origTitle": "おくのほそ道",
+      "year": "1702年刊"
+    }
+  },
+  {
+    "id": "saio-ga-uma",
+    "kind": "proverb",
+    "text": {
+      "ja": "人間万事塞翁が馬。",
+      "en": "Life is like the old man's horse at the frontier: fortune and misfortune are never what they seem."
+    },
+    "original": "塞翁失馬",
+    "originalLanguage": "zh",
+    "personId": null,
+    "themes": ["不運", "幸運", "禍福"],
+    "source": {
+      "work": { "ja": "淮南子", "en": "Huainanzi" },
+      "detail": {
+        "ja": "人間訓の故事に由来する故事成語",
+        "en": "Idiom derived from a story in the 'In the World of Man' chapter"
+      },
+      "origTitle": "淮南子",
+      "year": "紀元前2世紀頃"
+    }
+  }
+]
