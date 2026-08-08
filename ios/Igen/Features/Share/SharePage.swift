@@ -81,7 +81,12 @@ struct SharePage: View {
             Button {
               Analytics.logEvent("share_save_button_pressed", parameters: ["quote_id": letter.quoteId])
               Task {
-                await save(cardImage: cardImage)
+                if await save(cardImage: cardImage) {
+                  Analytics.logEvent("share_card_saved", parameters: ["quote_id": letter.quoteId])
+                  saveDoneAlertIsPresented = true
+                } else {
+                  saveErrorAlertIsPresented = true
+                }
               }
             } label: {
               // ja: 画像を保存
@@ -135,16 +140,16 @@ struct SharePage: View {
     }
   }
 
-  /// カード画像をフォトライブラリへ保存する。権限拒否・書き込み失敗では成功を装わない
-  private func save(cardImage: UIImage) async {
+  /// カード画像をフォトライブラリへ保存し、成功したかを返す。
+  /// Analytics・アラートなどの副作用は呼び出し元で処理する (.claude/rules/coding-rules-analytics.md)
+  private func save(cardImage: UIImage) async -> Bool {
     do {
       try await PHPhotoLibrary.shared().performChanges {
         PHAssetChangeRequest.creationRequestForAsset(from: cardImage)
       }
-      Analytics.logEvent("share_card_saved", parameters: ["quote_id": letter.quoteId])
-      saveDoneAlertIsPresented = true
+      return true
     } catch {
-      saveErrorAlertIsPresented = true
+      return false
     }
   }
 }
