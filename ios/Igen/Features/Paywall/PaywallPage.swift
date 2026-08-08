@@ -76,6 +76,7 @@ struct PaywallPage: View {
 
           if offeringsLoadFailed {
             Button {
+              Analytics.logEvent("paywall_price_retry_button_pressed", parameters: nil)
               Task {
                 await loadOfferings()
               }
@@ -146,6 +147,7 @@ struct PaywallPage: View {
     offeringsLoadFailed = false
     do {
       offerings = try await Purchases.shared.offerings()
+      Analytics.logEvent("paywall_offerings_loaded", parameters: nil)
     } catch {
       offeringsLoadFailed = true
     }
