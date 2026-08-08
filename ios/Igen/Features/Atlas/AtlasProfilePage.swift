@@ -91,7 +91,8 @@ private struct AtlasProfilePageBody: View {
               .foregroundStyle(Color.igenGold)
             ForEach(letters) { letter in
               Text(letter.quote.text.localized(letter.language))
-                .font(.igenSerif(size: 13))
+                // 格言はデザインの共通タイポグラフィ指定 (Shippori Mincho 500–700) に合わせて Medium 以上にする
+                .font(.igenSerif(size: 13, weight: .medium))
                 .lineSpacing(6)
                 .foregroundStyle(Color.igenText)
             }
