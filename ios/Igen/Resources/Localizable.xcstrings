@@ -720,6 +720,16 @@
           }
         }
       }
+    },
+    "The card could not be saved. Please allow adding to Photos in the Settings app.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存できませんでした。設定アプリで写真への追加を許可してください。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
