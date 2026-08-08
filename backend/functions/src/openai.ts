@@ -113,22 +113,33 @@ Compose the letter of reply.`;
     // 失敗したら 1 回だけ再試行する (yomon と同じ方針)
     let lastError: unknown;
     for (let attempt = 0; attempt < 2; attempt++) {
-      const completion = await client.chat.completions.create({
-        model: options.model,
-        max_completion_tokens: MAX_COMPLETION_TOKENS,
-        messages: [
-          { role: "system", content: LETTER_SYSTEM_PROMPT },
-          { role: "user", content: userMessage },
-        ],
-        response_format: {
-          type: "json_schema",
-          json_schema: {
-            name: "letter_composition",
-            strict: true,
-            schema: letterSchema(input.quotes) as Record<string, unknown>,
+      // SDK の自動リトライを無効化しているため、API 呼び出し自体の一時エラー (429/5xx/切断) も
+      // ここで捕捉して残りの試行へ進める
+      let completion: OpenAI.Chat.Completions.ChatCompletion;
+      try {
+        completion = await client.chat.completions.create({
+          model: options.model,
+          max_completion_tokens: MAX_COMPLETION_TOKENS,
+          messages: [
+            { role: "system", content: LETTER_SYSTEM_PROMPT },
+            { role: "user", content: userMessage },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "letter_composition",
+              strict: true,
+              schema: letterSchema(input.quotes) as Record<string, unknown>,
+            },
           },
-        },
-      });
+        });
+      } catch (apiError) {
+        // 相談・モデル出力を含まない API エラーのみ保持する
+        lastError = new Error(
+          `openai request failed: ${apiError instanceof Error ? apiError.constructor.name : "unknown"}`,
+        );
+        continue;
+      }
       const choice = completion.choices[0];
       if (choice === undefined) {
         throw new Error("openai response has no message");
@@ -223,6 +234,11 @@ export function createOpenAICrisisClassifier(
     if (typeof content !== "string" || content === "") {
       throw new Error("openai crisis classification has no content");
     }
-    return (JSON.parse(content) as { crisis: boolean }).crisis;
+    try {
+      return (JSON.parse(content) as { crisis: boolean }).crisis;
+    } catch {
+      // SyntaxError には入力断片 (モデル出力 = 相談の反復を含みうる) が入るため、固定文言だけを投げる
+      throw new Error("openai crisis classification is not valid JSON");
+    }
   };
 }

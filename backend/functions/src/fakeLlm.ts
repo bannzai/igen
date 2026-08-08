@@ -36,7 +36,9 @@ export function createFakeLetterComposer(): ComposeLetterFn {
                 : "A phrase to recall on nights like this",
             }
           : null,
-      crisis: false,
+      // 相談本文に "fake-crisis" を含めるとセーフティ画面の E2E を再現できる
+      // (無料枠が残っている通常フローでは composeLetter の結果の crisis が採用されるため)
+      crisis: input.concern.includes("fake-crisis"),
     };
   };
 }

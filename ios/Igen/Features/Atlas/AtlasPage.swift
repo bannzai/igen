@@ -179,16 +179,17 @@ struct AtlasMetConstellation: View {
             )
             .frame(width: 74 * scale, height: 74 * scale)
           }
-          .task {
-            // 線の描き上がり (0.6s 遅延 + 1.6s) が終わったら静的表示へ切り替え、表示済みとして記録する。
-            // 演出の途中で画面を離れた (sleep がキャンセルされた) 場合や、バックグラウンドで
-            // 演出を見ていなかった場合は記録せず、次回また演出を流す
+          // scenePhase を id にして、バックグラウンド復帰時に task を再開する
+          // (前面に戻るまで演出の完了扱いを保留し、TimelineView も止まったままにしない)
+          .task(id: scenePhase) {
+            // 演出をアプリが前面にある状態で見終えた場合だけ、静的表示へ切り替えて表示済みとして記録する。
+            // 画面を離れた (sleep がキャンセルされた) 場合や背面のままの場合は記録せず、次回また演出を流す
+            if scenePhase != .active {
+              return
+            }
             do {
               try await Task.sleep(for: .seconds(2.4))
             } catch {
-              return
-            }
-            if scenePhase != .active {
               return
             }
             revealFinished = true
