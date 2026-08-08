@@ -10,7 +10,7 @@
     "lint": "biome check .",
     "format": "biome check --write .",
     "test": "firebase emulators:exec --project demo-igen --only firestore \"vitest run\"",
-    "serve": "npm run build && firebase emulators:start --project demo-igen --only functions,firestore"
+    "serve": "npm run build && firebase emulators:start --project demo-igen --only auth,functions,firestore"
   },
   "dependencies": {
     "express": "^4.21.2",
