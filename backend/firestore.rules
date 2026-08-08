@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 書き込みは Functions (Admin SDK) 経由に限定する (.claude/rules/firestore-rules.md)。
+    // クライアントに許可するのは自分のデータ (users/{uid} 配下) の読み取りのみ
+    match /users/{uid}/{document=**} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
