@@ -214,6 +214,8 @@ export function createOpenAICrisisClassifier(
   return async (input) => {
     const completion = await client.chat.completions.create({
       model: options.model,
+      // 出力は boolean 1 つのため小さい上限で十分 (モデルの暴走による費用増を抑える)
+      max_completion_tokens: 64,
       messages: [
         { role: "system", content: CRISIS_SYSTEM_PROMPT },
         {
@@ -230,7 +232,12 @@ export function createOpenAICrisisClassifier(
         },
       },
     });
-    const content = completion.choices[0]?.message?.content;
+    const message = completion.choices[0]?.message;
+    if (message?.refusal) {
+      // 分類器自身が応答を拒否するのは危険な内容が理由のことが多いため、安全側 (危機あり) に倒す
+      return true;
+    }
+    const content = message?.content;
     if (typeof content !== "string" || content === "") {
       throw new Error("openai crisis classification has no content");
     }

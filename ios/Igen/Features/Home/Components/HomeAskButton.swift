@@ -44,14 +44,27 @@ struct HomeAskButton: View {
     .disabled(trimmedDraft.isEmpty || draft.utf16.count > IgenAPI.maxConcernChars || sending)
     .opacity(trimmedDraft.isEmpty || draft.utf16.count > IgenAPI.maxConcernChars ? 0.45 : 1)
     .onAppear {
-      // 「視差効果を減らす」設定では明滅させない。
-      // withAnimation でこの状態変化だけにアニメーションを閉じ、初回レイアウトを巻き込まない
-      if !reduceMotion {
-        // autoreverses は往路・復路それぞれに duration を使うため、往復 4 秒周期にするには片道 2 秒にする
-        withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
-          glowPulsing = true
-        }
+      updateGlow()
+    }
+    // 表示中に「視差効果を減らす」設定が変わった場合も明滅の有無を追随させる
+    .onChange(of: reduceMotion) { _, _ in
+      updateGlow()
+    }
+  }
+
+  /// グロー明滅の開始・停止。「視差効果を減らす」設定では静止させる
+  private func updateGlow() {
+    if reduceMotion {
+      // 実行中の repeatForever を止め、固定の半径に戻す
+      withAnimation(.linear(duration: 0)) {
+        glowPulsing = false
       }
+      return
+    }
+    // autoreverses は往路・復路それぞれに duration を使うため、往復 4 秒周期にするには片道 2 秒にする。
+    // withAnimation でこの状態変化だけにアニメーションを閉じ、初回レイアウトを巻き込まない
+    withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+      glowPulsing = true
     }
   }
 }
