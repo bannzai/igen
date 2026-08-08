@@ -149,18 +149,8 @@ struct HomePage: View {
       .alert("Microphone or speech recognition is not allowed. Please allow them in the Settings app.", isPresented: $speechPermissionAlertIsPresented) {}
       // ja: いま音声入力を開始できませんでした キーボードでの入力をお試しください
       .alert("Voice input could not be started. Please try typing instead.", isPresented: $speechUnavailableAlertIsPresented) {}
-      .sheet(isPresented: $safetyNoticeIsPresented) {
-        // セーフティ画面の本実装は #12 で行う (それまでの簡易表示)
-        ZStack {
-          StarfieldBackground()
-          // ja: たいせつなお話を、ありがとうございます
-          Text("Thank you for telling me something so important.")
-            .font(.system(size: 18, weight: .semibold, design: .serif))
-            .multilineTextAlignment(.center)
-            .foregroundStyle(Color(red: 236 / 255, green: 231 / 255, blue: 244 / 255))
-            .padding(.horizontal, 32)
-        }
-        .presentationDetents([.medium])
+      .fullScreenCover(isPresented: $safetyNoticeIsPresented) {
+        SafetyPage()
       }
     }
   }
@@ -224,8 +214,7 @@ struct HomePage: View {
         }
         self.letter = letter
       case .safety:
-        // 相談本文は Analytics に送らない (.claude/rules/coding-rules-analytics.md)
-        Analytics.logEvent("safety_notice_shown", parameters: nil)
+        // 案内画面の表示イベントは SafetyPage 側で送る (相談本文は送らない)
         safetyNoticeIsPresented = true
       }
     } catch IgenAPI.APIError.freeQuotaExceeded {
