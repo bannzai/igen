@@ -24,7 +24,7 @@ struct SafetyPage: View {
 
           // ja: たいせつなお話を、ありがとうございます。
           Text("Thank you for telling me something so important.")
-            .font(.system(size: 18, weight: .semibold, design: .serif))
+            .font(.igenSerif(size: 18, weight: .semibold))
             .multilineTextAlignment(.center)
             .lineSpacing(8)
             .foregroundStyle(Color.igenText)
