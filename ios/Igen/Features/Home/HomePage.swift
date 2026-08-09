@@ -16,6 +16,8 @@ struct HomePage: View {
   @State var safetyNoticeIsPresented = false
   @State var archiveIsPresented = false
   @State var atlasIsPresented = false
+  // キーボードは待機オーバーレイより上のウィンドウに表示されるため、送信開始時に明示的に閉じる
+  @FocusState var draftIsFocused: Bool
 
   var body: some View {
     NavigationStack {
@@ -100,6 +102,7 @@ struct HomePage: View {
                 HomeInputCard(
                   draft: $draft,
                   listening: $listening,
+                  draftIsFocused: $draftIsFocused,
                   onMicButtonPressed: {
                     toggleListening()
                   }
@@ -120,6 +123,8 @@ struct HomePage: View {
                   listeningTask = nil
                   speechRecognizer.stop()
                   listening = false
+                  // キーボードが待機オーバーレイに重なって残らないよう閉じる (issue #36)
+                  draftIsFocused = false
                   sending = true
                   Task {
                     await send()
@@ -143,6 +148,9 @@ struct HomePage: View {
             }
             .scrollIndicators(.hidden)
           }
+          // 待機文言と入力中の本文が重なって読めなくなるため、生成待ちの間は中央ブロックを隠す。
+          // デザイン指定の待機画面 (スクリム + 待機文言を星空の上に重ねる) の再現でもある (design_handoff_igen/README.md「回答演出」)
+          .opacity(sending ? 0 : 1)
         }
         .padding(.horizontal, 24)
 
@@ -240,6 +248,11 @@ struct HomePage: View {
       // 無料枠超過はペイウォールへ誘導する (チケット購入 or サブスク訴求)
       paywallSheetIsPresented = true
     } catch {
+      // 実機での障害切り分け (通信断・HTTP エラー・デコード失敗の区別) をログでできるようにする。
+      // エラーには相談本文が含まれないため public で記録する (既定の private では実機ログで読めない)
+      Logger(subsystem: "com.bannzai.Igen", category: "api").error(
+        "letter request failed: \(error, privacy: .public)"
+      )
       sendErrorAlertIsPresented = true
     }
   }

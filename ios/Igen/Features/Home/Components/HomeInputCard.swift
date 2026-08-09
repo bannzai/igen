@@ -5,12 +5,15 @@ import SwiftUI
 struct HomeInputCard: View {
   @Binding var draft: String
   @Binding var listening: Bool
+  // 送信開始時に HomePage 側からキーボードを閉じられるようにする (待機オーバーレイより上に残るため)
+  var draftIsFocused: FocusState<Bool>.Binding
   var onMicButtonPressed: () -> Void
 
   var body: some View {
     VStack(spacing: 8) {
       ZStack(alignment: .topLeading) {
         TextEditor(text: $draft)
+          .focused(draftIsFocused)
           // 音声認識中の手入力は次の部分認識結果で失われるため、認識中は無効化する
           .disabled(listening)
           .scrollContentBackground(.hidden)
@@ -68,7 +71,12 @@ struct HomeInputCard: View {
 
 struct HomeInputCard_Previews: PreviewProvider {
   static var previews: some View {
-    HomeInputCard(draft: .constant(""), listening: .constant(false), onMicButtonPressed: {})
-      .background(Color.black)
+    HomeInputCard(
+      draft: .constant(""),
+      listening: .constant(false),
+      draftIsFocused: FocusState<Bool>().projectedValue,
+      onMicButtonPressed: {}
+    )
+    .background(Color.black)
   }
 }

@@ -1,5 +1,6 @@
 import FirebaseAuth
 import Foundation
+import OSLog
 
 /// 返書 API (backend/functions) のクライアント。
 enum IgenAPI {
@@ -47,27 +48,12 @@ enum IgenAPI {
     // 再送 (トークン更新・ユーザー作り直し後を含む) で同じ ID を使い、応答喪失時にサーバーが
     // 保存済みの返書を再生成せずに返せるようにする (POST の冪等化)
     let requestId = UUID().uuidString
-    // 通信断・タイムアウトで結果が不明な場合は同じ requestId で 1 回だけ自動再試行し、
-    // サーバー側だけ保存が完了していた返書を冪等照会で回収する
-    let firstResponse: (statusCode: Int, data: Data)
-    do {
-      firstResponse = try await postLetter(
-        text: text,
-        language: language,
-        timeZone: timeZone,
-        requestId: requestId,
-        forcesTokenRefresh: false
-      )
-    } catch let error as URLError {
-      _ = error
-      firstResponse = try await postLetter(
-        text: text,
-        language: language,
-        timeZone: timeZone,
-        requestId: requestId,
-        forcesTokenRefresh: false
-      )
-    }
+    let firstResponse = try await postLetterWithRetry(
+      text: text,
+      language: language,
+      timeZone: timeZone,
+      requestId: requestId
+    )
     if firstResponse.statusCode != 401 {
       return try parseLetterResponse(firstResponse)
     }
@@ -115,6 +101,44 @@ enum IgenAPI {
     )
   }
 
+  /// 通信断・タイムアウトで結果が不明な場合に、同じ requestId のまま自動再試行する postLetter。
+  /// サーバー側だけ保存が完了していた返書は冪等照会が再生成せずに即応するため、再試行は安価。
+  /// 実機 (モバイル回線) では応答の受信に失敗した直後の即時再送はまだ回線が回復しておらず失敗しやすい
+  /// (issue #36: サーバーは 200 を返したがクライアントにエラーが表示された) ため、待機を挟んで再試行する。
+  /// 再試行 2 回・待機 2 秒/4 秒は、モバイル回線の瞬断が数秒で回復する想定と、
+  /// 待機オーバーレイに追加で待たせる時間の許容量 (最大 +6 秒) から決めた値
+  private static func postLetterWithRetry(
+    text: String,
+    language: String,
+    timeZone: String,
+    requestId: String
+  ) async throws -> (statusCode: Int, data: Data) {
+    for retryDelay: Duration in [.seconds(2), .seconds(4)] {
+      do {
+        return try await postLetter(
+          text: text,
+          language: language,
+          timeZone: timeZone,
+          requestId: requestId,
+          forcesTokenRefresh: false
+        )
+      } catch let error as URLError {
+        // 障害の発生点を実機ログで特定できるようにする (エラーコードのみで相談本文は含めない)
+        Logger(subsystem: "com.bannzai.Igen", category: "api").error(
+          "letter post failed (URLError \(error.code.rawValue, privacy: .public)), retrying after \(retryDelay, privacy: .public)"
+        )
+        try? await Task.sleep(for: retryDelay)
+      }
+    }
+    return try await postLetter(
+      text: text,
+      language: language,
+      timeZone: timeZone,
+      requestId: requestId,
+      forcesTokenRefresh: false
+    )
+  }
+
   private static func postLetter(
     text: String,
     language: String,
@@ -153,7 +177,9 @@ enum IgenAPI {
     return (httpResponse.statusCode, data)
   }
 
-  private static func parseLetterResponse(_ response: (statusCode: Int, data: Data)) throws -> LetterResult {
+  // private でないのは、レスポンス契約 (バックエンドの JSON 形状と Letter の Codable の整合) を
+  // IgenTests から検証するため
+  static func parseLetterResponse(_ response: (statusCode: Int, data: Data)) throws -> LetterResult {
     if response.statusCode == 429 {
       throw APIError.freeQuotaExceeded
     }
