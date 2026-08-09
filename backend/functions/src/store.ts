@@ -94,6 +94,48 @@ export async function saveLetter(
 }
 
 /**
+ * 返書を伴わない終端応答 (safety) の完了種別を users/{uid}/letterRequests へ記録する。
+ * 相談本文は保存しない (センシティブデータ。.claude/rules/firestore-rules.md)。
+ * POST の応答を受信できなかったクライアントが、GET /letters の冪等照会で
+ * safety の結果を回収できるようにするための記録。
+ * 同じ requestId での再実行は同じ完了種別の上書きになるため冪等
+ */
+export async function saveSafetyOutcome(
+  firestore: Firestore,
+  uid: string,
+  requestId: string,
+): Promise<void> {
+  await firestore
+    .collection("users")
+    .doc(uid)
+    .collection("letterRequests")
+    .doc(requestId)
+    .set({
+      outcome: "safety",
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+}
+
+/**
+ * requestId に対して safety の完了種別が記録済みかを返す (GET /letters の冪等照会用)。
+ * 返書が保存されるケースは letters コレクションを requestId で照会するため、ここでは扱わない
+ */
+export async function findSafetyOutcome(
+  firestore: Firestore,
+  uid: string,
+  requestId: string,
+): Promise<boolean> {
+  const document = await firestore
+    .collection("users")
+    .doc(uid)
+    .collection("letterRequests")
+    .doc(requestId)
+    .get();
+  return document.exists && document.data()?.outcome === "safety";
+}
+
+/**
  * requestId で保存済みの返書を照会する (POST /letters の冪等化)。無ければ null
  */
 export async function findLetterByRequestId(

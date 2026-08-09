@@ -17,7 +17,12 @@ import {
   releaseTicket,
 } from "./quota";
 import { quotes } from "./quotesDb";
-import { findLetterByRequestId, saveLetter } from "./store";
+import {
+  findLetterByRequestId,
+  findSafetyOutcome,
+  saveLetter,
+  saveSafetyOutcome,
+} from "./store";
 
 /** createApp へ注入する外部依存。テストではモックする。 */
 export interface AppDeps {
@@ -101,6 +106,11 @@ export function createApp(deps: AppDeps): Express {
     let existing: Awaited<ReturnType<typeof findLetterByRequestId>>;
     try {
       existing = await findLetterByRequestId(db, uid, requestId);
+      // 危機相談への safety 応答は返書を保存しないため、完了種別の記録側を照会する
+      if (existing === null && (await findSafetyOutcome(db, uid, requestId))) {
+        res.json({ type: "safety" });
+        return;
+      }
     } catch (error) {
       logger.error("letter replay lookup failed", { uid, error: `${error}` });
       sendError(res, 503, "replay_unavailable", "failed to look up the letter");
@@ -179,11 +189,26 @@ export function createApp(deps: AppDeps): Express {
     }
     const letterLanguage: LetterLanguage = language ?? "ja";
 
+    // safety 応答を返し、返書を伴わない完了種別を記録する (相談本文は保存しない)。
+    // 応答を受信できなかったクライアントが GET /letters の冪等照会で safety を回収できるようにする。
+    // 記録の失敗で safety 応答自体を失わないよう、失敗はログに留める
+    const sendSafetyResponse = async (): Promise<void> => {
+      if (requestId !== undefined) {
+        await saveSafetyOutcome(db, uid, requestId).catch((error) => {
+          logger.error("safety outcome save failed", {
+            uid,
+            error: `${error}`,
+          });
+        });
+      }
+      res.json({ type: "safety" });
+    };
+
     // 危機ワードを検知したら返書は生成しない (無料枠も消費しない)。
     // 再送照会よりも先に判定し、本文だけ差し替えた再送でも安全案内を優先する。
     // 相談本文はセンシティブなデータとして扱い、保存もしない
     if (detectCrisis(text)) {
-      res.json({ type: "safety" });
+      await sendSafetyResponse();
       return;
     }
 
@@ -225,7 +250,7 @@ export function createApp(deps: AppDeps): Express {
           return false;
         });
       if (crisis) {
-        res.json({ type: "safety" });
+        await sendSafetyResponse();
       }
       return crisis;
     };
@@ -335,7 +360,7 @@ export function createApp(deps: AppDeps): Express {
       // LLM 側の危機判定 (キーワード判定の取りこぼしを補完)。返書は返さず、利用枠を戻す
       if (composition.crisis) {
         await refundAccess();
-        res.json({ type: "safety" });
+        await sendSafetyResponse();
         return;
       }
       // composer の実装 (OpenAI / フェイク) を問わず、返書契約に反するデータを保存・返却しない

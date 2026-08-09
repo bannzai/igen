@@ -472,3 +472,68 @@ describe("GET /letters (requestId での冪等照会)", () => {
     expect(other.status).toBe(404);
   });
 });
+
+describe("GET /letters (safety の完了種別の回収)", () => {
+  it("危機ワードの相談は safety の完了種別が記録され、冪等照会で回収できる", async () => {
+    const app = createApp(fakeDeps());
+    const posted = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-safety-user-1")
+      .send({ text: "もう死にたいくらいつらい", requestId: "safety-req-1" });
+    expect(posted.status).toBe(200);
+    expect(posted.body.type).toBe("safety");
+
+    const replayed = await request(app)
+      .get("/letters")
+      .set("Authorization", "Bearer token-safety-user-1")
+      .query({ requestId: "safety-req-1" });
+    expect(replayed.status).toBe(200);
+    expect(replayed.body.type).toBe("safety");
+
+    // 完了種別の記録に相談本文を含めない (センシティブデータ)
+    const outcome = await db
+      .collection("users")
+      .doc("safety-user-1")
+      .collection("letterRequests")
+      .doc("safety-req-1")
+      .get();
+    expect(outcome.exists).toBe(true);
+    expect(outcome.data()?.outcome).toBe("safety");
+    expect(Object.keys(outcome.data() ?? {}).sort()).toEqual([
+      "createdAt",
+      "outcome",
+      "updatedAt",
+    ]);
+  });
+
+  it("LLM 側の危機判定による safety も冪等照会で回収できる", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition({ crisis: true }),
+      }),
+    );
+    const posted = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-safety-user-2")
+      .send({ text: "つらいことがあった", requestId: "safety-req-2" });
+    expect(posted.status).toBe(200);
+    expect(posted.body.type).toBe("safety");
+
+    const replayed = await request(app)
+      .get("/letters")
+      .set("Authorization", "Bearer token-safety-user-2")
+      .query({ requestId: "safety-req-2" });
+    expect(replayed.status).toBe(200);
+    expect(replayed.body.type).toBe("safety");
+  });
+
+  it("requestId なしの危機相談は記録なしで safety を返す", async () => {
+    const app = createApp(fakeDeps());
+    const posted = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-safety-user-3")
+      .send({ text: "消えたいと思ってしまう" });
+    expect(posted.status).toBe(200);
+    expect(posted.body.type).toBe("safety");
+  });
+});
