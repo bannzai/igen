@@ -73,6 +73,52 @@ export function createApp(deps: AppDeps): Express {
     res.json({ status: "ok" });
   });
 
+  // 保存済み返書の冪等照会。POST /letters の応答を受信できなかったクライアントが、
+  // 同じ requestId で保存済みの返書を回収するために使う。
+  // 読み取り専用で利用枠を消費しないため、クライアントの自動再試行が
+  // 生成の重複実行やチケットの二重消費を起こさない (POST の再送を照会で置き換える)
+  app.get("/letters", async (req: Request, res: Response) => {
+    const uid = await authenticate(deps, req);
+    if (uid === null) {
+      sendError(
+        res,
+        401,
+        "unauthenticated",
+        "valid Authorization bearer token is required",
+      );
+      return;
+    }
+    const requestId = req.query.requestId;
+    if (typeof requestId !== "string" || requestId === "") {
+      sendError(
+        res,
+        400,
+        "invalid_request",
+        "query parameter 'requestId' is required",
+      );
+      return;
+    }
+    let existing: Awaited<ReturnType<typeof findLetterByRequestId>>;
+    try {
+      existing = await findLetterByRequestId(db, uid, requestId);
+    } catch (error) {
+      logger.error("letter replay lookup failed", { uid, error: `${error}` });
+      sendError(res, 503, "replay_unavailable", "failed to look up the letter");
+      return;
+    }
+    if (existing === null) {
+      // 生成中 (未保存) と未生成を区別できないため、クライアントは時間をおいて照会し直す
+      sendError(res, 404, "letter_not_found", "no letter for the requestId");
+      return;
+    }
+    // letter 内にも id を含める (クライアントの Codable が Letter 単体でデコードできるように)
+    res.json({
+      type: "letter",
+      id: existing.id,
+      letter: { id: existing.id, ...existing.letter },
+    });
+  });
+
   // 相談を受け取り返書を生成する。
   // フロー: 認証 → 入力検証 → 危機ワード判定 → 無料枠消費 → LLM マッチング → 保存
   app.post("/letters", async (req: Request, res: Response) => {

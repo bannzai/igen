@@ -393,3 +393,82 @@ describe("POST /letters", () => {
     expect(res.body.letter.quote.original).toBe("塞翁失馬");
   });
 });
+
+describe("GET /letters (requestId での冪等照会)", () => {
+  it("Authorization ヘッダが無いと 401", async () => {
+    const app = createApp(fakeDeps());
+    const res = await request(app).get("/letters").query({ requestId: "r-1" });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe("unauthenticated");
+  });
+
+  it("requestId が無いと 400", async () => {
+    const app = createApp(fakeDeps());
+    const res = await request(app)
+      .get("/letters")
+      .set("Authorization", "Bearer token-replay-user-1");
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe("invalid_request");
+  });
+
+  it("保存済みの返書が無ければ 404", async () => {
+    const app = createApp(fakeDeps());
+    const res = await request(app)
+      .get("/letters")
+      .set("Authorization", "Bearer token-replay-user-1")
+      .query({ requestId: "unknown-request" });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe("letter_not_found");
+  });
+
+  it("POST で保存済みの返書を同じ envelope で返し、利用枠は消費しない", async () => {
+    const app = createApp(
+      fakeDeps({ composeLetter: async () => fakeComposition() }),
+    );
+    const posted = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-replay-user-2")
+      .send({
+        text: "新しい仕事に挑戦するのが怖い",
+        requestId: "replay-req-1",
+        timeZone: "Asia/Tokyo",
+      });
+    expect(posted.status).toBe(200);
+
+    const replayed = await request(app)
+      .get("/letters")
+      .set("Authorization", "Bearer token-replay-user-2")
+      .query({ requestId: "replay-req-1" });
+    expect(replayed.status).toBe(200);
+    expect(replayed.body.type).toBe("letter");
+    expect(replayed.body.id).toBe(posted.body.id);
+    expect(replayed.body.letter.id).toBe(posted.body.id);
+    expect(replayed.body.letter.quote.original).toBe(
+      posted.body.letter.quote.original,
+    );
+    expect(replayed.body.letter.consultedAt).toBe(
+      posted.body.letter.consultedAt,
+    );
+
+    // 読み取り専用の照会は無料枠を消費しない (POST の 1 消費のまま)
+    const user = await db.collection("users").doc("replay-user-2").get();
+    expect(user.data()?.freeQuota.count).toBe(1);
+  });
+
+  it("他ユーザーの requestId では取得できない", async () => {
+    const app = createApp(
+      fakeDeps({ composeLetter: async () => fakeComposition() }),
+    );
+    const posted = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-replay-user-3")
+      .send({ text: "続けてもいいのか迷う", requestId: "replay-req-2" });
+    expect(posted.status).toBe(200);
+
+    const other = await request(app)
+      .get("/letters")
+      .set("Authorization", "Bearer token-replay-user-4")
+      .query({ requestId: "replay-req-2" });
+    expect(other.status).toBe(404);
+  });
+});

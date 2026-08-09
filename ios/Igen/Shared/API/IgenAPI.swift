@@ -48,12 +48,30 @@ enum IgenAPI {
     // 再送 (トークン更新・ユーザー作り直し後を含む) で同じ ID を使い、応答喪失時にサーバーが
     // 保存済みの返書を再生成せずに返せるようにする (POST の冪等化)
     let requestId = UUID().uuidString
-    let firstResponse = try await postLetterWithRetry(
-      text: text,
-      language: language,
-      timeZone: timeZone,
-      requestId: requestId
-    )
+    // 通信断・タイムアウトで POST の結果が不明な場合、POST は再送せず読み取り専用の冪等照会 (GET) で
+    // 保存済みの返書を回収する。再 POST はサーバー側で生成が進行中だと生成の重複実行・
+    // チケットの二重消費を起こしうるため、自動再試行では行わない
+    let firstResponse: (statusCode: Int, data: Data)
+    do {
+      firstResponse = try await postLetter(
+        text: text,
+        language: language,
+        timeZone: timeZone,
+        requestId: requestId,
+        forcesTokenRefresh: false
+      )
+    } catch let error as URLError {
+      // 障害の発生点を実機ログで特定できるようにする (エラーコードのみで相談本文は含めない)
+      Logger(subsystem: "com.bannzai.Igen", category: "api").error(
+        "letter post failed (URLError \(error.code.rawValue, privacy: .public)), recovering via replay"
+      )
+      if let replayed = await replayLetter(requestId: requestId) {
+        firstResponse = replayed
+      } else {
+        // 回収できなければ POST 時点の原因をエラー表示・ログに使う
+        throw error
+      }
+    }
     if firstResponse.statusCode != 401 {
       return try parseLetterResponse(firstResponse)
     }
@@ -101,42 +119,58 @@ enum IgenAPI {
     )
   }
 
-  /// 通信断・タイムアウトで結果が不明な場合に、同じ requestId のまま自動再試行する postLetter。
-  /// サーバー側だけ保存が完了していた返書は冪等照会が再生成せずに即応するため、再試行は安価。
-  /// 実機 (モバイル回線) では応答の受信に失敗した直後の即時再送はまだ回線が回復しておらず失敗しやすい
-  /// (issue #36: サーバーは 200 を返したがクライアントにエラーが表示された) ため、待機を挟んで再試行する。
-  /// 再試行 2 回・待機 2 秒/4 秒は、モバイル回線の瞬断が数秒で回復する想定と、
-  /// 待機オーバーレイに追加で待たせる時間の許容量 (最大 +6 秒) から決めた値
-  private static func postLetterWithRetry(
-    text: String,
-    language: String,
-    timeZone: String,
-    requestId: String
-  ) async throws -> (statusCode: Int, data: Data) {
-    for retryDelay: Duration in [.seconds(2), .seconds(4)] {
+  /// POST の応答を受信できなかったとき、保存済みの返書を冪等照会 (GET /letters) で回収する。
+  /// 実機 (モバイル回線) では応答の受信に失敗した直後はまだ回線が回復しておらず、
+  /// サーバー側の生成も完了していないことがある (issue #36: サーバーは 200 を返したが
+  /// クライアントにエラーが表示された) ため、待機を挟んで複数回照会する。
+  /// 待機 2 秒/4 秒/8 秒は、実測の生成所要時間 (約 10 秒) を最後の照会までにまたぐように選んだ値。
+  /// 回収できなければ nil (呼び出し元が POST 時点のエラーを表示に使う)
+  private static func replayLetter(requestId: String) async -> (statusCode: Int, data: Data)? {
+    for pollDelay: Duration in [.seconds(2), .seconds(4), .seconds(8)] {
+      try? await Task.sleep(for: pollDelay)
       do {
-        return try await postLetter(
-          text: text,
-          language: language,
-          timeZone: timeZone,
-          requestId: requestId,
-          forcesTokenRefresh: false
-        )
-      } catch let error as URLError {
-        // 障害の発生点を実機ログで特定できるようにする (エラーコードのみで相談本文は含めない)
+        let response = try await getLetter(requestId: requestId)
+        if response.statusCode == 200 {
+          return response
+        }
+        // 404 (未保存) は生成が完了していない可能性があるため次の照会へ。その他のステータスも同様に扱う
         Logger(subsystem: "com.bannzai.Igen", category: "api").error(
-          "letter post failed (URLError \(error.code.rawValue, privacy: .public)), retrying after \(retryDelay, privacy: .public)"
+          "letter replay poll returned status \(response.statusCode, privacy: .public)"
         )
-        try? await Task.sleep(for: retryDelay)
+      } catch {
+        // 照会中の通信エラーは回線の回復を待って次の照会へ
+        Logger(subsystem: "com.bannzai.Igen", category: "api").error(
+          "letter replay poll failed: \(error, privacy: .public)"
+        )
       }
     }
-    return try await postLetter(
-      text: text,
-      language: language,
-      timeZone: timeZone,
-      requestId: requestId,
-      forcesTokenRefresh: false
+    return nil
+  }
+
+  /// requestId で保存済みの返書を照会する (GET /letters)。読み取り専用で利用枠を消費しない
+  private static func getLetter(requestId: String) async throws -> (statusCode: Int, data: Data) {
+    _ = try await FirebaseSetup.ensureAnonymousUser()
+    guard let user = Auth.auth().currentUser else {
+      throw APIError.unauthenticated
+    }
+    var components = URLComponents(
+      url: baseURL.appending(path: "letters"),
+      resolvingAgainstBaseURL: false
+    )!
+    components.queryItems = [URLQueryItem(name: "requestId", value: requestId)]
+    var request = URLRequest(url: components.url!)
+    // 照会は読み取りのみで即応するため、POST (330 秒) より大幅に短くして
+    // 失敗表示までの総待ち時間を約 1 分以内に抑える (待機 14 秒 + 照会 3 回 × 最大 15 秒)
+    request.timeoutInterval = 15
+    request.setValue(
+      "Bearer \(try await user.getIDToken())",
+      forHTTPHeaderField: "Authorization"
     )
+    let (data, response) = try await URLSession.shared.data(for: request)
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw APIError.invalidResponse
+    }
+    return (httpResponse.statusCode, data)
   }
 
   private static func postLetter(
