@@ -87,6 +87,15 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 
 - 危機ワード検知時（`type: "safety"` 応答）は相談を**保存しない**（センシティブデータを残さない）
 
+### users/{uid}/letterRequests/{requestId} — 返書を伴わない完了種別の記録
+
+書き込みは Functions のみ（`POST /letters` が safety 応答を返すとき）。POST の応答を受信できなかったクライアントが、`GET /letters?requestId=` の冪等照会で safety の結果を回収するために使う。相談本文は**保存しない**。返書が保存されるケースは letters コレクションを requestId で照会するため、ここには記録しない。
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| outcome | "safety" | 完了種別 |
+| createdAt / updatedAt | Timestamp | サーバータイムスタンプ |
+
 ### users/{uid}/encounters/{personId} — 偉人図鑑（星図）の出会い状態
 
 書き込みは Functions のみ（返書生成時に自動で追加）。星図画面はクライアントがここを直接 read する。
