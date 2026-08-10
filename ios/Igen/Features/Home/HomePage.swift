@@ -228,8 +228,7 @@ struct HomePage: View {
     do {
       let result = try await IgenAPI.requestLetter(
         text: sentText,
-        // 端末言語ではなくアプリに適用中のローカライズで判定する (アプリ単位の言語切り替えに追随)
-        language: Bundle.main.preferredLocalizations.first == "ja" ? "ja" : "en",
+        language: appLanguage(),
         timeZone: TimeZone.autoupdatingCurrent.identifier
       )
       switch result {
