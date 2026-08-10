@@ -52,7 +52,7 @@ Information you enter or send when making an inquiry by email or other means (em
 - To provide paid features, confirm purchase status, and provide payment-related support
 - To improve the quality of the Service and address defects
 - To respond to inquiries
-- To notify you of changes to the terms and policies of the Service
+- To notify you of changes to the terms, policies, and other matters concerning the Service
 
 ## Outsourcing to External Services
 
@@ -74,13 +74,13 @@ The Provider will not provide personal information among user information to thi
 
 ## Disclosure of Personal Information
 
-When the Provider is requested by a user to disclose personal information pursuant to the provisions of the APPI, the Provider will, after confirming that the request is from the user in person, disclose the information to the user without delay (if such personal information does not exist, the Provider will notify the user to that effect). However, this does not apply where the Provider is not obligated to disclose under the APPI or other laws and regulations.
+When the Provider is requested by a user to disclose personal information pursuant to the provisions of the APPI, the Provider will, after confirming that the request was made by the user themselves, disclose the information to the user without delay (if such personal information does not exist, the Provider will notify the user to that effect). However, this does not apply where the Provider is not obligated to disclose under the APPI or other laws and regulations.
 
-## Correction and Suspension of Use of Personal Information
+## Correction, Deletion, and Suspension of Use of Personal Information
 
-1. If the Provider is requested by a user (1) to correct the content of personal information pursuant to the provisions of the APPI on the grounds that the personal information is untrue, or (2) to suspend the use of personal information pursuant to the provisions of the APPI on the grounds that it is being handled beyond the scope of the publicly announced purposes of use or that it was collected by deception or other wrongful means, the Provider will, after confirming that the request is from the user in person, conduct the necessary investigation without delay, and based on the results, correct the content of the personal information or suspend its use, and notify the user to that effect.
-2. If the Provider is requested by a user to delete the user's personal information, and the Provider determines that it is necessary to comply with the request, the Provider will, after confirming that the request is from the user in person, delete the personal information and notify the user to that effect.
-3. The preceding two paragraphs do not apply where the Provider is not obligated to make corrections or suspend use under the APPI or other laws and regulations.
+1. If the Provider is requested by a user (1) to correct the content of personal information pursuant to the provisions of the APPI on the grounds that the personal information is untrue, or (2) to suspend the use of personal information pursuant to the provisions of the APPI on the grounds that it is being handled beyond the scope of the publicly announced purposes of use or that it was collected by deception or other wrongful means, the Provider will, after confirming that the request was made by the user themselves, conduct the necessary investigation without delay, and based on the results, correct the content of the personal information or suspend its use, and notify the user to that effect.
+2. If the Provider is requested by a user to delete the user's personal information, and the Provider determines that it is necessary to comply with the request, the Provider will, after confirming that the request was made by the user themselves, delete the personal information and notify the user to that effect.
+3. The preceding two paragraphs do not apply where the Provider is not obligated to make such corrections, suspend use, or delete personal information under the APPI or other laws and regulations.
 
 ## Contact
 

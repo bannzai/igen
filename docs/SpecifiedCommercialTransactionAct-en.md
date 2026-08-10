@@ -27,7 +27,7 @@ Displayed on screen during the purchase process.
 
 ## Costs Other Than the Price:
 
-Communication charges for the internet connection necessary to use the service are borne by the user (the amount depends on your carrier's contract).
+Communication charges for the internet connection necessary to use the service are borne by the user (the amount is determined by the telecommunications carrier you have a contract with).
 
 ## Payment Method:
 
@@ -43,7 +43,7 @@ Available immediately after the purchase is completed.
 
 ## Special Provisions on Returns and Cancellations:
 
-Due to the nature of the products, consumable items (such as consultation tickets) cannot be returned or cancelled at the user's convenience after purchase.
+Due to the nature of the products, consumable items (such as consultation tickets) cannot be returned or cancelled for reasons attributable to the user (e.g., change of mind) after purchase.
 
 For subscriptions, you can stop automatic renewal at any time from your iOS settings (subscription management in your Apple account). Stopping automatic renewal takes effect at the end of the current contract period, and no refund will be made for contract periods already paid.
 

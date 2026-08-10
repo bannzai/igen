@@ -8,7 +8,7 @@ title: Terms of Service
 This document is an English translation of the Japanese Terms of Service ([利用規約](./Terms-ja.html)), provided for reference. In the event of any discrepancy between the Japanese original and this translation, the Japanese original shall prevail.
 
 These Terms of Service (the "Terms") set forth the conditions for the provision of the Service and the rights and obligations between bannzai (the "Provider") and users. Before using the Service, please read the Terms in full; use of the Service requires your agreement to the Terms.
-Please note that the responses provided by the Service (introductions of words, quotes, and proverbs of historical figures, and encouraging messages based on them) involve automated generation and selection by AI. The Provider does not guarantee the accuracy, completeness, or usefulness of the responses. The Service does not provide medical care, clinical practice, counseling, or any similar services. Users shall use the Service at their own risk, accepting the foregoing without objection.
+Please note that the responses provided by the Service (introductions of sayings and quotes of great figures as well as proverbs, and encouraging messages based on them) involve automated generation and selection by AI. The Provider does not guarantee the accuracy, completeness, or usefulness of the responses. The Service does not provide medical care, clinical practice, counseling, or any similar services. Users shall use the Service at their own risk, accepting the foregoing without objection.
 
 ## Article 1 (Definitions)
 The following terms used in the Terms shall have the meanings set forth below.
@@ -29,7 +29,7 @@ The following terms used in the Terms shall have the meanings set forth below.
 
 ## Article 3 (Provision of the Service)
 1. The User shall, at the User's own expense and responsibility, prepare the smart devices, communication equipment, operating systems, means of communication, and electric power necessary to use the Service. If the User is a minor, the User shall use devices approved for use by a legal representative such as a person with parental authority.
-2. The Provider may, when the Provider deems it necessary, change all or part of the content of the Service (including specifications, rules, design, audiovisual expressions, effects, parameters, and any other matters) or discontinue its provision at any time without prior notice to Users. Such changes and discontinuation include the content and provision of the Paid Services set forth in Article 5.
+2. The Provider may, when the Provider deems it necessary, change all or part of the content of the Service (including specifications, rules, design, audiovisual expressions, effects, parameters, and any other matters) or discontinue its provision at any time without prior notice to Users. Such changes and discontinuation include the content and provision of the Paid Services set forth in Article 4.
 3. The Provider is not obligated to provide Users with support for software relating to the Service or with corrected versions (including updated versions).
 4. Some functions of the Service depend on iOS features and settings provided by Apple (including, but not limited to, voice input and notification settings) and on services of third-party providers used by the Provider (including AI text generation services and data storage services). If the User does not enable such settings, or if Apple or a third-party provider changes the specifications of, or terminates, such features or services, all or part of the Service may become unavailable.
 
@@ -39,7 +39,7 @@ The following terms used in the Terms shall have the meanings set forth below.
 3. The Provider shall bear no liability whatsoever for damage incurred by the User where the App is uninstalled, or where the Provider becomes unable to ascertain the User's usage status of the Paid Services due to unauthorized use, loss, theft, or malfunction of the smart device used for the Service or for any other reason. However, active auto-renewing subscriptions that can be confirmed through Apple's purchase records can be restored using the "Restore purchases" function in the App. Consumable items such as consultation tickets (including unused ones), consultation history, and other user content are not subject to restoration, and the Provider is not obligated to restore them.
 4. If the User delays payment of usage fees, the User shall pay the Provider late payment damages at an annual rate of 14.6%.
 5. Even if a paying User was unable to receive the Paid Services, the paying User shall pay the usage fees set forth in this Article for the Paid Contract Period.
-6. The Provider may revise the usage fees when the Provider deems it necessary, by posting notice in the App for a reasonable period and setting a transition period. If a paying User continues to use the Paid Services after the transition period has elapsed, the paying User is deemed to have agreed to the revised usage fees.
+6. The Provider may revise the usage fees when the Provider deems it necessary, by posting notice in the App for a reasonable period or by other similar means, and setting a transition period. If a paying User continues to use the Paid Services after the transition period has elapsed, the paying User is deemed to have agreed to the revised usage fees.
 
 ## Article 5 (Termination of Paid Services)
 1. A paying User may not terminate a Paid Service mid-way during the Paid Contract Period. If the paying User does not wish to renew the Paid Service, the paying User shall complete the prescribed termination procedure for the Paid Service.
@@ -59,21 +59,21 @@ In using the Service, the User shall not engage in any of the following acts or 
 1. Acts that violate laws or regulations, or acts related to criminal activity
 1. Fraud or threats against the Provider, other users of the Service, or any other third party
 1. Acts contrary to public order and morals
-1. Acts that infringe the Intellectual Property Rights, portrait rights, privacy rights, honor, or other rights or interests of the Provider, other users of the Service, or any other third party
+1. Acts that infringe the Intellectual Property Rights, portrait rights, privacy rights, honor or reputation, or other rights or interests of the Provider, other users of the Service, or any other third party
 1. Acts that place an excessive load on the network or systems of the Service
 1. Reverse engineering or other analysis of software or other systems provided by the Provider
 1. Acts that may interfere with the operation of the Service
 1. Unauthorized access to the Provider's network or systems
 1. Impersonating a third party
 1. Using the Apple ID of another user of the Service
-1. Advertising, solicitation, or sales activities on the Service not authorized in advance by the Provider
+1. Promotional, advertising, solicitation, or sales activities on the Service not authorized in advance by the Provider
 1. Acts that cause disadvantage, damage, or discomfort to the Provider, other users of the Service, or any other third party
-1. Providing benefits to antisocial forces
+1. Providing benefits to antisocial forces or equivalent groups
 1. Acts that directly or indirectly cause or facilitate any of the foregoing
 1. Attempting any of the foregoing
 1. Any other acts that the Provider deems inappropriate
 
-## Article 8 (Suspension of the Service)
+## Article 8 (Suspension or Interruption of the Service)
 The Provider may suspend or interrupt the provision of all or part of the Service without prior notice to Users in any of the following cases.
 
 1. When urgently inspecting or maintaining the computer systems relating to the Service
@@ -84,7 +84,7 @@ The Provider may suspend or interrupt the provision of all or part of the Servic
 ## Article 9 (Ownership of Rights)
 All Intellectual Property Rights relating to the Service belong to the Provider or to those who license them to the Provider. The license to use the Service under the Terms does not mean a license to use the Intellectual Property Rights of the Provider or of those licensing to the Provider in relation to the Service. Rights to User Content belong to the User, and except for the license set forth in Article 6, Paragraph 3, the Provider does not acquire them.
 
-## Article 10 (Suspension of Use)
+## Article 10 (Suspension or Termination of Use)
 The Provider may temporarily suspend or terminate a User's use of the Service without prior notice or demand if the User falls under any of the following.
 
 1. When the User violates any provision of the Terms
@@ -100,7 +100,7 @@ The Provider may temporarily suspend or terminate a User's use of the Service wi
 1. The Provider does not warrant, expressly or impliedly, that the Service (including Content) is free from defects in fact or in law (including defects relating to safety, reliability, accuracy, completeness, effectiveness, fitness for a particular purpose, or security, as well as errors, bugs, and infringement of rights). The Provider is not obligated to remove such defects and provide the Service to the User.
 2. The Provider shall bear no liability whatsoever even if the User was unable to receive the Service.
 3. The responses provided by the Service involve automated generation and selection by AI. The Provider does not guarantee the accuracy, completeness, or usefulness of the responses (including the accuracy of the sources and translations of the quotes and proverbs introduced). The Provider shall bear no liability whatsoever for damage incurred by the User as a result of decisions or actions taken by the User based on the responses.
-4. The Service does not provide medical care, clinical practice, counseling, or any similar services, and the responses are not a substitute for medical advice. For issues concerning your physical or mental health, please consult a medical institution or a public support service.
+4. The Service does not provide medical care, clinical practice, counseling, or any similar services, and the responses are not a substitute for medical advice. For issues concerning your physical or mental health, please consult a medical institution or a public consultation service such as a government helpline.
 5. The Provider may from time to time provide information or advice to Users but shall bear no responsibility for the results thereof.
 6. The Provider is not obligated to fix bugs or other issues in the App or to improve or enhance the App. However, the Provider may provide Users with updated versions of the App or version upgrade information. In such cases, such updated versions or information shall also be treated as the App, and the Terms shall naturally apply to them.
 7. The Provider shall bear no liability whatsoever for any damage incurred by the User arising out of the Service. However, if the agreement between the Provider and the User concerning the Service (including the Terms) constitutes a consumer contract under the Consumer Contract Act of Japan, this disclaimer shall not apply.
@@ -119,7 +119,7 @@ The handling of Users' user information by the Provider shall be governed by the
 1. Inquiries about the Service and other communications or notices from Users to the Provider, and notices regarding changes to the Terms and other communications or notices from the Provider to Users, shall be made by the method prescribed by the Provider.
 2. When the Provider makes a communication or notice to the User's contact address, the User is deemed to have received such communication or notice.
 
-## Article 16 (Assignment of Contractual Status)
+## Article 16 (Assignment of Contractual Status, etc.)
 1. The User may not assign, transfer, pledge as security, or otherwise dispose of its contractual status or its rights or obligations under the Terms to any third party without the prior written consent of the Provider.
 2. If the Provider transfers the business relating to the Service to another party, the Provider may, in connection with such business transfer, transfer its contractual status, its rights and obligations under the Terms, and Users' registered information and other information relating to the Service to the transferee of such business transfer, and the User is deemed to have consented in advance to such transfer under this paragraph. Business transfer under this paragraph includes not only ordinary business transfers but also corporate splits and any other cases in which the business is transferred.
 
