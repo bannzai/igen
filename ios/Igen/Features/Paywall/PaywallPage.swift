@@ -88,23 +88,32 @@ struct PaywallPage: View {
             }
           }
 
-          HStack(spacing: 16) {
-            Button {
-              Analytics.logEvent("paywall_restore_button_pressed", parameters: nil)
-              restore()
-            } label: {
-              // ja: 購入の復元
-              Text("Restore purchases")
+          VStack(spacing: 10) {
+            HStack(spacing: 16) {
+              Button {
+                Analytics.logEvent("paywall_restore_button_pressed", parameters: nil)
+                restore()
+              } label: {
+                // ja: 購入の復元
+                Text("Restore purchases")
+              }
+              Link(destination: legalDocumentURL(fileBaseName: "Terms", language: appLanguage())) {
+                // ja: 利用規約
+                Text("Terms of Service")
+              }
+              Link(destination: legalDocumentURL(fileBaseName: "PrivacyPolicy", language: appLanguage())) {
+                // ja: プライバシーポリシー
+                Text("Privacy Policy")
+              }
             }
-            // 法務ドキュメントの公開 URL は #16 (GitHub Pages 有効化) で確定する。
-            // 現状は日本語版のみ提供のため、英語 UI では提供言語を明示する
-            Link(destination: URL(string: "https://github.com/bannzai/igen/blob/main/docs/Terms-ja.md")!) {
-              // ja: 利用規約
-              Text("Terms of Service (Japanese)")
-            }
-            Link(destination: URL(string: "https://github.com/bannzai/igen/blob/main/docs/PrivacyPolicy-ja.md")!) {
-              // ja: プライバシーポリシー
-              Text("Privacy Policy (Japanese)")
+            Link(
+              destination: legalDocumentURL(
+                fileBaseName: "SpecifiedCommercialTransactionAct",
+                language: appLanguage()
+              )
+            ) {
+              // ja: 特定商取引法に基づく表示
+              Text("Disclosure under the Specified Commercial Transactions Act")
             }
           }
           .font(.system(size: 11))

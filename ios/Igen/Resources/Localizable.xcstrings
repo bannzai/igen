@@ -851,7 +851,7 @@
         }
       }
     },
-    "Terms of Service (Japanese)": {
+    "Terms of Service": {
       "localizations": {
         "ja": {
           "stringUnit": {
@@ -861,12 +861,22 @@
         }
       }
     },
-    "Privacy Policy (Japanese)": {
+    "Privacy Policy": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "プライバシーポリシー"
+          }
+        }
+      }
+    },
+    "Disclosure under the Specified Commercial Transactions Act": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特定商取引法に基づく表示"
           }
         }
       }
