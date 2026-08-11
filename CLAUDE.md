@@ -28,16 +28,13 @@
 
 ### iOS（`ios/` スキャフォールド後）
 
-`-skipPackagePluginValidation` は LicenseList の build tool plugin (PrepareLicenseList) のためにつける。plugin の信頼は Xcode GUI で一度許可するまで記録されず、CLI からは「Validate plug-in」で BUILD FAILED になる。
-
 コンパイルチェック:
 
 ```bash
 xcodebuild build \
   -project ios/Igen.xcodeproj \
   -scheme Igen \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-  -skipPackagePluginValidation
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
 単体テストの実行:
@@ -47,8 +44,7 @@ xcodebuild test \
   -project ios/Igen.xcodeproj \
   -scheme Igen \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-  -only-testing:IgenTests \
-  -skipPackagePluginValidation
+  -only-testing:IgenTests
 ```
 
 ビルド・テストのログは全文を `./tmp/` に保存し、warning / error を grep で検査して判定する。
