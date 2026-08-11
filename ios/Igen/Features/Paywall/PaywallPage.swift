@@ -12,6 +12,7 @@ struct PaywallPage: View {
   @State var purchaseErrorAlertIsPresented = false
   @State var purchasesUnavailableAlertIsPresented = false
   @State var restoreDoneAlertIsPresented = false
+  @State var licensesSheetIsPresented = false
 
   /// チケット (consumable) のパッケージ。offering に別の custom package があっても
   /// バックエンドが数えるストア商品 ID (igen_ticket_1) と一致するものだけを選ぶ
@@ -115,6 +116,13 @@ struct PaywallPage: View {
               // ja: 特定商取引法に基づく表示
               Text("Disclosure under the Specified Commercial Transactions Act")
             }
+            Button {
+              Analytics.logEvent("paywall_licenses_button_pressed", parameters: nil)
+              licensesSheetIsPresented = true
+            } label: {
+              // ja: オープンソースライセンス
+              Text("Open Source Licenses")
+            }
           }
           .font(.system(size: 11))
           .foregroundStyle(Color.igenText.opacity(0.6))
@@ -134,6 +142,9 @@ struct PaywallPage: View {
     .alert("Purchases are not available yet. Please check back soon.", isPresented: $purchasesUnavailableAlertIsPresented) {}
     // ja: 購入情報を確認しました
     .alert("Your purchases have been restored.", isPresented: $restoreDoneAlertIsPresented) {}
+    .sheet(isPresented: $licensesSheetIsPresented) {
+      LicensesPage()
+    }
     .task {
       Analytics.logEvent("paywall_shown", parameters: nil)
       // 起動直後は匿名認証・RevenueCat の初期化が終わっていないことがあるため、
