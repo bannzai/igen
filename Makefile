@@ -17,7 +17,8 @@ device-build:
 	  -destination 'generic/platform=iOS' \
 	  -derivedDataPath $(DERIVED_DATA) \
 	  -allowProvisioningUpdates \
-	  -allowProvisioningDeviceRegistration
+	  -allowProvisioningDeviceRegistration \
+	  -skipPackagePluginValidation
 
 # ビルドして実機にインストール
 device-install: device-build
