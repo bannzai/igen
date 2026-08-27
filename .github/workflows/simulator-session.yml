@@ -84,6 +84,8 @@ jobs:
           mkdir -p tmp/simulator-app
           cp -R "tmp/DerivedData/Build/Products/${CONFIGURATION}-iphonesimulator/Igen.app" tmp/simulator-app/
 
+      # upload-artifact は実行権限を保持しない（全ファイル 644 になる）が、session.yml 側の
+      # runner/install-artifact-app.sh が install 前に各バンドルの CFBundleExecutable へ実行権限を復元するため tar 化は不要
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: simulator-app
