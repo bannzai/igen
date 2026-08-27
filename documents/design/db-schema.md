@@ -108,6 +108,16 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 | createdAt | Timestamp | **初回の出会い**。再度の出会いでは更新しない |
 | updatedAt | Timestamp | サーバータイムスタンプ |
 
+### rateLimits/{key} — IP 単位のレート制限のカウンタ
+
+書き込みも読み取りも Functions のみ（`users/{uid}` 配下ではないため `backend/firestore.rules` の catch-all で client からは read / write ともに拒否される）。`POST /letters` が LLM 呼び出しコストの濫用を頭打ちにするために使う。ドキュメント id は生の IP を保存しないよう `ip:{sha256(IP) の hex}`（`backend/functions/src/rateLimit.ts` の `rateLimitKeyForIp`）。
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| windowStart | Timestamp | 現在の固定ウィンドウの開始時刻 |
+| count | number | 現在のウィンドウで消費したリクエスト数 |
+| createdAt / updatedAt | Timestamp | サーバータイムスタンプ |
+
 ## インデックス
 
 `backend/firestore.indexes.json` に定義する。

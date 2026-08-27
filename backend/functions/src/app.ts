@@ -1,5 +1,10 @@
 import express, { type Express, type Request, type Response } from "express";
 import { logger } from "firebase-functions";
+import {
+  APP_CHECK_HEADER,
+  type AppCheckEnforcement,
+  type VerifyAppCheckTokenFn,
+} from "./appCheck";
 import { detectCrisis } from "./crisis";
 import type { CheckEntitlementFn } from "./entitlement";
 import { db } from "./firestore";
@@ -18,6 +23,12 @@ import {
 } from "./quota";
 import { quotes } from "./quotesDb";
 import {
+  type RateLimitPolicy,
+  clientIp,
+  consumeRateLimit,
+  rateLimitKeyForIp,
+} from "./rateLimit";
+import {
   findLetterByRequestId,
   findSafetyOutcome,
   saveLetter,
@@ -34,6 +45,12 @@ export interface AppDeps {
   verifyIdToken: (idToken: string) => Promise<{ uid: string }>;
   /** RevenueCat の購入状態を確認する。実装は entitlement.ts */
   checkEntitlement: CheckEntitlementFn;
+  /** App Check トークンを検証して発行元アプリを返す。実装は appCheck.ts */
+  verifyAppCheckToken: VerifyAppCheckTokenFn;
+  /** App Check の適用モード (monitor = ログのみ / enforce = 401 で拒否) */
+  appCheckEnforcement: AppCheckEnforcement;
+  /** POST /letters に適用する IP 単位のレート制限。実装は rateLimit.ts */
+  letterRateLimit: RateLimitPolicy;
 }
 
 /** 今回の返書の利用枠がどこから来たか。失敗時の返却先を揃えるために持ち回る */
@@ -69,6 +86,50 @@ async function authenticate(
   }
 }
 
+/**
+ * App Check トークンを検証し、リクエストを拒否したなら true を返す (呼び出し元は処理を打ち切る)。
+ * enforce では未検証のリクエストに 401 を返し、monitor では警告ログだけ残して処理を続行する
+ */
+async function rejectedByAppCheck(
+  deps: AppDeps,
+  req: Request,
+  res: Response,
+  uid: string,
+): Promise<boolean> {
+  const token = req.header(APP_CHECK_HEADER);
+  let reason: "missing" | "invalid" | null = null;
+  if (typeof token !== "string" || token === "") {
+    reason = "missing";
+  } else {
+    try {
+      const verified = await deps.verifyAppCheckToken(token);
+      // 監視モードのうちに、正当なクライアントからのリクエストがどれだけ検証を通っているかを
+      // Cloud Logging で確認して enforce への切り替え可否を判断する
+      logger.info("app check verified", {
+        uid,
+        path: req.path,
+        appId: verified.appId,
+      });
+    } catch {
+      reason = "invalid";
+    }
+  }
+  if (reason === null) {
+    return false;
+  }
+  if (deps.appCheckEnforcement === "enforce") {
+    sendError(
+      res,
+      401,
+      "app_check_failed",
+      "valid X-Firebase-AppCheck token is required",
+    );
+    return true;
+  }
+  logger.warn("app check verification failed", { uid, path: req.path, reason });
+  return false;
+}
+
 /** API の Express アプリを組み立てる。 */
 export function createApp(deps: AppDeps): Express {
   const app = express();
@@ -91,6 +152,9 @@ export function createApp(deps: AppDeps): Express {
         "unauthenticated",
         "valid Authorization bearer token is required",
       );
+      return;
+    }
+    if (await rejectedByAppCheck(deps, req, res, uid)) {
       return;
     }
     const requestId = req.query.requestId;
@@ -143,6 +207,9 @@ export function createApp(deps: AppDeps): Express {
         "unauthenticated",
         "valid Authorization bearer token is required",
       );
+      return;
+    }
+    if (await rejectedByAppCheck(deps, req, res, uid)) {
       return;
     }
 
@@ -254,6 +321,44 @@ export function createApp(deps: AppDeps): Express {
       }
       return crisis;
     };
+
+    // 匿名 UID を再発行 (再インストール) すれば uid 単位の無料枠は取り直せてしまうため、
+    // 無料枠の判定より前に IP 単位の上限で LLM 呼び出しの回数を頭打ちにする
+    let rateLimit: { allowed: boolean };
+    try {
+      rateLimit = await consumeRateLimit(
+        db,
+        rateLimitKeyForIp(clientIp(req)),
+        receivedAt,
+        deps.letterRateLimit,
+      );
+    } catch (error) {
+      logger.error("rate limit transaction failed", { uid, error: `${error}` });
+      // Firestore が利用不能でも危機相談には安全案内を優先する
+      if (await respondedWithSafety()) {
+        return;
+      }
+      sendError(
+        res,
+        503,
+        "rate_limit_unavailable",
+        "failed to check the rate limit",
+      );
+      return;
+    }
+    if (!rateLimit.allowed) {
+      // ここでは LLM による危機の二次判定 (respondedWithSafety) を呼ばない。レート制限は
+      // LLM 呼び出しコストの濫用防止が目的であり、二次判定自体が LLM 呼び出しであるため、
+      // 制限に掛かったリクエストで実行すると目的と矛盾する。
+      // キーワードによる危機判定 (detectCrisis) はこれより前で済んでいる
+      sendError(
+        res,
+        429,
+        "rate_limited",
+        "too many letters from this network, try again later",
+      );
+      return;
+    }
 
     // 無料枠 → サブスク (聞き放題) → 購入済みチケットの順に利用枠を確保する。
     // 無料枠の「1 日」の境界は quota.ts が保存済み timeZone で固定する (timeZone 切り替えによるリセット悪用の防止)

@@ -5,6 +5,9 @@ import { db } from "./firestore";
 import type { LetterComposition } from "./letter";
 import { findQuote } from "./quotesDb";
 
+/** テスト用の App Check トークン。verifyAppCheckToken はこの値だけを受け付ける */
+const validAppCheckToken = "appcheck-valid";
+
 /** テスト用の AppDeps。verifyIdToken は "token-{uid}" 形式のトークンだけを受け付ける */
 function fakeDeps(overrides: Partial<AppDeps> = {}): AppDeps {
   return {
@@ -19,6 +22,18 @@ function fakeDeps(overrides: Partial<AppDeps> = {}): AppDeps {
       throw new Error("invalid token");
     },
     checkEntitlement: async () => ({ unlimited: false, ticketsPurchased: 0 }),
+    verifyAppCheckToken: async (token) => {
+      if (token !== validAppCheckToken) {
+        throw new Error("invalid app check token");
+      }
+      return { appId: "1:000000000000:ios:0000000000000000" };
+    },
+    appCheckEnforcement: "monitor",
+    // 既存のテストは App Check ヘッダを付けずに送るため、既定は本番と同じ monitor にする
+    // (段階適用の既定値。appCheck.ts の resolveAppCheckEnforcement を参照)。
+    // レート制限は同一 IP (ローカルループバック) から多数の相談を送るテストが
+    // 制限に掛からないよう、上限を大きく取る
+    letterRateLimit: { maxRequests: 1000, windowSeconds: 3600 },
     ...overrides,
   };
 }
@@ -535,5 +550,193 @@ describe("GET /letters (safety の完了種別の回収)", () => {
       .send({ text: "消えたいと思ってしまう" });
     expect(posted.status).toBe(200);
     expect(posted.body.type).toBe("safety");
+  });
+});
+
+describe("App Check の検証", () => {
+  it("monitor ではヘッダが無くても返書を返す (未対応クライアントを締め出さない)", async () => {
+    const app = createApp(
+      fakeDeps({ composeLetter: async () => fakeComposition() }),
+    );
+    const res = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-appcheck-user-1")
+      .send({ text: "監視モードの相談" });
+    expect(res.status).toBe(200);
+    expect(res.body.type).toBe("letter");
+  });
+
+  it("enforce ではヘッダが無いと 401", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        appCheckEnforcement: "enforce",
+      }),
+    );
+    const res = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-appcheck-user-2")
+      .send({ text: "ヘッダ無しの相談" });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe("app_check_failed");
+  });
+
+  it("enforce では検証に失敗するトークンは 401", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        appCheckEnforcement: "enforce",
+      }),
+    );
+    const res = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-appcheck-user-3")
+      .set("X-Firebase-AppCheck", "appcheck-forged")
+      .send({ text: "偽トークンの相談" });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe("app_check_failed");
+  });
+
+  it("enforce でも検証を通るトークンなら返書を返す", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        appCheckEnforcement: "enforce",
+      }),
+    );
+    const res = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-appcheck-user-4")
+      .set("X-Firebase-AppCheck", validAppCheckToken)
+      .send({ text: "正規クライアントからの相談" });
+    expect(res.status).toBe(200);
+    expect(res.body.type).toBe("letter");
+  });
+
+  it("enforce では GET /letters もヘッダが無いと 401", async () => {
+    const app = createApp(fakeDeps({ appCheckEnforcement: "enforce" }));
+    const res = await request(app)
+      .get("/letters")
+      .set("Authorization", "Bearer token-appcheck-user-5")
+      .query({ requestId: "appcheck-req-1" });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe("app_check_failed");
+  });
+});
+
+describe("IP 単位のレート制限", () => {
+  it("uid を変えても同じ IP からの相談は上限を超えると 429", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        letterRateLimit: { maxRequests: 2, windowSeconds: 3600 },
+      }),
+    );
+    // リクエストごとに uid を変えるのは、再インストールによる匿名 UID の再発行を再現するため
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-1")
+      .set("X-Forwarded-For", "203.0.113.10")
+      .send({ text: "1 通目" });
+    expect(first.status).toBe(200);
+
+    const second = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-2")
+      .set("X-Forwarded-For", "203.0.113.10")
+      .send({ text: "2 通目" });
+    expect(second.status).toBe(200);
+
+    const third = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-3")
+      .set("X-Forwarded-For", "203.0.113.10")
+      .send({ text: "3 通目" });
+    expect(third.status).toBe(429);
+    expect(third.body.error.code).toBe("rate_limited");
+
+    // 別の IP は同じ上限に巻き込まれない
+    const otherIp = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-4")
+      .set("X-Forwarded-For", "203.0.113.11")
+      .send({ text: "別の IP からの 1 通目" });
+    expect(otherIp.status).toBe(200);
+  });
+
+  it("X-Forwarded-For の先頭に偽の IP を足しても末尾の IP で数える", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        letterRateLimit: { maxRequests: 1, windowSeconds: 3600 },
+      }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-5")
+      .set("X-Forwarded-For", "203.0.113.12")
+      .send({ text: "1 通目" });
+    expect(first.status).toBe(200);
+
+    // クライアントが自分で付けたヘッダは前段プロキシの追記より前 (先頭側) に来る
+    const spoofed = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-6")
+      .set("X-Forwarded-For", "1.2.3.4, 203.0.113.12")
+      .send({ text: "偽装した 2 通目" });
+    expect(spoofed.status).toBe(429);
+    expect(spoofed.body.error.code).toBe("rate_limited");
+  });
+
+  it("レート制限に掛かったリクエストでは LLM の危機判定を呼ばない", async () => {
+    let classifyCalled = false;
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        classifyCrisis: async () => {
+          classifyCalled = true;
+          return true;
+        },
+        letterRateLimit: { maxRequests: 1, windowSeconds: 3600 },
+      }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-7")
+      .set("X-Forwarded-For", "203.0.113.13")
+      .send({ text: "1 通目" });
+    expect(first.status).toBe(200);
+
+    const second = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-8")
+      .set("X-Forwarded-For", "203.0.113.13")
+      .send({ text: "2 通目" });
+    expect(second.status).toBe(429);
+    expect(classifyCalled).toBe(false);
+  });
+
+  it("危機ワードを含む相談はレート制限に達していても safety を返す", async () => {
+    const app = createApp(
+      fakeDeps({
+        composeLetter: async () => fakeComposition(),
+        letterRateLimit: { maxRequests: 1, windowSeconds: 3600 },
+      }),
+    );
+    const first = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-9")
+      .set("X-Forwarded-For", "203.0.113.14")
+      .send({ text: "1 通目" });
+    expect(first.status).toBe(200);
+
+    // キーワードによる危機判定はレート制限より前に済んでいる
+    const crisis = await request(app)
+      .post("/letters")
+      .set("Authorization", "Bearer token-ratelimit-user-10")
+      .set("X-Forwarded-For", "203.0.113.14")
+      .send({ text: "もう死にたいと思ってしまう" });
+    expect(crisis.status).toBe(200);
+    expect(crisis.body).toEqual({ type: "safety" });
   });
 });
