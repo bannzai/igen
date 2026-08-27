@@ -12,6 +12,7 @@
 		A10000000000000000000027 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000026 /* FirebaseFirestore */; };
 		A1000000000000000000002A /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000029 /* RevenueCat */; };
 		A1000000000000000000002D /* LicenseList in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000002C /* LicenseList */; };
+		A1000000000000000000002F /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000002E /* FirebaseAppCheck */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		A10000000000000000000005 /* Exceptions for "Igen" folder in "Igen" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Igen.entitlements,
 				Info.plist,
 			);
 			target = A10000000000000000000001 /* Igen */;
@@ -95,6 +97,7 @@
 				A10000000000000000000021 /* FirebaseAuth */,
 				A10000000000000000000022 /* FirebaseAnalytics */,
 				A10000000000000000000026 /* FirebaseFirestore */,
+				A1000000000000000000002E /* FirebaseAppCheck */,
 				A10000000000000000000029 /* RevenueCat */,
 				A1000000000000000000002C /* LicenseList */,
 			);
@@ -203,6 +206,7 @@
 				A10000000000000000000023 /* FirebaseAuth in Frameworks */,
 				A10000000000000000000024 /* FirebaseAnalytics in Frameworks */,
 				A10000000000000000000027 /* FirebaseFirestore in Frameworks */,
+				A1000000000000000000002F /* FirebaseAppCheck in Frameworks */,
 				A1000000000000000000002A /* RevenueCat in Frameworks */,
 				A1000000000000000000002D /* LicenseList in Frameworks */,
 			);
@@ -392,6 +396,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Igen/Igen.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -417,6 +422,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Igen/Igen.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -592,6 +598,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A10000000000000000000020 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		A1000000000000000000002E /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000000000000000000020 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
 		};
 		A10000000000000000000029 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;

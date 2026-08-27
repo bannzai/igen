@@ -6,7 +6,8 @@ import OSLog
 enum IgenAPI {
   /// 返書 API のエラー
   enum APIError: Error {
-    /// 無料枠 (1 日 1 通) を使い切った (HTTP 429)
+    /// 無料枠 (1 日 1 通) を使い切った、または IP 単位のレート制限に達した (HTTP 429)。
+    /// どちらもペイウォールへ誘導する
     case freeQuotaExceeded
     /// 匿名認証がまだ完了していない
     case unauthenticated
@@ -174,6 +175,9 @@ enum IgenAPI {
       "Bearer \(try await user.getIDToken())",
       forHTTPHeaderField: "Authorization"
     )
+    if let appCheckToken = await FirebaseSetup.appCheckToken() {
+      request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+    }
     let (data, response) = try await URLSession.shared.data(for: request)
     guard let httpResponse = response as? HTTPURLResponse else {
       throw APIError.invalidResponse
@@ -207,6 +211,9 @@ enum IgenAPI {
       "Bearer \(try await user.getIDToken(forcingRefresh: forcesTokenRefresh))",
       forHTTPHeaderField: "Authorization"
     )
+    if let appCheckToken = await FirebaseSetup.appCheckToken() {
+      request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+    }
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.httpBody = try JSONEncoder().encode([
       "text": text, "language": language, "timeZone": timeZone, "requestId": requestId,
