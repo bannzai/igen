@@ -45,6 +45,24 @@ export function clientIp(req: Request): string {
 }
 
 /**
+ * X-Forwarded-For に並んだホップ数。ヘッダが無ければ 0。
+ * clientIp が末尾を採用する前提を、生 IP をログに出さずに本番で検証するための診断値。
+ * デプロイ後、iOS アプリ (自前で X-Forwarded-For を付けない) からのリクエストで 1 なら
+ * 「末尾 = クライアント IP」の前提が成り立つ。2 以上が常態なら前段プロキシが自分の IP を
+ * 末尾に足しているので、clientIp の採用位置を見直す
+ */
+export function forwardedForHopCount(req: Request): number {
+  const forwardedFor = req.headers["x-forwarded-for"];
+  const rawHeader = Array.isArray(forwardedFor)
+    ? forwardedFor.join(",")
+    : forwardedFor;
+  if (typeof rawHeader !== "string" || rawHeader.trim() === "") {
+    return 0;
+  }
+  return rawHeader.split(",").length;
+}
+
+/**
  * IP に対応する rateLimits のドキュメント ID を作る。
  * 生の IP は通信元を特定できる情報のため Firestore に保存せず、ハッシュ値だけを鍵にする
  */
@@ -57,7 +75,14 @@ export function rateLimitKeyForIp(ip: string): string {
  * 滑走ウィンドウのようにリクエストの履歴を持たず、1 ドキュメント 1 トランザクションで
  * 判定を完結できるため固定ウィンドウを選ぶ (ウィンドウの境界をまたぐと短時間に上限の
  * 2 倍近くまで通り得るが、濫用の頭打ちという目的には十分)。
- * 同時リクエストで上限を超えないようトランザクションで行う
+ * 同時リクエストで上限を超えないようトランザクションで行う。
+ *
+ * ドキュメントは無限に増え続けないよう Firestore の TTL ポリシーで自動削除する前提で、
+ * 削除の基準になる expiresAt (ウィンドウの終了時刻) を書き込む。TTL ポリシーは
+ * デプロイ環境ごとに一度だけ有効化する:
+ * gcloud firestore fields ttls update expiresAt --collection-group=rateLimits --enable-ttl --project=igen-prod
+ * TTL の削除は期限から最大 24 時間程度遅れる仕様だが、期限切れのドキュメントはウィンドウ外として
+ * 新しいウィンドウで上書きされるため、削除の遅れは判定に影響しない
  */
 export async function consumeRateLimit(
   firestore: Firestore,
@@ -68,19 +93,27 @@ export async function consumeRateLimit(
   const rateLimitRef = firestore.collection("rateLimits").doc(key);
   return firestore.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(rateLimitRef);
-    const windowStart: Timestamp | undefined = snapshot.data()?.windowStart;
-    const count: number = snapshot.data()?.count ?? 0;
-    const withinWindow =
-      windowStart !== undefined &&
-      now.getTime() - windowStart.toMillis() < policy.windowSeconds * 1000;
-    if (withinWindow && count >= policy.maxRequests) {
+    const storedWindowStart: Timestamp | undefined =
+      snapshot.data()?.windowStart;
+    const windowStart =
+      storedWindowStart !== undefined &&
+      now.getTime() - storedWindowStart.toMillis() < policy.windowSeconds * 1000
+        ? storedWindowStart
+        : Timestamp.fromDate(now);
+    // 保存済みのウィンドウを続けているときだけ件数を引き継ぐ
+    const count =
+      windowStart === storedWindowStart ? (snapshot.data()?.count ?? 0) : 0;
+    if (count >= policy.maxRequests) {
       return { allowed: false };
     }
     transaction.set(
       rateLimitRef,
       {
-        windowStart: withinWindow ? windowStart : Timestamp.fromDate(now),
-        count: withinWindow ? count + 1 : 1,
+        windowStart,
+        count: count + 1,
+        expiresAt: Timestamp.fromMillis(
+          windowStart.toMillis() + policy.windowSeconds * 1000,
+        ),
         createdAt: snapshot.data()?.createdAt ?? FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       },

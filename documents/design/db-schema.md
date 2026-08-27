@@ -116,7 +116,16 @@ igen の Firestore スキーマの単一の真実。コレクション構造・�
 |---|---|---|
 | windowStart | Timestamp | 現在の固定ウィンドウの開始時刻 |
 | count | number | 現在のウィンドウで消費したリクエスト数 |
+| expiresAt | Timestamp | ウィンドウの終了時刻（`windowStart + windowSeconds`）。TTL ポリシーの削除基準 |
 | createdAt / updatedAt | Timestamp | サーバータイムスタンプ |
+
+ドキュメントは IP ごとに増え続けるため、`expiresAt` を対象にした Firestore の TTL ポリシーで自動削除する。デプロイ環境ごとに一度だけ有効化する（未設定だと削除されず溜まり続ける）:
+
+```bash
+gcloud firestore fields ttls update expiresAt --collection-group=rateLimits --enable-ttl --project=igen-prod
+```
+
+TTL の削除は期限から最大 24 時間程度遅れる仕様だが、期限切れのドキュメントはウィンドウ外として新しいウィンドウで上書きされるため、削除の遅れは判定に影響しない。
 
 ## インデックス
 

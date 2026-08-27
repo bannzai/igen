@@ -26,6 +26,7 @@ import {
   type RateLimitPolicy,
   clientIp,
   consumeRateLimit,
+  forwardedForHopCount,
   rateLimitKeyForIp,
 } from "./rateLimit";
 import {
@@ -346,6 +347,13 @@ export function createApp(deps: AppDeps): Express {
       );
       return;
     }
+    // 本番の Cloud Run が X-Forwarded-For をどう組み立てるかを、生 IP を残さずに
+    // デプロイ後のログで検証する (forwardedForHopCount の doc コメントを参照)
+    logger.info("rate limit checked", {
+      uid,
+      allowed: rateLimit.allowed,
+      forwardedForHops: forwardedForHopCount(req),
+    });
     if (!rateLimit.allowed) {
       // ここでは LLM による危機の二次判定 (respondedWithSafety) を呼ばない。レート制限は
       // LLM 呼び出しコストの濫用防止が目的であり、二次判定自体が LLM 呼び出しであるため、
