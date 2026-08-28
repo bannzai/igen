@@ -23,7 +23,11 @@ export function createNoEntitlementChecker(): CheckEntitlementFn {
 
 /**
  * RevenueCat REST API (GET /v1/subscribers/{uid}) で購入状態を確認するチェッカーを作る。
- * appUserID には Firebase 匿名認証の uid を使う (ADR 0001)
+ * appUserID には Firebase 匿名認証の uid を使う (ADR 0001)。
+ *
+ * Sandbox 購入 (App Review の審査・TestFlight での確認) も本番で有効として扱う。
+ * 審査員は本番バックエンドに接続したアプリで Sandbox Apple ID の購入を検証するため、
+ * Sandbox を除外すると審査・サンドボックス課金の検証が成立しない
  */
 export function createRevenueCatEntitlementChecker(options: {
   apiKey: string;
@@ -53,45 +57,27 @@ export function createRevenueCatEntitlementChecker(options: {
           {
             expires_date: string | null;
             grace_period_expires_date?: string | null;
-            /** entitlement を満たしている購読商品の識別子 (subscriptions のキー) */
-            product_identifier?: string;
           }
         >;
-        /** 購読の明細。Sandbox 判定 (is_sandbox) はこちらに入る */
-        subscriptions?: Record<string, { is_sandbox?: boolean }>;
-        non_subscriptions?: Record<string, { is_sandbox?: boolean }[]>;
+        non_subscriptions?: Record<string, unknown[]>;
       };
     };
     const entitlement =
       body.subscriber?.entitlements?.[UNLIMITED_ENTITLEMENT_ID];
-    // Sandbox の購入 (TestFlight 等) は課金されていないため、本番では利用枠として数えない
-    // (Emulator 実行時は開発検証のため数える)
-    const countsSandbox = process.env.FUNCTIONS_EMULATOR === "true";
     // expires_date が null (買い切り等) または未来ならアクティブ。
     // App Store の Billing Grace Period 中は expires_date が過去でも
     // grace_period_expires_date まで有効として扱う (支払い再試行中の購読者を拒否しない)
     const now = new Date();
-    // Sandbox 判定は subscriber.subscriptions 側に入る (entitlement 要素には含まれない)
-    const subscription =
-      entitlement?.product_identifier === undefined
-        ? undefined
-        : body.subscriber?.subscriptions?.[entitlement.product_identifier];
-    const isSandboxEntitlement = subscription?.is_sandbox === true;
     const unlimited =
       entitlement !== undefined &&
-      (countsSandbox || !isSandboxEntitlement) &&
       (entitlement.expires_date === null ||
         new Date(entitlement.expires_date) > now ||
         (entitlement.grace_period_expires_date != null &&
           new Date(entitlement.grace_period_expires_date) > now));
-    // Sandbox 購入 (TestFlight 等) は課金されていないため、本番の利用枠として数えない
-    // (Emulator 実行時は開発検証のため数える)
-    const ticketPurchases =
-      body.subscriber?.non_subscriptions?.[TICKET_PRODUCT_ID] ?? [];
     return {
       unlimited,
-      ticketsPurchased: ticketPurchases.filter(
-        (purchase) => countsSandbox || purchase.is_sandbox !== true,
+      ticketsPurchased: (
+        body.subscriber?.non_subscriptions?.[TICKET_PRODUCT_ID] ?? []
       ).length,
     };
   };
