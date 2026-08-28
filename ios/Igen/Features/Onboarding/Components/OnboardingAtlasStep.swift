@@ -13,8 +13,8 @@ struct OnboardingAtlasStep: View {
 
   var body: some View {
     VStack(spacing: 24) {
-      // ja: 相談するたび、夜空に偉人が増えていく
-      Text("With every letter, your night sky grows")
+      // ja: 相談するたび夜空に偉人が増える
+      Text("With every letter your night sky grows")
         .font(.igenSerif(size: 22, weight: .semibold))
         .multilineTextAlignment(.center)
         .lineSpacing(8)

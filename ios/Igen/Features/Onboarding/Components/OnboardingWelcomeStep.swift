@@ -43,8 +43,8 @@ struct OnboardingWelcomeStep: View {
         }
       }
 
-      // ja: 今夜の悩みに、時を越えた返書を
-      Text("A letter from across time, for tonight")
+      // ja: 今夜の悩みに 時を越えた返書を
+      Text("A letter from across time for tonight")
         .font(.igenSerif(size: 22, weight: .semibold))
         .multilineTextAlignment(.center)
         .lineSpacing(8)

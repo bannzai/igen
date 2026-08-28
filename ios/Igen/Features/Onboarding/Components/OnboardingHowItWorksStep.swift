@@ -5,8 +5,8 @@ import SwiftUI
 struct OnboardingHowItWorksStep: View {
   var body: some View {
     VStack(spacing: 24) {
-      // ja: 書くと、偉人が現れる
-      Text("Write, and a great figure appears")
+      // ja: 書くと偉人が現れる
+      Text("Write and a great figure appears")
         .font(.igenSerif(size: 22, weight: .semibold))
         .multilineTextAlignment(.center)
         .lineSpacing(8)
@@ -20,13 +20,13 @@ struct OnboardingHowItWorksStep: View {
         }
         OnboardingFlowConnector()
         OnboardingFlowNode(emphasized: true) {
-          // ja: ふさわしい偉人が、あなたの空に現れる
+          // ja: ふさわしい偉人があなたの空に現れる
           Text("A fitting great figure appears in your sky")
         }
         OnboardingFlowConnector()
         OnboardingFlowNode(emphasized: false) {
           // ja: 出典つきの返書が届く
-          Text("A letter of reply arrives, with its source")
+          Text("A letter of reply arrives with its source")
         }
       }
       .frame(maxWidth: .infinity)

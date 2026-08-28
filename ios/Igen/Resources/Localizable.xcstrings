@@ -981,12 +981,12 @@
         }
       }
     },
-    "A letter from across time, for tonight": {
+    "A letter from across time for tonight": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "今夜の悩みに、時を越えた返書を"
+            "value": "今夜の悩みに 時を越えた返書を"
           }
         }
       }
@@ -1001,12 +1001,12 @@
         }
       }
     },
-    "Write, and a great figure appears": {
+    "Write and a great figure appears": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "書くと、偉人が現れる"
+            "value": "書くと偉人が現れる"
           }
         }
       }
@@ -1026,12 +1026,12 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ふさわしい偉人が、あなたの空に現れる"
+            "value": "ふさわしい偉人があなたの空に現れる"
           }
         }
       }
     },
-    "A letter of reply arrives, with its source": {
+    "A letter of reply arrives with its source": {
       "localizations": {
         "ja": {
           "stringUnit": {
@@ -1046,7 +1046,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべてのことばに、出典がある"
+            "value": "すべてのことばに出典がある"
           }
         }
       }
@@ -1071,12 +1071,12 @@
         }
       }
     },
-    "With every letter, your night sky grows": {
+    "With every letter your night sky grows": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "相談するたび、夜空に偉人が増えていく"
+            "value": "相談するたび夜空に偉人が増える"
           }
         }
       }

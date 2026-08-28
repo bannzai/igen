@@ -5,7 +5,7 @@ import SwiftUI
 struct OnboardingSourcesStep: View {
   var body: some View {
     VStack(spacing: 24) {
-      // ja: すべてのことばに、出典がある
+      // ja: すべてのことばに出典がある
       Text("Every word has a source")
         .font(.igenSerif(size: 22, weight: .semibold))
         .multilineTextAlignment(.center)

@@ -34,20 +34,26 @@ struct OnboardingPage: View {
 
         TabView(selection: $selectedStep) {
           ForEach(steps, id: \.self) { step in
-            // 英語で文字量が増えても固定高さで切れないよう、各画面はスクロール可能にする
-            ScrollView {
-              switch step {
-              case .welcome:
-                OnboardingWelcomeStep()
-              case .howItWorks:
-                OnboardingHowItWorksStep()
-              case .sources:
-                OnboardingSourcesStep()
-              case .atlas:
-                OnboardingAtlasStep()
+            // 英語で文字量が増えても固定高さで切れないよう、各画面はスクロール可能にする。
+            // 通常時は内容を上下中央に置くため、内容の最小高をビューポート高に合わせる (HomePage と同じ)
+            GeometryReader { geometry in
+              ScrollView {
+                VStack {
+                  switch step {
+                  case .welcome:
+                    OnboardingWelcomeStep()
+                  case .howItWorks:
+                    OnboardingHowItWorksStep()
+                  case .sources:
+                    OnboardingSourcesStep()
+                  case .atlas:
+                    OnboardingAtlasStep()
+                  }
+                }
+                .frame(maxWidth: .infinity, minHeight: geometry.size.height)
               }
+              .scrollIndicators(.hidden)
             }
-            .scrollIndicators(.hidden)
             .tag(step)
           }
         }
