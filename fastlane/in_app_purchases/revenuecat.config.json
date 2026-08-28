@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/bannzai/castle/main/home/.claude/skills/revenuecat-product-setup/config.schema.json",
   "comment": "RevenueCat の App / products / entitlement / offering 定義 (issue #48)。~/.claude/skills/revenuecat-product-setup の rc_diff_config.sh / rc_apply_config.sh を --config <このファイル> で実行して冪等に適用する。store_identifier は fastlane/in_app_purchases/appstore.config.json の productId と、entitlement の lookup_key は ios/Igen/Utils/Purchases/PurchasesSetup.swift の unlimitedEntitlementID / backend/functions/src/entitlement.ts の UNLIMITED_ENTITLEMENT_ID と揃える。ペイウォール (ios/Igen/Features/Paywall/PaywallPage.swift) は offering `default` の $rc_monthly パッケージと、store_identifier が PurchasesSetup.ticketProductID に一致するパッケージを使う",
-  "project_id": "PROJECT_ID_PLACEHOLDER",
+  "project_id": "proj7dadaccf",
   "apps": [
     {
       "key": "ios",
