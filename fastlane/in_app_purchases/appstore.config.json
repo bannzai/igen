@@ -43,7 +43,7 @@
           "referenceName": "Unlimited Annual",
           "subscriptionPeriod": "ONE_YEAR",
           "groupLevel": 1,
-          "reviewNote": "Auto-renewable annual plan that removes the free daily limit (1 letter per day). Same benefits as the monthly plan, billed yearly.",
+          "reviewNote": "Auto-renewable annual plan that removes the free daily limit (1 letter per day). Same benefits as the monthly plan, billed yearly. NOTE: the current app paywall only offers the monthly plan; this annual plan is registered ahead of time and will be submitted for review together with the app version that adds the annual option to the paywall.",
           "price": { "base_territory": "JPN", "customer_price": "3800" },
           "availability": { "available_in_new_territories": true, "territories": "ALL" },
           "locales": [
