@@ -4,8 +4,8 @@
 // RevenueCat の entitlement 識別子。RevenueCat プロジェクト設定 (#16 公開前チェックリスト) と揃える
 export const UNLIMITED_ENTITLEMENT_ID = "unlimited";
 
-// 相談チケット (consumable) のストア商品 id。ASC の IAP 登録 (#16) と揃える
-export const TICKET_PRODUCT_ID = "igen_ticket_1";
+// 相談チケット (consumable) のストア商品 id。ASC の IAP 登録 (fastlane/in_app_purchases/appstore.config.json) と揃える
+export const TICKET_PRODUCT_ID = "igen_ticket1_160yen";
 
 /** uid の購入状態。unlimited はサブスク、ticketsPurchased は購入済みチケットの累計 */
 export interface Entitlement {
