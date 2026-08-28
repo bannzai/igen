@@ -73,6 +73,7 @@ LLM 呼び出しは依存注入でモックする。ローカル開発は Fireba
 2. `~/ghq/github.com/bannzai/simtunnel/local/simtunnel up <session> --ref <ブランチ名> --wait` でセッションを起動する。build job がそのブランチを Release でビルドして runner の Simulator に install する（Release は本番 igen-prod に向くため、相談の送信は実 LLM 費用が発生する。Debug は Firebase Emulator に向くため runner 上では通信できない）
 3. `~/ghq/github.com/bannzai/simtunnel/local/simtunnel mcp-config <session> <worktree の絶対パス> --name mobile` で `.mcp.json` を書き、`/verify-ui-mobile-mcp` で確認する
 4. 確認が終わったら `~/ghq/github.com/bannzai/simtunnel/local/simtunnel down <session>` で runner を解放する（放置しても `duration_minutes` で自動終了する）
+5. App Check の検証を通したい場合（enforce 時や `app check verified` ログの確認）: runner のシミュレータは Debug provider になり、登録済みデバッグトークンが必要。セッション確立後にアプリを terminate し、WDA の `POST /session/{sid}/wda/apps/launch` の `environment` に `FIRAAppCheckDebugToken=<トークン>` を載せて relaunch する（トークンは `~/.config/igen/appcheck-debug-token-simtunnel.secret`。argv・ログ・リポジトリに値を書かない）。monitor モードではトークン無しでも検証は通る
 
 | 目的 | スキル |
 |---|---|
