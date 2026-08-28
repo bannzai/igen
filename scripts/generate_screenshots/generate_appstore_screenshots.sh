@@ -165,7 +165,15 @@ run_single_test() {
   sep "Test path: $test_path"
   sep "Result bundle: $result_bundle_path"
 
-  ./scripts/generate_screenshots/run_appstore_screenshot.sh "$test_path" "$result_bundle_path" "$LANGUAGES"
+  # 撮影に失敗した時に前回の PNG が残って検査を通過しないよう、対象言語の出力を先に消す
+  local number lang
+  number=$(basename "$test_file" .swift | sed -E 's/AppStoreScreenshot([0-9]+)PageSnapshotUITest/\1/')
+  for lang in "${TARGET_LANGUAGES[@]}"; do
+    rm -f "${FASTLANE_SCREENSHOTS_DIR}/$(map_language_to_fastlane "$lang")/${number}_${SCREENSHOT_FILENAME_SUFFIX}_${number}.png"
+  done
+
+  # 呼び出し元が if 条件で使うと関数内で set -e が効かなくなるため、各工程の失敗を明示的に返す
+  ./scripts/generate_screenshots/run_appstore_screenshot.sh "$test_path" "$result_bundle_path" "$LANGUAGES" || return 1
 
   if [ ! -d "$result_bundle_path" ]; then
     echo "Error: Result bundle not found: $result_bundle_path" >&3
@@ -179,10 +187,10 @@ run_single_test() {
 
   xcrun xcresulttool export attachments \
     --path "$result_bundle_path" \
-    --output-path "$test_temp_dir"
+    --output-path "$test_temp_dir" || return 1
 
   sep "Organizing screenshots to fastlane format"
-  ./scripts/generate_screenshots/organize_appstore_screenshots.sh "$test_temp_dir"
+  ./scripts/generate_screenshots/organize_appstore_screenshots.sh "$test_temp_dir" || return 1
 
   rm -rf "$test_temp_dir"
 }

@@ -991,16 +991,6 @@
         }
       }
     },
-    "Your night sky grows with every letter": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "相談するたび夜空がにぎやかになっていきます"
-          }
-        }
-      }
-    },
     "Revisit the letters to\nyour past self anytime": {
       "localizations": {
         "ja": {
@@ -1067,6 +1057,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "出どころのはっきりした言葉だけを届けます"
+          }
+        }
+      }
+    },
+    "Your sky grows with each new great mind": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい偉人と出会うたび夜空がにぎやかになる"
           }
         }
       }

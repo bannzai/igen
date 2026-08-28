@@ -6,7 +6,7 @@
     var body: some View {
       AppStoreScreenshotFrameLayout(
         title: "Great minds you meet\nbecome constellations",
-        subtitle: "Your night sky grows with every letter"
+        subtitle: "Your sky grows with each new great mind"
       ) {
         AppStoreScreenshotMockScreen {
           VStack(spacing: 12) {
