@@ -121,6 +121,17 @@ while read -r locale; do
     CUR=$(get_localization "$LOC_ID")
     [ "$CUR" = "$WANT" ] && log "  [OK] $locale" || mark_failed "$locale のローカライズが定義と不一致: $(jq -c . <<<"$CUR")"
 done < <(jq -r '.localizations[].locale' "$CONFIG")
+# 定義に無いロケール (Web UI で追加された・定義から外した) は公開対象に残さない。
+# 定義ファイルを正とする方針のため削除して収束させる (primaryLocale は定義に含める前提)
+while read -r extra_id extra_locale; do
+    if [ $DRY_RUN -eq 1 ]; then
+        mark_failed "定義に無いロケール $extra_locale が ASC に残っている (--dry-run なしで実行すると削除する)"
+        continue
+    fi
+    api DELETE "/v1/appInfoLocalizations/$extra_id" >/dev/null
+    log "- $extra_locale: 定義に無いため削除した"
+done < <(jq -r --argjson want "$(jq -c '[.localizations[].locale]' "$CONFIG")" \
+    '.data[] | select(.attributes.locale as $l | $want | index($l) | not) | "\(.id) \(.attributes.locale)"' <<<"$LOCALIZATIONS")
 
 # ---- 3. 利用規約 (EULA) ----
 log "== 利用規約 (EULA)"
@@ -211,14 +222,15 @@ WANT_REVIEW=$(jq -n --arg notes "$WANT_NOTES" \
 WANT_KEYS=$(jq -c 'keys' <<<"$WANT_REVIEW")
 # ログに連絡先を出さない
 mask_contact() { jq -c 'with_entries(if (.key | startswith("contact")) and .value != null then .value = "***" else . end) | .notes |= (if . == null then null else "(\(length) chars)" end)'; }
-VERSIONS=$(api GET "/v1/apps/$APP_ID/appStoreVersions?filter[appVersionState]=PREPARE_FOR_SUBMISSION&filter[platform]=IOS&fields[appStoreVersions]=platform,versionString,appStoreReviewDetail&include=appStoreReviewDetail&fields[appStoreReviewDetails]=demoAccountRequired")
+# 審査で差し戻された (DEVELOPER_REJECTED / REJECTED / METADATA_REJECTED) バージョンもメモを直して再提出するため対象にする
+VERSIONS=$(api GET "/v1/apps/$APP_ID/appStoreVersions?filter[appVersionState]=PREPARE_FOR_SUBMISSION,DEVELOPER_REJECTED,REJECTED,METADATA_REJECTED&filter[platform]=IOS&fields[appStoreVersions]=platform,versionString,appStoreReviewDetail&include=appStoreReviewDetail&fields[appStoreReviewDetails]=demoAccountRequired")
 get_review() {
     local rd_id="$1"
     api GET "/v1/appStoreReviewDetails/$rd_id?fields[appStoreReviewDetails]=contactFirstName,contactLastName,contactPhone,contactEmail,demoAccountRequired,notes" \
         | jq -S --argjson keys "$WANT_KEYS" '.data.attributes | with_entries(select(.key as $k | $keys | index($k)))'
 }
 if [ "$(jq '.data | length' <<<"$VERSIONS")" -eq 0 ]; then
-    mark_failed "PREPARE_FOR_SUBMISSION の iOS バージョンが無い (App Review メモを設定する対象が無い)"
+    mark_failed "編集可能な (提出準備中または差し戻し) iOS バージョンが無い (App Review メモを設定する対象が無い)"
 fi
 while read -r ver_id ver rd_id; do
     log "- iOS $ver (version $ver_id)"

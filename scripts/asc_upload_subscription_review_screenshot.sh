@@ -70,7 +70,9 @@ while IFS= read -r OP; do
         HEADERS+=("-H" "$HEAD_KV")
     done < <(jq -r '.requestHeaders[]? | "\(.name): \(.value)"' <<<"$OP")
     TMP_PART=$(mktemp -t sub_part.XXXXXX)
-    tail -c "+$(( $(jq -r '.offset // 0' <<<"$OP") + 1 ))" "$IMAGE" | head -c "$(jq -r '.length' <<<"$OP")" > "$TMP_PART"
+    # 複数 part のとき head が先に閉じると tail が SIGPIPE (141) で終わり pipefail + set -e で止まるため、
+    # tail の終了コードは無視して head の出力だけを採用する (切り出し長は head が保証する)
+    { tail -c "+$(( $(jq -r '.offset // 0' <<<"$OP") + 1 ))" "$IMAGE" || true; } | head -c "$(jq -r '.length' <<<"$OP")" > "$TMP_PART"
     HTTP_CODE=$(curl -sS -X "$(jq -r '.method // "PUT"' <<<"$OP")" "${HEADERS[@]}" --data-binary "@$TMP_PART" -o /dev/null --write-out '%{http_code}' "$(jq -r '.url' <<<"$OP")")
     rm -f "$TMP_PART"
     case "$HTTP_CODE" in
