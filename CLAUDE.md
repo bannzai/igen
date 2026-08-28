@@ -62,11 +62,21 @@ LLM 呼び出しは依存注入でモックする。ローカル開発は Fireba
 
 ### 実装したUIの検証
 
-シミュレータ上での動作確認は `/sim-manager` を起点にプロジェクト固有のシミュレータを起動して行うこと。既存の任意のシミュレータを掴まない。
+シミュレータでの動作確認は、ローカル Mac ではなく GitHub Actions 上の iOS Simulator（simtunnel。caller workflow は `.github/workflows/simulator-session.yml`）で行う。ローカルのシミュレータは開発機のリソースを圧迫するため、ローカル `sim-boot`（`/sim-manager`）を使うのは次の場合だけにする:
+
+- 変更に秘匿情報が含まれていて、public なこのリポジトリへ push できない
+- simtunnel が使えない（Maestro E2E・XCUITest など runner 上で実行できない用途、tailnet 未接続、macOS Runner の並列上限など。判断基準は `~/.claude/skills/ios-simulator/SKILL.md` の Phase 1）
+
+手順（このリポジトリの作業ディレクトリで実行する。session 名は小文字英数字とハイフンのみで、worktree ごとに一意にする。例: `igen-41`）:
+
+1. 変更をコミットしてブランチを push する（通常は PR も作成する）。動作確認のために commit / PR を作ってよい
+2. `~/ghq/github.com/bannzai/simtunnel/local/simtunnel up <session> --ref <ブランチ名> --wait` でセッションを起動する。build job がそのブランチを Release でビルドして runner の Simulator に install する（Release は本番 igen-prod に向くため、相談の送信は実 LLM 費用が発生する。Debug は Firebase Emulator に向くため runner 上では通信できない）
+3. `~/ghq/github.com/bannzai/simtunnel/local/simtunnel mcp-config <session> <worktree の絶対パス> --name mobile` で `.mcp.json` を書き、`/verify-ui-mobile-mcp` で確認する
+4. 確認が終わったら `~/ghq/github.com/bannzai/simtunnel/local/simtunnel down <session>` で runner を解放する（放置しても `duration_minutes` で自動終了する）
 
 | 目的 | スキル |
 |---|---|
-| シミュレータの起動・管理（UI確認の起点） | `/sim-manager` |
+| シミュレータの用意（UI確認の起点。simtunnel とローカルの使い分け） | `/ios-simulator` |
 | シミュレータ上での動作確認（中心） | `/verify-ui-mobile-mcp` |
 | E2Eテストフローの作成 | `/maestro-flow-writer` |
 
@@ -75,7 +85,7 @@ LLM 呼び出しは依存注入でモックする。ローカル開発は Fireba
 実装後は手動テスト前に必ず、以下のテストを実行する。該当するものがなければテストを新規作成する。作成・実行が難しい場合はユーザーに報告する。
 
 - **ユニットテスト**: 該当する既存テストの実行、または新規テストの作成・実行
-- **シミュレータでのUI確認**: UI変更がある場合、`/sim-manager` でシミュレータを起動し、シミュレータ上の実行中アプリで目視確認する
+- **シミュレータでのUI確認**: UI変更がある場合、上記「実装したUIの検証」の手順で simtunnel のセッションを起動し、runner 上のシミュレータで実行中のアプリを目視確認する
 
 ### PR作成時の動作確認の軌跡
 
