@@ -9,26 +9,44 @@ last_verified_at: null
 
 ## 関連リンク
 
-- 仕様: TODO: 仕様の正データ (issue の「仕様・期待挙動」欄等) の URL。無ければ「仕様なし QA」と明記
-- 関連: TODO: 関連 issue / PR の URL
+- 仕様: 仕様なし QA（issue は無く、https://github.com/bannzai/igen/pull/40 の実装内容が正）
+- 関連: https://github.com/bannzai/igen/pull/40 （OSS ライセンス一覧表示を追加）
 
-## 仕様チェックリスト
+## 1. 一覧
 
-TODO: 仕様の正データを ID 付きで列挙し、対応する QA 項目名を書く (「—」= テスト漏れ)。仕様なし QA の場合はこの表を削除する
-
-| ID | 期待挙動 | 対応項目 |
-|----|---------|---------|
-| S1 | TODO: 観測可能な形の期待挙動 | — |
-
-## 1. TODO: セクション名
-
-- [ ] **TODO: 項目名**: TODO: 期待動作
-  - 自動化: todo
+- [ ] **ライセンス一覧の表示**: ペイウォールの「Open Source Licenses」でシートが開き、見出し「Open Source Licenses」と依存パッケージ（Firebase / RevenueCat / LicenseList 等）のライセンス一覧が空でなく表示される
+  - 自動化: manual（一覧はビルド時に LicenseList の plugin が生成するため、ビルドごとの目視確認が必要）
+- [ ] **ライセンス詳細**: 一覧の項目をタップするとライセンス本文とリポジトリへのリンクが表示される
+  - 自動化: manual（遷移の目視確認が必要）
+- [ ] **閉じる**: 「Close」でシートが閉じてペイウォールに戻る
+  - 自動化: manual（遷移の目視確認が必要）
 
 #### 動作確認
 <details>
 <summary>動作確認エビデンス</summary>
 
+### **ライセンス一覧の表示**: ペイウォールの「Open Source Licenses」でシートが開き、見出し「Open Source Licenses」と依存パッケージ（Firebase / RevenueCat / LicenseList 等）のライセンス一覧が空でなく表示される
+
+<details><summary>動作確認スクショ</summary>
+
 （未実行）
+
+</details>
+
+### **ライセンス詳細**: 一覧の項目をタップするとライセンス本文とリポジトリへのリンクが表示される
+
+<details><summary>動作確認スクショ</summary>
+
+（未実行）
+
+</details>
+
+### **閉じる**: 「Close」でシートが閉じてペイウォールに戻る
+
+<details><summary>動作確認スクショ</summary>
+
+（未実行）
+
+</details>
 
 </details>
