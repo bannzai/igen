@@ -1,0 +1,58 @@
+{
+  "bundleId": "com.bannzai.Igen",
+  "developerPortalName": "Igen",
+  "sku": "igen",
+  "primaryLocale": "ja",
+  "initialVersion": "1.0.0",
+  "categories": {
+    "primary": "LIFESTYLE",
+    "secondary": "ENTERTAINMENT"
+  },
+  "localizations": [
+    {
+      "locale": "ja",
+      "name": "偉言",
+      "privacyPolicyUrl": "https://bannzai.github.io/igen/PrivacyPolicy-ja.html"
+    },
+    {
+      "locale": "en-US",
+      "name": "Dear Socrates",
+      "privacyPolicyUrl": "https://bannzai.github.io/igen/PrivacyPolicy-en.html"
+    }
+  ],
+  "eula": {
+    "agreementText": "利用規約 / Terms of Service\n\n本アプリの利用規約およびプライバシーポリシーは以下の URL に掲載しています。本アプリを利用することで、利用規約に同意したものとみなされます。\n\n利用規約: https://bannzai.github.io/igen/Terms-ja.html\nプライバシーポリシー: https://bannzai.github.io/igen/PrivacyPolicy-ja.html\n\nThe Terms of Service and Privacy Policy for this app are published at the URLs below. By using this app, you agree to the Terms of Service.\n\nTerms of Service: https://bannzai.github.io/igen/Terms-en.html\nPrivacy Policy: https://bannzai.github.io/igen/PrivacyPolicy-en.html"
+  },
+  "ageRatingDeclaration": {
+    "advertising": false,
+    "ageAssurance": false,
+    "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+    "contests": "NONE",
+    "gambling": false,
+    "gamblingSimulated": "NONE",
+    "gunsOrOtherWeapons": "NONE",
+    "healthOrWellnessTopics": false,
+    "horrorOrFearThemes": "NONE",
+    "lootBox": false,
+    "matureOrSuggestiveThemes": "NONE",
+    "medicalOrTreatmentInformation": "NONE",
+    "messagingAndChat": false,
+    "parentalControls": false,
+    "profanityOrCrudeHumor": "NONE",
+    "sexualContentGraphicAndNudity": "NONE",
+    "sexualContentOrNudity": "NONE",
+    "socialMedia": false,
+    "socialMediaAgeRestricted": false,
+    "unrestrictedWebAccess": false,
+    "userGeneratedContent": false,
+    "violenceCartoonOrFantasy": "NONE",
+    "violenceRealistic": "NONE",
+    "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+    "ageRatingOverrideV2": "NONE",
+    "koreaAgeRatingOverride": "NONE"
+  },
+  "reviewDetail": {
+    "demoAccountRequired": false,
+    "notesSource": "documents/app-review-notes.md"
+  }
+}

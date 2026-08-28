@@ -20,6 +20,9 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<!-- RevenueCat SDK の初期化に使う public API key。値の入れ方は ios/Config.xcconfig のコメント参照 -->
+	<key>RevenueCatPublicAPIKey</key>
+	<string>$(REVENUECAT_PUBLIC_API_KEY)</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>igen saves your share card image to your photo library when you choose to.</string>
 	<key>NSMicrophoneUsageDescription</key>

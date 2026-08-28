@@ -4,15 +4,17 @@ import RevenueCat
 /// RevenueCat SDK の初期化。appUserID には Firebase 匿名認証の UID を使い、
 /// 購入状態とサーバー側の相談履歴を同一 ID で紐付ける (ADR 0001)
 enum PurchasesSetup {
-  /// RevenueCat の Public API キー。RevenueCat プロジェクト作成 (#16 公開前チェックリスト) 後に設定する。
-  /// 未設定の間、課金 UI は仮価格の表示のみで購入ボタンは準備中の案内を出す
-  static let apiKey = ""
+  /// RevenueCat の Public API キー。gitignore した ios/Config.local.xcconfig から
+  /// ビルド設定 → Info.plist 経由で注入する (値の入れ方は ios/Config.xcconfig のコメント参照)。
+  /// キーを持たない環境では空文字にフォールバックし、課金 UI は仮価格の表示のみで購入ボタンは準備中の案内を出す
+  static let apiKey = Bundle.main.object(forInfoDictionaryKey: "RevenueCatPublicAPIKey") as? String ?? ""
 
   /// 聞き放題サブスクの entitlement 識別子。backend/functions/src/entitlement.ts と揃える
   static let unlimitedEntitlementID = "unlimited"
 
-  /// 相談チケット (consumable) のストア商品 id。backend/functions/src/entitlement.ts の TICKET_PRODUCT_ID と揃える
-  static let ticketProductID = "igen_ticket_1"
+  /// 相談チケット (consumable) の現行販売中のストア商品 id。backend/functions/src/entitlement.ts の
+  /// TICKET_PRODUCT_IDS (旧 id を含む累計用の配列) の現行 id、fastlane/in_app_purchases/appstore.config.json と揃える
+  static let ticketProductID = "igen_ticket1_160yen"
 
   static var isConfigured: Bool {
     apiKey != ""
