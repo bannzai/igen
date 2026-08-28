@@ -28,7 +28,7 @@ IMAGE="${2:?IMAGE_PATH が必要}"
 POLL_INTERVAL="${POLL_INTERVAL:-4}"
 POLL_MAX_TRIES="${POLL_MAX_TRIES:-8}"
 
-for cmd in jq curl shasum; do
+for cmd in jq curl md5; do
     command -v "$cmd" >/dev/null || { echo "[NG] $cmd が必要" >&2; exit 2; }
 done
 [ -r "$API" ] || { echo "[NG] API ラッパが見つからない: $API" >&2; exit 2; }
@@ -44,9 +44,16 @@ log() { printf '%s\n' "$*" >&2; }
 EXISTING=$(api_allow_404 GET "/v1/subscriptions/$SUBSCRIPTION_ID/appStoreReviewScreenshot")
 EXISTING_ID=$(jq -r '.data.id // empty' <<<"$EXISTING")
 if [ -n "$EXISTING_ID" ]; then
-    log "[OK] 登録済み (id=$EXISTING_ID) → skip。差し替える場合は DELETE /v1/subscriptionAppStoreReviewScreenshots/$EXISTING_ID を先に実行する"
-    printf 'SCREENSHOT_ID=%s\nSTATE=%s\nACTION=noop\n' "$EXISTING_ID" "$(jq -r '.data.attributes.assetDeliveryState.state // "?"' <<<"$EXISTING")"
-    exit 0
+    EXISTING_STATE=$(jq -r '.data.attributes.assetDeliveryState.state // "?"' <<<"$EXISTING")
+    if [ "$EXISTING_STATE" = "COMPLETE" ]; then
+        log "[OK] 登録済み (id=$EXISTING_ID, state=COMPLETE) → skip。差し替える場合は DELETE /v1/subscriptionAppStoreReviewScreenshots/$EXISTING_ID を先に実行する"
+        printf 'SCREENSHOT_ID=%s\nSTATE=%s\nACTION=noop\n' "$EXISTING_ID" "$EXISTING_STATE"
+        exit 0
+    fi
+    # COMPLETE 以外 (FAILED や、アップロード中断で残った AWAITING_UPLOAD 等) は提出に使えない。
+    # Apple の仕様では FAILED 後は新しい reservation が必要なため、削除して作り直すことで再実行を収束させる
+    log "[WARN] 既存スクリーンショットが未完了 (id=$EXISTING_ID, state=$EXISTING_STATE) → 削除して作り直す"
+    api DELETE "/v1/subscriptionAppStoreReviewScreenshots/$EXISTING_ID" >/dev/null
 fi
 
 FILE_SIZE=$(stat -f %z "$IMAGE")
@@ -72,7 +79,8 @@ while IFS= read -r OP; do
     esac
 done < <(jq -c '.data.attributes.uploadOperations[]?' <<<"$RESERVATION_RESP")
 
-api PATCH "/v1/subscriptionAppStoreReviewScreenshots/$SCREENSHOT_ID" "$(jq -nc --arg id "$SCREENSHOT_ID" --arg sum "$(shasum -a 256 "$IMAGE" | awk '{print $1}')" \
+# sourceFileChecksum は Apple のドキュメントどおり MD5 を渡す (SHA-256 でも COMPLETE になった実績はあるが仕様に合わせる)
+api PATCH "/v1/subscriptionAppStoreReviewScreenshots/$SCREENSHOT_ID" "$(jq -nc --arg id "$SCREENSHOT_ID" --arg sum "$(md5 -q "$IMAGE")" \
     '{data:{type:"subscriptionAppStoreReviewScreenshots",id:$id,attributes:{uploaded:true,sourceFileChecksum:$sum}}}')" >/dev/null
 
 FINAL_STATE="?"
