@@ -17,7 +17,7 @@
 # 環境変数 (任意):
 #   ASC_API_SH : JWT 付き API ラッパのパス (既定: appstore-in-app-purchase skill の iap_api.sh)
 # 終了コード:
-#   0 登録済み (作成した・既に存在した) / 1 作成失敗 / 2 前提条件不足
+#   0 登録済み (作成した・既に存在した) / 1 作成失敗、または --dry-run で未登録の差分あり / 2 前提条件不足
 # 設計 WHY:
 #   - Bundle ID は公開 API (POST /v1/bundleIds) で登録できるため JWT 認証で行い、
 #     produce には --skip_devcenter を渡して Web セッションでの Developer Portal 操作を避ける
@@ -52,6 +52,8 @@ APP_NAME=$(jq -r --arg l "$PRIMARY_LOCALE" '.localizations[] | select(.locale ==
 
 api() { bash "$API" "$@"; }
 log() { printf '%s\n' "$*"; }
+# --dry-run で検出した未登録の差分。asc_apply_submission_settings.sh と同様に非ゼロ終了で自動確認に伝える
+DIFF_FOUND=0
 
 # ---- 1. Bundle ID (Developer Portal) ----
 log "== Bundle ID: $BUNDLE_ID"
@@ -61,6 +63,7 @@ if [ -n "$BUNDLE_RECORD_ID" ]; then
     log "[OK] 登録済み (id=$BUNDLE_RECORD_ID)"
 elif [ $DRY_RUN -eq 1 ]; then
     log "[DIFF] 未登録 (--dry-run なしで実行すると登録する)"
+    DIFF_FOUND=1
 else
     BUNDLE_RECORD_ID=$(api POST "/v1/bundleIds" "$(jq -n --arg b "$BUNDLE_ID" --arg n "$PORTAL_NAME" \
         '{data:{type:"bundleIds",attributes:{identifier:$b,name:$n,platform:"IOS"}}}')" | jq -r '.data.id')
@@ -79,6 +82,7 @@ if [ -n "$APP_ID" ]; then
     log "[OK] 作成済み (APP_ID=$APP_ID)"
 elif [ $DRY_RUN -eq 1 ]; then
     log "[DIFF] 未作成 (--dry-run なしで実行すると fastlane produce で作成する)"
+    DIFF_FOUND=1
 else
     for v in FASTLANE_USER FASTLANE_TEAM_ID FASTLANE_ITC_TEAM_ID; do
         [ -n "${!v:-}" ] || { echo "[NG] 環境変数 $v が未設定 (アプリ作成に必要)" >&2; exit 2; }
@@ -101,4 +105,8 @@ else
     log "[OK] 作成した (APP_ID=$APP_ID)"
 fi
 [ -n "$APP_ID" ] && log "APP_ID=$APP_ID"
+if [ $DIFF_FOUND -eq 1 ]; then
+    log "[WARN] dry-run: 未登録の差分あり (--dry-run なしで実行すると登録する)"
+    exit 1
+fi
 exit 0
