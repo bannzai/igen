@@ -1,0 +1,4 @@
+// Config.local.xcconfig の雛形。このファイルをコピーして Config.local.xcconfig を作り、
+// RevenueCat Dashboard の Project Settings > API Keys で取得した iOS 用 public API key を書く。
+// Config.local.xcconfig は gitignore 済みでコミットされない (実値は追跡しない)。
+REVENUECAT_PUBLIC_API_KEY = appl_xxxxxxxxxxxxxxxxxxxxxxxxxxx

@@ -63,6 +63,16 @@ jobs:
             exit 1
           }
 
+      # RevenueCat の public API key は gitignore された ios/Config.local.xcconfig 運用のため checkout に存在しない。
+      # Secret 名は正準名 REVENUECAT_PUBLIC_API_KEY_IOS（env-secret-registry）。登録は
+      # `gh secret set REVENUECAT_PUBLIC_API_KEY_IOS -R bannzai/igen`。
+      # 未登録でも空値のまま生成してビルドは通す（キーが空なら実行時に SDK の初期化をスキップし、課金 UI は準備中表示になる）
+      - name: Config.local.xcconfig を Secrets から生成する
+        env:
+          REVENUECAT_PUBLIC_API_KEY: ${{ secrets.REVENUECAT_PUBLIC_API_KEY_IOS }}
+        run: |
+          printf 'REVENUECAT_PUBLIC_API_KEY = %s\n' "$REVENUECAT_PUBLIC_API_KEY" > ios/Config.local.xcconfig
+
       # runner には署名用の証明書が無いため署名を無効化する（Simulator 向けは署名不要）
       - name: Simulator 用にビルドする
         run: |
