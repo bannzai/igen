@@ -960,6 +960,136 @@
           }
         }
       }
+    },
+    "Next": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "つぎへ"
+          }
+        }
+      }
+    },
+    "Write your first letter": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最初の 1 通を書く"
+          }
+        }
+      }
+    },
+    "A letter from across time, for tonight": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今夜の悩みに、時を越えた返書を"
+          }
+        }
+      }
+    },
+    "Writing is time spent facing yourself. IGEN adds the words of the greats to that time.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書くことは、自分と向き合う時間。偉言は、その時間に偉人のことばを添えます"
+          }
+        }
+      }
+    },
+    "Write, and a great figure appears": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書くと、偉人が現れる"
+          }
+        }
+      }
+    },
+    "Write about your day or your worry": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "きょうのできごと・お悩みを書く"
+          }
+        }
+      }
+    },
+    "A fitting great figure appears in your sky": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ふさわしい偉人が、あなたの空に現れる"
+          }
+        }
+      }
+    },
+    "A letter of reply arrives, with its source": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出典つきの返書が届く"
+          }
+        }
+      }
+    },
+    "Every word has a source": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべてのことばに、出典がある"
+          }
+        }
+      }
+    },
+    "No invented quotes. Each letter tells you the work, the original language, and the era it comes from.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "つくられた名言はありません。返書には作品名・原文の言語・成立年代を添えます"
+          }
+        }
+      }
+    },
+    "Example: the source of a letter from Seneca": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "例: セネカからの返書の出典"
+          }
+        }
+      }
+    },
+    "With every letter, your night sky grows": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相談するたび、夜空に偉人が増えていく"
+          }
+        }
+      }
+    },
+    "One free letter a day. Leave a small reflection each night, and watch your star atlas fill.": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 日 1 通は無料。毎晩の小さな内省が、あなたの星図になっていきます"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
