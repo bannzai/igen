@@ -17,7 +17,8 @@ App Store Connect (ASC) と RevenueCat に対する設定は、リポジトリ�
 
 - ASC API キー: 環境変数 `ASC_API_KEY_ID` / `ASC_API_KEY_ISSUER_ID` / `ASC_API_KEY_P8_BASE64` (JWT 認証。Bundle ID 登録・提出前設定・課金商品に使う)
 - Apple ID の Web セッション: `fastlane spaceauth -u <Apple ID>` で事前に生成する (アプリの作成と App Privacy は公開 API に無く、fastlane spaceship でしか行えない)。`FASTLANE_USER` / `FASTLANE_TEAM_ID` / `FASTLANE_ITC_TEAM_ID` で Apple ID とチームを指定する
-- RevenueCat: 環境変数 `REVENUECAT_PROJECT_CONFIGURATION_API_KEY_V2` (v2 secret key。`project_configuration:{projects,apps,products,entitlements,offerings,packages}` の read_write が必要)
+- RevenueCat (設定用): 環境変数 `REVENUECAT_PROJECT_CONFIGURATION_API_KEY_V2` (v2 secret key。`project_configuration:{projects,apps,products,entitlements,offerings,packages}` の read_write が必要)
+- RevenueCat (backend 実行時): Firebase Secret `REVENUECAT_API_KEY` (v1 secret key。`backend/functions/src/index.ts` が参照し、`entitlement.ts` の Subscriber API `GET /v1/subscribers/{uid}` に使う)。RevenueCat プロジェクトを作り直した時は新プロジェクトの v1 key を `firebase functions:secrets:set REVENUECAT_API_KEY --project igen-prod` で登録し、Functions を再デプロイしないと購入状態を照会できない
 - App Review の連絡先 (氏名・メール・電話) は個人情報のためリポジトリに置かず、`ASC_REVIEW_CONTACT_FIRST_NAME` / `ASC_REVIEW_CONTACT_LAST_NAME` / `ASC_REVIEW_CONTACT_EMAIL` / `ASC_REVIEW_CONTACT_PHONE` の環境変数で `scripts/asc_apply_submission_settings.sh` に渡す
 
 ## 判断の記録
