@@ -1,0 +1,69 @@
+{
+  "$schema": "https://raw.githubusercontent.com/bannzai/castle/main/home/.claude/skills/revenuecat-product-setup/config.schema.json",
+  "comment": "RevenueCat の App / products / entitlement / offering 定義 (issue #48)。~/.claude/skills/revenuecat-product-setup の rc_diff_config.sh / rc_apply_config.sh を --config <このファイル> で実行して冪等に適用する。store_identifier は fastlane/in_app_purchases/appstore.config.json の productId と、entitlement の lookup_key は ios/Igen/Utils/Purchases/PurchasesSetup.swift の unlimitedEntitlementID / backend/functions/src/entitlement.ts の UNLIMITED_ENTITLEMENT_ID と揃える。ペイウォール (ios/Igen/Features/Paywall/PaywallPage.swift) は offering `default` の $rc_monthly パッケージと、store_identifier が PurchasesSetup.ticketProductID に一致するパッケージを使う",
+  "project_id": "PROJECT_ID_PLACEHOLDER",
+  "apps": [
+    {
+      "key": "ios",
+      "type": "app_store",
+      "name": "偉言 (iOS)",
+      "bundle_id": "com.bannzai.Igen"
+    }
+  ],
+  "products": [
+    {
+      "key": "ticket_1",
+      "app": "ios",
+      "store_identifier": "igen_ticket1_160yen",
+      "type": "consumable",
+      "display_name": "相談チケット「ひとしずく」"
+    },
+    {
+      "key": "unlimited_monthly",
+      "app": "ios",
+      "store_identifier": "igen_unlimited_monthly_480yen",
+      "type": "subscription",
+      "display_name": "聞き放題「星読み」(月額)"
+    },
+    {
+      "key": "unlimited_annual",
+      "app": "ios",
+      "store_identifier": "igen_unlimited_annual_3800yen",
+      "type": "subscription",
+      "display_name": "聞き放題「星読み」(年額)"
+    }
+  ],
+  "entitlements": [
+    {
+      "lookup_key": "unlimited",
+      "display_name": "聞き放題「星読み」",
+      "products": ["unlimited_monthly", "unlimited_annual"]
+    }
+  ],
+  "offerings": [
+    {
+      "lookup_key": "default",
+      "display_name": "ペイウォールの標準構成",
+      "packages": [
+        {
+          "lookup_key": "$rc_monthly",
+          "display_name": "聞き放題「星読み」(月額)",
+          "position": 1,
+          "products": [{ "key": "unlimited_monthly", "eligibility_criteria": "all" }]
+        },
+        {
+          "lookup_key": "$rc_annual",
+          "display_name": "聞き放題「星読み」(年額)",
+          "position": 2,
+          "products": [{ "key": "unlimited_annual", "eligibility_criteria": "all" }]
+        },
+        {
+          "lookup_key": "ticket_1",
+          "display_name": "相談チケット「ひとしずく」",
+          "position": 3,
+          "products": [{ "key": "ticket_1", "eligibility_criteria": "all" }]
+        }
+      ]
+    }
+  ]
+}
