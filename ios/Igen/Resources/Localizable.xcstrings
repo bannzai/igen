@@ -961,6 +961,116 @@
         }
       }
     },
+    "Not a chat but one letter addressed to you": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャットではなく一通の返書として届きます"
+          }
+        }
+      }
+    },
+    "A fitting great figure is chosen for what you wrote": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書いた内容にふさわしい偉人が選ばれます"
+          }
+        }
+      }
+    },
+    "Great minds you meet\nbecome constellations": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出会った偉人が\nあなたの星座になる"
+          }
+        }
+      }
+    },
+    "Revisit the letters to\nyour past self anytime": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あの日の自分への\n返書をいつでも"
+          }
+        }
+      }
+    },
+    "Look back on the words you received day by day": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日付ごとにもらった言葉を振り返れます"
+          }
+        }
+      }
+    },
+    "Share the quote\nas a card": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "格言だけを\nカードにしてシェア"
+          }
+        }
+      }
+    },
+    "Write a worry and\na great mind replies": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "悩みを書くと\n偉人から返書が届く"
+          }
+        }
+      }
+    },
+    "Write about your day\nor what troubles you": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書くのはきょうの\nできごとと悩みだけ"
+          }
+        }
+      }
+    },
+    "Real sources\nfor every quote": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべての格言に\n原文と出典"
+          }
+        }
+      }
+    },
+    "Original text and source with every quote": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出どころのはっきりした言葉だけを届けます"
+          }
+        }
+      }
+    },
+    "Your sky grows with each new great mind": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい偉人と出会うたび夜空がにぎやかになる"
+          }
+        }
+      }
+    },
     "Next": {
       "localizations": {
         "ja": {
