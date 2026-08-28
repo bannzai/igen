@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  TICKET_PRODUCT_ID,
+  TICKET_PRODUCT_IDS,
   UNLIMITED_ENTITLEMENT_ID,
   createNoEntitlementChecker,
   createRevenueCatEntitlementChecker,
@@ -74,13 +74,36 @@ describe("createRevenueCatEntitlementChecker", () => {
   it("Sandbox のチケット購入 (App Review・TestFlight) も枚数に数える", async () => {
     stubSubscriberResponse({
       non_subscriptions: {
-        [TICKET_PRODUCT_ID]: [{ is_sandbox: true }, { is_sandbox: false }],
+        [TICKET_PRODUCT_IDS[0]]: [{ is_sandbox: true }, { is_sandbox: false }],
       },
     });
     const checker = createRevenueCatEntitlementChecker({ apiKey: "test-key" });
     expect(await checker("uid")).toEqual({
       unlimited: false,
       ticketsPurchased: 2,
+    });
+  });
+
+  // 価格改定で productId を作り直しても、旧 id の購入がチケット累計から落ちないことを保証する
+  it("TICKET_PRODUCT_IDS の全 id の購入を合算し、対象外の商品は数えない", async () => {
+    const nonSubscriptions: Record<string, unknown[]> = {
+      // TICKET_PRODUCT_IDS に無い商品 (サブスク以外の別商品) は数えない
+      igen_not_a_ticket: [{}, {}, {}],
+    };
+    // id ごとに購入数を変えて、1 つの id だけを見ていないことを検証する
+    TICKET_PRODUCT_IDS.forEach((productId, index) => {
+      nonSubscriptions[productId] = Array.from(
+        { length: index + 1 },
+        () => ({}),
+      );
+    });
+    stubSubscriberResponse({ non_subscriptions: nonSubscriptions });
+    const checker = createRevenueCatEntitlementChecker({ apiKey: "test-key" });
+    const expectedTickets =
+      (TICKET_PRODUCT_IDS.length * (TICKET_PRODUCT_IDS.length + 1)) / 2;
+    expect(await checker("uid")).toEqual({
+      unlimited: false,
+      ticketsPurchased: expectedTickets,
     });
   });
 

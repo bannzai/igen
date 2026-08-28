@@ -4,8 +4,12 @@
 // RevenueCat の entitlement 識別子。RevenueCat プロジェクト設定 (#16 公開前チェックリスト) と揃える
 export const UNLIMITED_ENTITLEMENT_ID = "unlimited";
 
-// 相談チケット (consumable) のストア商品 id。ASC の IAP 登録 (fastlane/in_app_purchases/appstore.config.json) と揃える
-export const TICKET_PRODUCT_ID = "igen_ticket1_160yen";
+// 相談チケット (consumable) のストア商品 id。ASC の IAP 登録 (fastlane/in_app_purchases/appstore.config.json) と揃える。
+// 識別子は作成後に変更できず、価格改定時は命名規則 (documents/app-store-connect.md「判断の記録」) に従い
+// 価格を含む新しい id で商品を作り直すため、購入の累計は複数 id にまたがる。
+// users/{uid}.ticketsUsed は商品を跨いだ累計で、旧 id で買った未使用チケットを失わないよう、
+// 販売を終了した旧 id もこの配列に残し続ける
+export const TICKET_PRODUCT_IDS = ["igen_ticket1_160yen"];
 
 /** uid の購入状態。unlimited はサブスク、ticketsPurchased は購入済みチケットの累計 */
 export interface Entitlement {
@@ -76,9 +80,12 @@ export function createRevenueCatEntitlementChecker(options: {
           new Date(entitlement.grace_period_expires_date) > now));
     return {
       unlimited,
-      ticketsPurchased: (
-        body.subscriber?.non_subscriptions?.[TICKET_PRODUCT_ID] ?? []
-      ).length,
+      ticketsPurchased: TICKET_PRODUCT_IDS.reduce(
+        (total, productId) =>
+          total +
+          (body.subscriber?.non_subscriptions?.[productId] ?? []).length,
+        0,
+      ),
     };
   };
 }

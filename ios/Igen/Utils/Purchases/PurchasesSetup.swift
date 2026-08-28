@@ -12,8 +12,8 @@ enum PurchasesSetup {
   /// 聞き放題サブスクの entitlement 識別子。backend/functions/src/entitlement.ts と揃える
   static let unlimitedEntitlementID = "unlimited"
 
-  /// 相談チケット (consumable) のストア商品 id。backend/functions/src/entitlement.ts の TICKET_PRODUCT_ID、
-  /// fastlane/in_app_purchases/appstore.config.json と揃える
+  /// 相談チケット (consumable) の現行販売中のストア商品 id。backend/functions/src/entitlement.ts の
+  /// TICKET_PRODUCT_IDS (旧 id を含む累計用の配列) の現行 id、fastlane/in_app_purchases/appstore.config.json と揃える
   static let ticketProductID = "igen_ticket1_160yen"
 
   static var isConfigured: Bool {
