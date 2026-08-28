@@ -1,0 +1,110 @@
+# iOS Simulator セッションを張る caller workflow。実体は bannzai/simtunnel の session.yml（reusable workflow）。
+# 参照: https://github.com/bannzai/simtunnel の PROJECT.md「各アプリ repo での実行」
+# 前提: この repo が public であること（macOS Runner は public repo で無料。private は消費分数 10 倍のため手動起動しない）。
+# 起動はローカルの simtunnel CLI から行う（この worktree で `~/ghq/github.com/bannzai/simtunnel/local/simtunnel up <session> --wait`）。
+name: simulator-session
+# run-name は local/simtunnel CLI が run を特定するキーのためこの形式を維持する
+run-name: "session=${{ inputs.session }} device=${{ inputs.device }}"
+
+on:
+  workflow_dispatch: # fork PR に Secrets を渡さないため workflow_dispatch のみ
+    # session / device / duration_minutes は local/simtunnel の up が常に送るため宣言必須
+    # （未定義の input を送ると dispatch が拒否される）
+    inputs:
+      session:
+        description: "セッション名。tailnet ホスト名 simtunnel-<session> になる（小文字英数字とハイフンのみ）"
+        required: true
+        default: igen
+      device:
+        description: "Simulator のデバイス名"
+        required: true
+        default: iPhone 17
+      duration_minutes:
+        description: "セッション維持時間（分）"
+        required: true
+        default: "60"
+      configuration:
+        description: "アプリのビルド configuration。Debug は Firebase Emulator (127.0.0.1) に向くため runner 上では通信できない (ios/Igen/Utils/Firebase/FirebaseSetup.swift の usesEmulator 参照)。既定の Release は本番 igen-prod に向く"
+        required: false
+        default: Release
+      serve_sim:
+        description: "serve-sim (ブラウザ preview) を起動する。runner のメモリに余裕を持たせたい時は false"
+        required: false
+        default: "true"
+
+jobs:
+  # Simulator 用の .app をビルドして artifact に上げる。
+  # session.yml の build_project 入力（runner 上で xcodebuild 直叩き）を使わないのは、
+  # LicenseList の build tool plugin に -skipPackagePluginValidation が必要で（Makefile 参照）、同入力ではフラグを渡せないため
+  build:
+    runs-on: macos-26
+    timeout-minutes: 30
+    permissions:
+      contents: read # checkout のみ。OIDC token (id-token) は session job だけに与える
+    env:
+      CONFIGURATION: ${{ inputs.configuration }}
+    steps:
+      # simtunnel 経路の workflow は uses を commit SHA で固定する（simtunnel PROJECT.md「リポジトリ公開に耐える安全性」）
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      # GoogleService-Info.plist を git 管理から外した場合の復元経路。Secrets 未登録なら commit 済みのファイルをそのまま使う。
+      # 登録する時は `base64 -i ios/Igen/GoogleService-Info.plist | gh secret set GOOGLE_SERVICE_INFO_PLIST_BASE64 -R bannzai/igen`
+      - name: GoogleService-Info.plist を Secrets から復元する（登録時のみ）
+        env:
+          PLIST_BASE64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+        run: |
+          if [ -n "$PLIST_BASE64" ]; then
+            printf '%s' "$PLIST_BASE64" | base64 -d > ios/Igen/GoogleService-Info.plist
+          fi
+          [ -f ios/Igen/GoogleService-Info.plist ] || {
+            echo "ios/Igen/GoogleService-Info.plist が無い。commit するか Secrets GOOGLE_SERVICE_INFO_PLIST_BASE64 を登録する" >&2
+            exit 1
+          }
+
+      # runner には署名用の証明書が無いため署名を無効化する（Simulator 向けは署名不要）
+      - name: Simulator 用にビルドする
+        run: |
+          mkdir -p tmp
+          xcodebuild build \
+            -project ios/Igen.xcodeproj \
+            -scheme Igen \
+            -configuration "$CONFIGURATION" \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath tmp/DerivedData \
+            -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            > tmp/simulator-build.log 2>&1 || {
+            echo "ビルドに失敗。ログ末尾:" >&2
+            tail -n 150 tmp/simulator-build.log >&2
+            exit 1
+          }
+          # .app だけを artifact に載せる（Products 直下には中間生成物も並ぶため）
+          mkdir -p tmp/simulator-app
+          cp -R "tmp/DerivedData/Build/Products/${CONFIGURATION}-iphonesimulator/Igen.app" tmp/simulator-app/
+
+      # upload-artifact は実行権限を保持しない（全ファイル 644 になる）が、session.yml 側の
+      # runner/install-artifact-app.sh が install 前に各バンドルの CFBundleExecutable へ実行権限を復元するため tar 化は不要
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: simulator-app
+          path: tmp/simulator-app # .app の親ディレクトリ（.app 直指定は中身が flatten される）
+
+  session:
+    needs: build
+    # id-token: write が必要なのは reusable workflow を呼ぶこの job だけのため、job 単位で最小権限にする
+    permissions:
+      id-token: write # Tailscale の OIDC (workload identity federation) 認証に必要
+      contents: read
+    # タグ運用はしないため commit SHA で固定する（更新時は SHA を書き換える）
+    uses: bannzai/simtunnel/.github/workflows/session.yml@c4013f4b664de1e4373b2aca6afc48584e759344 # main 2026-08-26
+    with:
+      session: ${{ inputs.session }}
+      device: ${{ inputs.device }}
+      duration_minutes: ${{ inputs.duration_minutes }}
+      serve_sim: ${{ inputs.serve_sim }}
+      app_artifact: simulator-app
+    secrets:
+      TS_OIDC_CLIENT_ID: ${{ secrets.TS_OIDC_CLIENT_ID }}
+      TS_OIDC_AUDIENCE: ${{ secrets.TS_OIDC_AUDIENCE }}
