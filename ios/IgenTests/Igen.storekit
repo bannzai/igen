@@ -1,0 +1,146 @@
+{
+  "appPolicies": {
+    "eula": "",
+    "policies": [
+      {
+        "locale": "ja_JP",
+        "policyText": "",
+        "policyURL": ""
+      }
+    ]
+  },
+  "identifier": "A1B2C3D4",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "160",
+      "familyShareable": false,
+      "internalID": "C1000001",
+      "localizations": [
+        {
+          "description": "今夜だけ、もう一通。返書を1通追加でお届けします",
+          "displayName": "相談チケット「ひとしずく」",
+          "locale": "ja_JP"
+        }
+      ],
+      "productID": "igen_ticket1_160yen",
+      "referenceName": "Letter Ticket x1",
+      "type": "Consumable"
+    }
+  ],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "ja_JP",
+    "_storefront": "JPN",
+    "_storeKitErrors": [
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Load Products"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Purchase"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Verification"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "App Store Sync"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Subscription Status"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "App Transaction"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Manage Subscriptions Sheet"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Refund Request Sheet"
+      },
+      {
+        "current": null,
+        "enabled": false,
+        "name": "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups": [
+    {
+      "id": "B1000001",
+      "localizations": [
+        {
+          "description": "星読み",
+          "displayName": "星読み",
+          "locale": "ja_JP"
+        }
+      ],
+      "name": "Hoshiyomi",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "480",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "S1000001",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "返書が無制限に。1日1通の枠を気にせず話せます",
+              "displayName": "聞き放題「星読み」(月額)",
+              "locale": "ja_JP"
+            }
+          ],
+          "productID": "igen_unlimited_monthly_480yen",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "igen_unlimited_monthly_480yen",
+          "subscriptionGroupID": "B1000001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "3800",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "S1000002",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "返書が無制限に。年払いでお得に使えます",
+              "displayName": "聞き放題「星読み」(年額)",
+              "locale": "ja_JP"
+            }
+          ],
+          "productID": "igen_unlimited_annual_3800yen",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "igen_unlimited_annual_3800yen",
+          "subscriptionGroupID": "B1000001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 4,
+    "minor": 0
+  }
+}
