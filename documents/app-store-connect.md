@@ -11,7 +11,7 @@ App Store Connect (ASC) と RevenueCat に対する設定は、リポジトリ�
 | 自動更新サブスクリプション | 同ファイルの `subscriptionGroups[]` | `bash ~/.claude/skills/appstore-in-app-purchase/scripts/iap_apply_subscriptions.sh --config fastlane/in_app_purchases/appstore.config.json`。全テリトリー価格は `iap_expand_subscription_prices.sh <SUBSCRIPTION_ID> JPN <価格>` で展開する |
 | 課金商品の App Review 用スクリーンショット (READY_TO_SUBMIT に必要) | ペイウォールのスクリーンショット (simtunnel で撮影) | consumable は同 skill の `iap_upload_review_screenshot.sh <IAP_ID> <画像>`、サブスクリプションは `bash scripts/asc_upload_subscription_review_screenshot.sh <SUBSCRIPTION_ID> <画像>` |
 | RevenueCat の App・products・entitlement・offering | `fastlane/in_app_purchases/revenuecat.config.json` | `bash ~/.claude/skills/revenuecat-product-setup/scripts/rc_diff_config.sh fastlane/in_app_purchases/revenuecat.config.json` で差分確認 → `rc_apply_config.sh <同じパス>` で適用 (config はパス引数で渡す) |
-| 課金の CLI 検証 (StoreKit Configuration) | `ios/IgenTests/Igen.storekit` (商品 ID・価格は appstore.config.json と一致させる) | `xcodebuild test ... -only-testing:IgenTests/StoreKitConfigurationTests` (iOS 26.2 以下の simulator で実行する) |
+| 課金の CLI 検証 (StoreKit Configuration) | `ios/IgenTests/Igen.storekit` (商品 ID・価格は appstore.config.json と一致させる) | 商品解決・購入・entitlement: `xcodebuild test ... -only-testing:IgenTests/StoreKitConfigurationTests`。ペイウォールの価格表示 (実 RevenueCat の offerings + Igen スキームの StoreKit Configuration): `xcodebuild test -project ios/Igen.xcodeproj -scheme Igen -destination 'platform=iOS Simulator,name=<iOS 26.2 以下の simulator>' -skipPackagePluginValidation -only-testing:IgenUITests/PaywallPriceUITests` (`ios/Config.local.xcconfig` に public key が必要。simctl launch には StoreKit Configuration を渡せないため simtunnel では価格が解決されない) |
 
 ## 認証情報
 
