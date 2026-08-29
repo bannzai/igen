@@ -29,7 +29,7 @@ last_verified_at: null
   - 自動化: manual（レイアウトの目視確認が必要）
 - [ ] **価格の表示**: RevenueCat の offerings から取得した価格が各プランに表示される（取得できない時は「Prices could not be loaded. Tap to retry.」が出て再試行できる）
   - 自動化: manual（RevenueCat の public API key は gitignore した `ios/Config.local.xcconfig` 経由で注入する。simtunnel の runner では Secrets `REVENUECAT_PUBLIC_API_KEY_IOS` から生成され、未登録なら空値になり「準備中」表示になる）
-  - ❌ 失敗: US ストアフロントの端末で、サブスクは RevenueCat 由来の `$2.99 / 月`（USD）なのに、チケットは `¥160 / 1通`（JPY）と表示され、同じストアフロントの 2 商品で通貨が食い違う。この `¥160 / 1通` は `ios/Igen/Features/Paywall/Components/PaywallTicketPlanCard.swift` が `package?.storeProduct.localizedPriceString` を取得できない時に出す `Text(verbatim: "¥160 / 1通")` の仮価格と完全に一致する。サブスクが同じストアフロントから USD を取得できている以上、チケットの package が取れていれば USD になるはずで、チケットの package が offering から取得できていないことを示す。仕様では取得できない時は「価格を読み込めませんでした。タップして再試行できます。」を出して再試行できるはずだが、チケットはエラー表示にならず実際の請求額と異なる通貨の価格が黙って表示される。再現手順: ホームの「聞き放題プランをみる」でペイウォールを開く（相談の送信は不要）。RevenueCat の offering 設定（チケットの現行商品 ID は `igen_ticket1_160yen`）との照合が必要。issue: 未起票
+  - ❌ 失敗: US ストアフロントの端末で、サブスクは RevenueCat 由来の `$2.99 / 月`（USD）なのに、チケットは `¥160 / 1通`（JPY）と表示され、同じストアフロントの 2 商品で通貨が食い違う。この `¥160 / 1通` は `ios/Igen/Features/Paywall/Components/PaywallTicketPlanCard.swift` が `package?.storeProduct.localizedPriceString` を取得できない時に出す `Text(verbatim: "¥160 / 1通")` の仮価格と完全に一致する。サブスクが同じストアフロントから USD を取得できている以上、チケットの package が取れていれば USD になるはずで、チケットの package が offering から取得できていないことを示す。仕様では取得できない時は「価格を読み込めませんでした。タップして再試行できます。」を出して再試行できるはずだが、チケットはエラー表示にならず実際の請求額と異なる通貨の価格が黙って表示される。再現手順: ホームの「聞き放題プランをみる」でペイウォールを開く（相談の送信は不要）。RevenueCat の offering 設定（チケットの現行商品 ID は `igen_ticket1_160yen`）との照合が必要。issue: https://github.com/bannzai/igen/issues/59
 - [ ] **閉じる**: 右上の × でシートが閉じてホームに戻る
   - 自動化: manual（遷移の目視確認が必要）
 
@@ -66,6 +66,7 @@ last_verified_at: null
 
 - [ ] **無料枠超過でペイウォールが自動表示**: 同じ匿名ユーザーで同日 2 通目の相談を送信すると、返書ではなくペイウォールのシートが自動で開く（HTTP 429）
   - 自動化: manual（1 通目の送信後に 2 通目を送る手順と目視確認が必要）
+  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
 
 #### 動作確認
 <details>

@@ -78,6 +78,10 @@ curl -s -X POST "http://simtunnel-<session>:8100/session" -H 'Content-Type: appl
 
 （run-qa が実行中の flaky・落とし穴の知見を蓄積する。運用ルールは ~/.claude/skills/setup-qa/references/qa-md-format.md を参照）
 
+### runner の Simulator が外部の名前解決をできなくなることがある
+
+発見日: 2026-08-29。事象: セッション途中から Simulator の全 HTTP 通信が失敗し、相談の送信が約 300 秒後に「The letter could not be delivered. Please try again later.」になった。Safari で `bannzai.github.io`（同じセッションで直前に開けていた）も「Safari can't open the page because the server can't be found.」になり、cloudfunctions.net 固有ではなく DNS 全体の障害と判明（ローカル macOS からは同じホストを解決できる）。WDA 自体は生存しており `status` / `elements` には応答する。対処: セッションを立て直す（`simtunnel up <session> --force`）。アプリ側の不具合と誤判定しないよう、送信が失敗したらまず Simulator の Safari で任意の外部サイトを開いて切り分ける。
+
 ### simtunnel で端末の優先言語を変えるとセッションが落ちる
 
 発見日: 2026-08-29。事象: 設定アプリ > General > Language & Region > Add Language… で日本語を追加した直後、WDA (:8100) が 3 回連続でヘルスチェックに応答せず、workflow の watchdog がセッションを終了した（run 33239337299 が failure）。対処: 端末の優先言語は変更せず、「動作確認手段 > 再現が難しい操作の手順」の `-AppleLanguages` 起動引数でアプリだけ言語を変える。なおセッションが落ちなかったとしても、優先言語への「追加」では日本語 UI にはならない（判定は `ios/Igen/Shared/AppLanguage.swift` の `Bundle.main.preferredLocalizations.first == "ja"` のみで、日本語を 2 番目に足しても `en` のまま）。

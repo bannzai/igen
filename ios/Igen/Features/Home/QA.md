@@ -57,12 +57,13 @@ last_verified_at: null
 
 - [ ] **送信して返書画面へ遷移**: 相談本文を入力して「Ask the Greats」を押すと、キーボードが閉じて待機表示「The stars are searching for words…」が出て、返書画面（Reply）へ遷移する
   - 自動化: manual（返書は LLM の生成結果で内容が毎回変わる。本番では無料枠 1 通を消費する）
+  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
 - [ ] **待機表示の重なりなし**: 待機中に入力カード・ボタンが待機表示と重なって見えない（issue #36 の再発防止）
   - 自動化: manual（待機中のスクリーンショットの目視確認が必要）
 - [ ] **文字数上限の警告**: 2,000 字（UTF-16）を超える本文を入力すると警告「Please keep it within 2,000 characters (now N)」が表示され、「Ask the Greats」が無効になる
   - 自動化: manual（長文の入力と目視確認が必要）
-- [ ] **送信失敗のアラート**: サーバーに到達できない状態で送信すると、保存済み結果の照会（最長 300 秒）の後にアラート「The letter could not be delivered. Please try again later.」が出る
-  - 自動化: todo
+- [ ] **送信失敗のアラート**: サーバーに到達できない状態で送信すると、保存済み結果の照会（最長 300 秒）の後にアラート「The letter could not be delivered. Please try again later.」が出て、「OK」で閉じると入力本文が保持されたままホームに戻る
+  - 自動化: manual（サーバーに到達できない状態を作る必要がある。2026-08-29 の QA では runner の Simulator が名前解決できない状態で意図せず再現できた）
 
 #### 動作確認
 <details>
@@ -89,7 +90,7 @@ last_verified_at: null
 （未実行）
 </details>
 
-### **送信失敗のアラート**: サーバーに到達できない状態で送信すると、保存済み結果の照会（最長 300 秒）の後にアラート「The letter could not be delivered. Please try again later.」が出る
+### **送信失敗のアラート**: サーバーに到達できない状態で送信すると、保存済み結果の照会（最長 300 秒）の後にアラート「The letter could not be delivered. Please try again later.」が出て、「OK」で閉じると入力本文が保持されたままホームに戻る
 
 <details><summary>動作確認スクショ</summary>
 
