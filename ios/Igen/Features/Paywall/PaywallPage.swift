@@ -15,7 +15,7 @@ struct PaywallPage: View {
   @State var licensesSheetIsPresented = false
 
   /// チケット (consumable) のパッケージ。offering に別の custom package があっても
-  /// バックエンドが数えるストア商品 ID (igen_ticket_1) と一致するものだけを選ぶ
+  /// バックエンドが数えるストア商品 ID (PurchasesSetup.ticketProductID) と一致するものだけを選ぶ
   private var ticketPackage: Package? {
     offerings?.current?.availablePackages.first(where: {
       $0.storeProduct.productIdentifier == PurchasesSetup.ticketProductID

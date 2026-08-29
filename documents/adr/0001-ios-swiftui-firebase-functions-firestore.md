@@ -48,7 +48,7 @@ Accepted
   - Emulator Suite によりバックエンドのテストがローカル完結する
 - 悪い点・トレードオフ
   - 匿名認証の UID は Keychain に保存される。機種変更が iOS の端末間転送・暗号化バックアップからの復元で行われる場合は Keychain ごと UID が引き継がれ相談履歴も維持されるが、それ以外の移行やアプリ削除では UID が失われる。この場合、購入の復元は RevenueCat のレシート同期で救えるが、相談履歴は失われる。Context の「機種変更で消えないクラウド同期」は上記の範囲で満たすものとし、全ケースで確実な引き継ぎは Sign in with Apple によるアカウントリンク（フェーズ 2）で対応する（オーナー決定のスコープ判断。Shipaton 締切を優先）
-  - 匿名認証はサインアウト・再認証で新しい UID を取得できるため、UID 単位の無料枠（1 日 1 通）は再発行で回避されうる。LLM 費用の濫用対策として、公開前に Firebase App Check の導入と Functions 側のレート制限を行う（公開前チェックリスト issue #16 で管理）
+  - 匿名認証はサインアウト・再認証で新しい UID を取得できるため、UID 単位の無料枠（1 日 1 通）は再発行で回避されうる。LLM 費用の濫用対策として、Firebase App Check（iOS は App Attest、DEBUG ビルド・シミュレータは Debug provider）と、Functions 側の IP 単位のレート制限（`backend/functions/src/rateLimit.ts`。カウンタは Firestore の `rateLimits` コレクション）を導入した（issue #43）。App Check の検証は監視モード（検証結果をログに残すだけ）から始め、正当なリクエストが検証を通ることを確認してから環境変数 `IGEN_APP_CHECK_ENFORCEMENT=enforce` で未検証リクエストの拒否に切り替える。Emulator（demo-igen）は App Check トークンを発行できないため、ローカル開発では App Check を設定せず、監視モードの Functions がヘッダ無しとして記録する
   - 書き込みを Functions 経由に限定するため、オフライン時は相談を送信できない（返書生成が LLM 依存である以上、元々オフラインでは成立しない）
   - gen2 関数はコールドスタートがあり初回リクエストのレイテンシが大きい（返書生成の演出時間で吸収する）
   - Firebase プロジェクトの新規作成・課金アカウントのリンクはオーナーの承認を得てから行う（~/.claude/rules/confirm-before-cloud-project-creation.md）

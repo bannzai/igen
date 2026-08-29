@@ -132,14 +132,54 @@ struct IgenAPITests {
   }
 
   @Test
-  func throwsFreeQuotaExceededOn429() {
+  func throwsFreeQuotaExceededOn429WithoutErrorCode() {
     do {
       _ = try IgenAPI.parseLetterResponse((statusCode: 429, data: Data()))
       Issue.record("expected freeQuotaExceeded to be thrown")
     } catch IgenAPI.APIError.freeQuotaExceeded {
-      // 期待どおり (429 はペイウォール誘導に使うため、専用エラーであることまで検証する)
+      // 期待どおり (エラーコードを読めない応答は従来どおりペイウォール誘導に倒す)
     } catch {
       Issue.record("expected freeQuotaExceeded but got \(error)")
+    }
+  }
+
+  @Test
+  func throwsFreeQuotaExceededOn429WithFreeQuotaExceededCode() {
+    do {
+      _ = try IgenAPI.parseLetterResponse(
+        (
+          statusCode: 429,
+          data: Data(
+            #"{"error": {"code": "free_quota_exceeded", "message": "free letters for today are used up"}}"#
+              .utf8
+          )
+        )
+      )
+      Issue.record("expected freeQuotaExceeded to be thrown")
+    } catch IgenAPI.APIError.freeQuotaExceeded {
+      // 期待どおり (無料枠切れはペイウォール誘導に使うため、専用エラーであることまで検証する)
+    } catch {
+      Issue.record("expected freeQuotaExceeded but got \(error)")
+    }
+  }
+
+  @Test
+  func throwsRateLimitedOn429WithRateLimitedCode() {
+    do {
+      _ = try IgenAPI.parseLetterResponse(
+        (
+          statusCode: 429,
+          data: Data(
+            #"{"error": {"code": "rate_limited", "message": "too many letters from this network, try again later"}}"#
+              .utf8
+          )
+        )
+      )
+      Issue.record("expected rateLimited to be thrown")
+    } catch IgenAPI.APIError.rateLimited {
+      // 期待どおり (レート制限は購入で解除されないためペイウォールへ誘導しない)
+    } catch {
+      Issue.record("expected rateLimited but got \(error)")
     }
   }
 

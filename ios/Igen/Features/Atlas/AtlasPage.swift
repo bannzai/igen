@@ -83,7 +83,7 @@ struct AtlasPage: View {
 }
 
 /// 取得済みの出会い一覧から星図 (星座の配置・件数) を表示する
-private struct AtlasPageBody: View {
+struct AtlasPageBody: View {
   var encounters: [Encounter]
   var newlyMetPersonIds: Set<String>
   // 表示済みの永続化は UserDefaults のキーを持つ AtlasPage の責務のため、演出完了の通知だけを返す

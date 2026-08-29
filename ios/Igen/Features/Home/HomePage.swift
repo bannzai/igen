@@ -16,6 +16,11 @@ struct HomePage: View {
   @State var safetyNoticeIsPresented = false
   @State var archiveIsPresented = false
   @State var atlasIsPresented = false
+  #if DEBUG
+    @State var debugMenuIsPresented = false
+  #endif
+  // 初回起動のオンボーディングを表示済みか。既定の false は未インストール状態 (= 未表示) を表す
+  @AppStorage("onboardingCompleted") var onboardingCompleted = false
   // キーボードは待機オーバーレイより上のウィンドウに表示されるため、送信開始時に明示的に閉じる
   @FocusState var draftIsFocused: Bool
 
@@ -34,6 +39,24 @@ struct HomePage: View {
               .shadow(color: Color(red: 232 / 255, green: 201 / 255, blue: 122 / 255).opacity(0.45), radius: 16)
 
             Spacer()
+
+            #if DEBUG
+              // 開発者メニューへの入口。DEBUG ビルド限定のためデザイン (余計なナビなし) の例外にする
+              Button {
+                debugMenuIsPresented = true
+              } label: {
+                Text(verbatim: "Dev")
+                  .font(.system(size: 11))
+                  .foregroundStyle(Color.igenTextGold)
+                  .padding(.vertical, 7)
+                  .padding(.horizontal, 13)
+                  .background(Capsule().fill(Color.igenCard.opacity(0.55)))
+                  .overlay(Capsule().stroke(Color.igenGold.opacity(0.32), lineWidth: 1))
+                  .frame(minHeight: 44)
+                  .contentShape(Rectangle())
+              }
+              .accessibilityIdentifier("debug_menu_button")
+            #endif
 
             Button {
               Analytics.logEvent("home_atlas_button_pressed", parameters: nil)
@@ -167,6 +190,24 @@ struct HomePage: View {
       .navigationDestination(isPresented: $atlasIsPresented) {
         AtlasPage()
       }
+      #if DEBUG
+        .navigationDestination(isPresented: $debugMenuIsPresented) {
+          DebugMenuPage()
+        }
+      #endif
+      // 未表示の間だけ表示し、閉じられた (完了・スキップ) 時点で表示済みとして永続化する
+      .fullScreenCover(
+        isPresented: Binding(
+          get: { !onboardingCompleted },
+          set: { presented in
+            if !presented {
+              onboardingCompleted = true
+            }
+          }
+        )
+      ) {
+        OnboardingPage()
+      }
       // ja: 返書をお届けできませんでした しばらくしてからもう一度お試しください
       .alert("The letter could not be delivered. Please try again later.", isPresented: $sendErrorAlertIsPresented) {}
       .sheet(isPresented: $paywallSheetIsPresented) {
@@ -246,6 +287,9 @@ struct HomePage: View {
     } catch IgenAPI.APIError.freeQuotaExceeded {
       // 無料枠超過はペイウォールへ誘導する (チケット購入 or サブスク訴求)
       paywallSheetIsPresented = true
+    } catch IgenAPI.APIError.rateLimited {
+      // レート制限は時間経過でしか解除されないため、購入導線には流さず再試行を促す汎用エラー表示にする
+      sendErrorAlertIsPresented = true
     } catch {
       // 実機での障害切り分け (通信断・HTTP エラー・デコード失敗の区別) をログでできるようにする。
       // エラーには相談本文が含まれないため public で記録する (既定の private では実機ログで読めない)
