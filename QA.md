@@ -69,7 +69,7 @@ curl -s -X POST "http://simtunnel-<session>:8100/session/$SID/wda/apps/launch" \
 ```
 
 英語に戻すときは `("en")` / `en_US` を渡すか、引数なしで `launch` し直す。実機・ローカル Simulator では設定アプリ > Apps > Dear Socrates（偉言）> Language でも切り替えられる（`documents/app-review-notes.md`）。ただし runner の既定状態では設定アプリにこの Language 行が出ず、出すための優先言語の追加は simtunnel のセッションを落とす（下記「実行ナレッジ」参照）
-- 相談窓口の地域分岐: 窓口は端末の「言語」ではなく「地域」で選ぶ（`ios/Igen/Features/Safety/SafetyPage.swift`）。JP の窓口を見るには設定アプリ > General > Language & Region > Region を Japan にする。runner の既定は US
+- 相談窓口の地域分岐: 窓口は端末の「言語」ではなく「地域」で選ぶ（`ios/Igen/Features/Safety/SafetyPage.swift` が `Locale.autoupdatingCurrent.region` で分岐する）。runner の既定は US なので 988 Suicide & Crisis Lifeline が出る。**JP の窓口（いのちの電話・よりそいホットライン・まもろうよ こころ）を見るための Region 変更は、simtunnel では行わない**（設定アプリでの Region 変更も優先言語の変更と同じく SpringBoard のリロードを伴い、WDA が落ちてセッションが終了する恐れがある。上記の言語切り替えと同じ理由）。JP の窓口は実機・ローカル Simulator で確認する
 - 危機ワードの再現（本番）: 相談本文に `backend/functions/src/crisis.ts` のキーワード（例: `want to die` / `死にたい`）を含めて送信する。キーワード判定は LLM 呼び出し・無料枠消費の前に行われるため費用も無料枠も消費しない
 - 無料枠超過の再現（本番）: 同じ匿名ユーザーで同日 2 通目を送信すると HTTP 429 でペイウォールが自動表示される（LLM は呼ばれない）
 - 返書の登場演出の再表示: UserDefaults `ritualCount` を消す（アプリ削除）。星図の「新しい星座が灯る」演出の再表示: UserDefaults `atlasSeenPersonIds.<uid>` を消す（アプリ削除）
