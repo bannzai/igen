@@ -1,8 +1,8 @@
 ---
 feature: _root
 verification: mobile-mcp
-last_verified_commit: null
-last_verified_at: null
+last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
+last_verified_at: 2026-08-29
 ---
 
 # QA 全体ガイド
@@ -78,6 +78,12 @@ curl -s -X POST "http://simtunnel-<session>:8100/session" -H 'Content-Type: appl
 
 （run-qa が実行中の flaky・落とし穴の知見を蓄積する。運用ルールは ~/.claude/skills/setup-qa/references/qa-md-format.md を参照）
 
+### simtunnel の Simulator では App Check のデバッグトークンを載せないと送信が 401 になる
+
+発見日: 2026-08-29。事象: 新しいセッションの新規インストール直後に相談を送ると、待機表示すら出ずに数秒で「The letter could not be delivered. Please try again later.」になった。ネットワークは生きており（ペイウォールに RevenueCat 由来の `$2.99 / month` が出る）、Cloud Logging では `POST /api/letters` が 401 を返している（`gcloud logging read --project igen-prod` の httpRequest。クライアントは 401 でトークンを強制更新して 1 回だけ再送するため 1 回の送信につき 401 が 2 件並ぶ）。デプロイ済みの Cloud Run サービス `api` に `IGEN_APP_CHECK_ENFORCEMENT` が設定されておらず、`backend/functions/src/appCheck.ts` の既定で `enforce` になるため、App Check トークンが無い・未登録のリクエストは 401 `app_check_failed` で弾かれる。runner の Simulator は `AppCheckDebugProviderFactory` になり、デバッグトークンはインストールごとに変わるため、セッションを作り直すたびに未登録の状態になる。
+
+対処: CLAUDE.md「実装したUIの検証」の 4 のとおり、`FIRAAppCheckDebugToken` を環境変数に載せてアプリを起動し直す。`tmp/qa/launch-appcheck.sh <session>` がこれを行う（`~/.config/igen/appcheck-debug-token-simtunnel.secret` から読み、WDA の `POST /session` の capabilities の `environment` に載せて新しいセッションを作り、session id を `ios-wda.sh` のキャッシュへ書き戻す）。**起動中のまま launch すると activate になり環境変数が反映されない**ため、必ず terminate してから作り直す。なお同 secret ファイルのコメントにある `ios-wda.sh ... launch --env-file <ファイル>` という使い方は、`ios-wda.sh` に `--env-file` が実装されていないため現状は使えない。
+
 ### runner の Simulator が外部の名前解決をできなくなることがある
 
 発見日: 2026-08-29。事象: セッション途中から Simulator の全 HTTP 通信が失敗し、相談の送信が約 300 秒後に「The letter could not be delivered. Please try again later.」になった。Safari で `bannzai.github.io`（同じセッションで直前に開けていた）も「Safari can't open the page because the server can't be found.」になり、cloudfunctions.net 固有ではなく DNS 全体の障害と判明（ローカル macOS からは同じホストを解決できる）。WDA 自体は生存しており `status` / `elements` には応答する。対処: セッションを立て直す（`simtunnel up <session> --force`）。アプリ側の不具合と誤判定しないよう、送信が失敗したら Simulator の Safari で任意の外部サイトを開いて切り分ける（ただし Safari の操作自体が WDA を落としうるため、送信前の定型手順にはしない。下記「Simulator の Safari で URL を開くと WDA が無応答になりセッションが落ちることがある」を参照）。
@@ -108,9 +114,9 @@ curl -s "http://simtunnel-<session>:8100/screenshot" | python3 -c 'import base64
 
 ## 1. 起動と認証
 
-- [ ] **初回起動**: インストール直後の起動でオンボーディング（Onboarding QA.md 参照）が表示され、閉じた後にホーム画面（星空・入力カード・「Ask the Greats」）が表示され、エラーアラートが出ない
+- [x] **初回起動**: インストール直後の起動でオンボーディング（Onboarding QA.md 参照）が表示され、閉じた後にホーム画面（星空・入力カード・「Ask the Greats」）が表示され、エラーアラートが出ない
   - 自動化: manual（Simulator の初回起動状態の作成と目視確認が必要）
-- [ ] **匿名認証**: 起動後にそのまま相談を送信でき、返書または相談窓口案内が返る（匿名サインインが完了している）
+- [x] **匿名認証**: 起動後にそのまま相談を送信でき、返書または相談窓口案内が返る（匿名サインインが完了している）
   - 自動化: manual（送信結果は Firebase / LLM の応答に依存する）
 
 #### 動作確認
@@ -121,14 +127,17 @@ curl -s "http://simtunnel-<session>:8100/screenshot" | python3 -c 'import base64
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/ac34f4dc-e339-4752-9caa-9a91f5060c80.jpg" width="320">
 </details>
 
 ### **匿名認証**: 起動後にそのまま相談を送信でき、返書または相談窓口案内が返る（匿名サインインが完了している）
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/205294e7-3628-419b-b286-f2eeb77a2d01.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/854b1f00-7a3c-4bd2-aefc-3c881b52742f.png" width="320">
 </details>
 
 </details>
@@ -137,9 +146,9 @@ curl -s "http://simtunnel-<session>:8100/screenshot" | python3 -c 'import base64
 
 ## 2. 英語モード（Dear Socrates）
 
-- [ ] **英語で一通り動作する**: 端末言語 en で表示名が Dear Socrates になり、オンボーディング → ホーム → 送信 → 返書 → 共有カード → 記録 → 星図 → ペイウォールがすべて英語表示で動作し、文字のはみ出し・重なりが無い
+- [x] **英語で一通り動作する**: 端末言語 en で表示名が Dear Socrates になり、オンボーディング → ホーム → 送信 → 返書 → 共有カード → 記録 → 星図 → ペイウォールがすべて英語表示で動作し、文字のはみ出し・重なりが無い
   - 自動化: manual（各画面の目視確認が必要。英語 UI は runner の既定ロケールで確認できる）
-- [ ] **返書の言語**: 英語で送信した返書は格言の原文がそのまま併記され、訳文・解説が英語になる
+- [x] **返書の言語**: 英語で送信した返書は格言の原文がそのまま併記され、訳文・解説が英語になる
   - 自動化: manual（返書内容は LLM の生成結果）
 
 #### 動作確認
@@ -150,14 +159,21 @@ curl -s "http://simtunnel-<session>:8100/screenshot" | python3 -c 'import base64
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/854b1f00-7a3c-4bd2-aefc-3c881b52742f.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/75eb8e81-f8d6-40b4-9f6d-a18fd38581c7.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/11b2ef28-00d2-41be-8ad7-532b12973ed6.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/b67df28a-7eee-4037-86f3-68bcdb4b281a.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/dbb04ebc-1455-4ea6-b186-758ad67c1285.png" width="320">
 </details>
 
 ### **返書の言語**: 英語で送信した返書は格言の原文がそのまま併記され、訳文・解説が英語になる
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/854b1f00-7a3c-4bd2-aefc-3c881b52742f.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/c54b4795-2b8b-4aca-8d8e-e44b07a54619.png" width="320">
 </details>
 
 </details>
@@ -166,9 +182,9 @@ curl -s "http://simtunnel-<session>:8100/screenshot" | python3 -c 'import base64
 
 ## 3. プライバシー（静的検査）
 
-- [ ] **Analytics に相談本文を送らない**: `grep -rn logEvent ios/Igen` で列挙した全イベントのパラメータが `text_length` / `quote_id` / `letters_count` / `encounters_count` / `package` / `step` / `index` / `skipped` のみで、相談本文・返書本文・自由入力の文字列が含まれない
+- [x] **Analytics に相談本文を送らない**: `grep -rn logEvent ios/Igen` で列挙した全イベントのパラメータが `text_length` / `quote_id` / `letters_count` / `encounters_count` / `package` / `step` / `index` / `skipped` のみで、相談本文・返書本文・自由入力の文字列が含まれない
   - 自動化: manual（grep の出力を目視で判定する。エビデンスは grep 結果の記録）
-- [ ] **共有カードに悩み本文を含めない**: `ios/Igen/Features/Share/` 配下（`Components/ShareCardView.swift` を含む）が `letter.concern` を参照しない（`grep -rn concern ios/Igen/Features/Share --include=*.swift` が空）
+- [x] **共有カードに悩み本文を含めない**: `ios/Igen/Features/Share/` 配下（`Components/ShareCardView.swift` を含む）が `letter.concern` を参照しない（`grep -rn concern ios/Igen/Features/Share --include=*.swift` が空）
   - 自動化: manual（grep の出力を目視で判定する）
 
 #### 動作確認
@@ -179,14 +195,16 @@ curl -s "http://simtunnel-<session>:8100/screenshot" | python3 -c 'import base64
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/15456f97-453c-49ef-a1ec-fafcec85463c.png" width="320">
 </details>
 
 ### **共有カードに悩み本文を含めない**: `ios/Igen/Features/Share/` 配下（`Components/ShareCardView.swift` を含む）が `letter.concern` を参照しない（`grep -rn concern ios/Igen/Features/Share --include=*.swift` が空）
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/c7810997-a7d2-45cf-bd45-de67e54d55e8.png" width="320">
 </details>
 
 </details>
@@ -195,7 +213,7 @@ curl -s "http://simtunnel-<session>:8100/screenshot" | python3 -c 'import base64
 
 ## 4. 法務ドキュメント
 
-- [ ] **法務リンク 3 種の遷移先が 200**: `ios/Igen/Shared/LegalDocumentURL.swift` が組み立てる利用規約 / プライバシーポリシー / 特定商取引法に基づく表示の URL（ja / en 各 3 = 6 URL）に curl して全て HTTP 200
+- [x] **法務リンク 3 種の遷移先が 200**: `ios/Igen/Shared/LegalDocumentURL.swift` が組み立てる利用規約 / プライバシーポリシー / 特定商取引法に基づく表示の URL（ja / en 各 3 = 6 URL）に curl して全て HTTP 200
   - 自動化: manual（curl の結果を記録する）
 
 #### 動作確認
@@ -206,7 +224,8 @@ curl -s "http://simtunnel-<session>:8100/screenshot" | python3 -c 'import base64
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/b0bde2de-6ab9-4a95-980f-70f8a404c37e.png" width="320">
 </details>
 
 </details>

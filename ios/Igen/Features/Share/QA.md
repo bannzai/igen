@@ -1,8 +1,8 @@
 ---
 feature: Share
 verification: mobile-mcp
-last_verified_commit: null
-last_verified_at: null
+last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
+last_verified_at: 2026-08-29
 ---
 
 # Share QA
@@ -24,12 +24,10 @@ last_verified_at: null
 
 ## 1. カード
 
-- [ ] **共有導線**: 返書画面のヘッダー「Share」と末尾「Create a share card」のどちらからも共有カードのシートが開く。記録から再訪した返書でも同じ導線がある
+- [x] **共有導線**: 返書画面のヘッダー「Share」と末尾「Create a share card」のどちらからも共有カードのシートが開く。記録から再訪した返書でも同じ導線がある
   - 自動化: manual（遷移の目視確認が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
-- [ ] **共有カードのプレビュー**: 見出し「Share Card」、注記「Your worry is not included in the card」、縦型のカード画像（IGEN ロゴ・星座線アバター・偉人名または「Proverb」・格言・原文・出典）が表示され、相談本文がカードに含まれていない
+- [x] **共有カードのプレビュー**: 見出し「Share Card」、注記「Your worry is not included in the card」、縦型のカード画像（IGEN ロゴ・星座線アバター・偉人名または「Proverb」・格言・原文・出典）が表示され、相談本文がカードに含まれていない
   - 自動化: manual（カード画像の目視確認が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
 
 #### 動作確認
 <details>
@@ -39,14 +37,16 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/75eb8e81-f8d6-40b4-9f6d-a18fd38581c7.png" width="320">
 </details>
 
 ### **共有カードのプレビュー**: 見出し「Share Card」、注記「Your worry is not included in the card」、縦型のカード画像（IGEN ロゴ・星座線アバター・偉人名または「Proverb」・格言・原文・出典）が表示され、相談本文がカードに含まれていない
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/75eb8e81-f8d6-40b4-9f6d-a18fd38581c7.png" width="320">
 </details>
 
 </details>
@@ -55,15 +55,13 @@ last_verified_at: null
 
 ## 2. 共有と保存
 
-- [ ] **共有シート**: 「Share」で iOS の共有シート（UIActivityViewController）が開き、カード画像が共有対象として表示される
+- [x] **共有シート**: 「Share」で iOS の共有シート（UIActivityViewController）が開き、カード画像が共有対象として表示される
   - 自動化: manual（共有シートの目視確認が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
 - [ ] **画像を保存**: 「Save image」で写真への追加の許可ダイアログが出て、許可するとアラート「The share card has been saved to your photos.」が出る
   - 自動化: manual（許可ダイアログの操作と目視確認が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
-- [ ] **戻る**: 「Back」でシートが閉じて返書画面に戻る
+  - ❌ 失敗: 「Save image」を押すと許可ダイアログもアラートも出ず、**アプリがその場で落ちてホーム画面に戻る**。2 回連続で再現（1 回目は返書画面からの共有カード、2 回目は記録から再訪した返書の共有カード）。落ちた後の起動は状態を保持しないコールドスタートになる。再現手順: 相談を 1 通送って返書を受け取る →「Share」または「Create a share card」→「Save image」。原因の推定: `ios/Igen/Features/Share/SharePage.swift` の `save(cardImage:)` は `PHPhotoLibrary.requestAuthorization(for: .addOnly)` を呼ばずに `PHPhotoLibrary.shared().performChanges` を実行する。未決定状態でこの API を呼ぶと読み書き（`.readWrite`）の許可フローが走り、`ios/Igen/Info.plist` に無い `NSPhotoLibraryUsageDescription` が要求されて即時終了する（同 plist にあるのは `NSPhotoLibraryAddUsageDescription` のみ）。修正の方向は `performChanges` の前に `.addOnly` の許可を明示的に要求するか、`NSPhotoLibraryUsageDescription` を追加するかのいずれか。runner のクラッシュログは simtunnel 経由では取得できず未確認（推定の根拠は再現手順とコード・plist の突き合わせ）。issue: 未起票
+- [x] **戻る**: 「Back」でシートが閉じて返書画面に戻る
   - 自動化: manual（遷移の目視確認が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
 
 #### 動作確認
 <details>
@@ -73,7 +71,8 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/1420a967-bc7f-4788-881f-685fef63282d.png" width="320">
 </details>
 
 ### **画像を保存**: 「Save image」で写真への追加の許可ダイアログが出て、許可するとアラート「The share card has been saved to your photos.」が出る
@@ -87,7 +86,8 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/75eb8e81-f8d6-40b4-9f6d-a18fd38581c7.png" width="320">
 </details>
 
 </details>

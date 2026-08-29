@@ -1,8 +1,8 @@
 ---
 feature: Archive
 verification: mobile-mcp
-last_verified_commit: null
-last_verified_at: null
+last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
+last_verified_at: 2026-08-29
 ---
 
 # Archive QA
@@ -23,11 +23,10 @@ last_verified_at: null
 
 ## 1. 一覧
 
-- [ ] **0 件の表示**: 相談をまだ送っていない状態で「Archive」を開くと、見出し「Your Letters」と案内「No letters yet. Write your first tonight.」が表示される
+- [x] **0 件の表示**: 相談をまだ送っていない状態で「Archive」を開くと、見出し「Your Letters」と案内「No letters yet. Write your first tonight.」が表示される
   - 自動化: manual（新規ユーザーの状態が必要。相談を送る前に確認する）
-- [ ] **返書の一覧**: 相談を送った後にホームへ戻ってから「Archive」を開くと、新しい順に日付・相談本文（2 行まで）・偉人名のピル（人物なしは「Proverb & diagram」）・格言 1 行のカードが表示される
+- [x] **返書の一覧**: 相談を送った後にホームへ戻ってから「Archive」を開くと、新しい順に日付・相談本文（2 行まで）・偉人名のピル（人物なしは「Proverb & diagram」）・格言 1 行のカードが表示される
   - 自動化: manual（返書データが必要。ホームへ戻らずに再表示した場合は再取得しない実装のため、必ずホームを経由する）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
 - [ ] **追加読み込み**: 21 件以上の記録があるとき、末尾までスクロールすると次のページが読み込まれる
   - 自動化: todo
   - ⏭️ スキップ: 21 件以上の記録を作るには相談を 21 通送る必要があり、無料枠 1 日 1 通・実 LLM 費用の制約から作れないため未確認
@@ -40,14 +39,16 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/d83aaebc-5bec-4378-b8e1-634861f97bb8.png" width="320">
 </details>
 
 ### **返書の一覧**: 相談を送った後にホームへ戻ってから「Archive」を開くと、新しい順に日付・相談本文（2 行まで）・偉人名のピル（人物なしは「Proverb & diagram」）・格言 1 行のカードが表示される
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/11b2ef28-00d2-41be-8ad7-532b12973ed6.png" width="320">
 </details>
 
 ### **追加読み込み**: 21 件以上の記録があるとき、末尾までスクロールすると次のページが読み込まれる
@@ -63,10 +64,9 @@ last_verified_at: null
 
 ## 2. 再訪と遷移
 
-- [ ] **返書の再訪**: カードをタップすると登場演出なしで返書の本文（Reply）が表示され、「Close」で一覧に戻る
+- [x] **返書の再訪**: カードをタップすると登場演出なしで返書の本文（Reply）が表示され、「Close」で一覧に戻る
   - 自動化: manual（遷移の目視確認が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
-- [ ] **ホームに戻る**: 「Home」ピルでホームに戻る
+- [x] **ホームに戻る**: 「Home」ピルでホームに戻る
   - 自動化: manual（遷移の目視確認が必要）
 
 #### 動作確認
@@ -77,14 +77,16 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/11b2ef28-00d2-41be-8ad7-532b12973ed6.png" width="320">
 </details>
 
 ### **ホームに戻る**: 「Home」ピルでホームに戻る
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/31b49839-8341-4d76-aff8-36344442161c.png" width="320">
 </details>
 
 </details>

@@ -1,8 +1,8 @@
 ---
 feature: Atlas
 verification: mobile-mcp
-last_verified_commit: null
-last_verified_at: null
+last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
+last_verified_at: 2026-08-29
 ---
 
 # Atlas QA
@@ -23,17 +23,15 @@ last_verified_at: null
 
 ## 1. 星図
 
-- [ ] **未出会いの表示**: 相談をまだ送っていない状態で「Star Atlas」を開くと、見出し「Your Star Atlas」、5 つの暗い星のかたまり（名前なし）、「Great figures you have met: 0 / 5」が表示される
+- [x] **未出会いの表示**: 相談をまだ送っていない状態で「Star Atlas」を開くと、見出し「Your Star Atlas」、5 つの暗い星のかたまり（名前なし）、「Great figures you have met: 0 / 5」が表示される
   - 自動化: manual（新規ユーザーの状態が必要。相談を送る前に確認する）
-- [ ] **出会い後の表示**: 返書を受け取った偉人の星座が線でつながって明るく灯り、名前が表示され、カウンタが「1 / 5」になる
+- [x] **出会い後の表示**: 返書を受け取った偉人の星座が線でつながって明るく灯り、名前が表示され、カウンタが「1 / 5」になる
   - 自動化: manual（返書の偉人が星図の 5 枠 — セネカ / 孔子 / ニーチェ / 世阿弥 / 芭蕉 — に含まれる必要がある。含まれない偉人だった場合はその旨を記録する）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
-- [ ] **新しい星座の演出**: 出会い後に初めて星図を開いたとき、星が集まって星座線が描かれる演出が再生され、2 回目以降は演出なしで表示される
+- [x] **新しい星座の演出**: 出会い後に初めて星図を開いたとき、星が集まって星座線が描かれる演出が再生され、2 回目以降は演出なしで表示される
   - 自動化: manual（アニメーションの目視確認が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
-- [ ] **再起動後も維持**: アプリを終了して再起動しても出会い済みの星座が灯ったまま表示される
+  - ✅ 参考: 出会い後に初めて星図を開いた直後のスクリーンショット（tmp/qa/shots/c3-12-atlas-first.png）では Zeami の星が光っているだけで星座線がまだ描かれておらず、5 秒後（c3-13-atlas-settled.png）に線が引かれた状態になった。アプリ再起動後に開いた時（c3-15-atlas-after-restart.png）は最初から線が描かれた状態で、2 回目以降は演出なしという仕様と整合する
+- [x] **再起動後も維持**: アプリを終了して再起動しても出会い済みの星座が灯ったまま表示される
   - 自動化: manual（アプリの終了・再起動と目視確認が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
 
 #### 動作確認
 <details>
@@ -43,28 +41,33 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/5db950e0-aa2c-4239-85c0-4078e41b3513.png" width="320">
 </details>
 
 ### **出会い後の表示**: 返書を受け取った偉人の星座が線でつながって明るく灯り、名前が表示され、カウンタが「1 / 5」になる
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/b67df28a-7eee-4037-86f3-68bcdb4b281a.png" width="320">
 </details>
 
 ### **新しい星座の演出**: 出会い後に初めて星図を開いたとき、星が集まって星座線が描かれる演出が再生され、2 回目以降は演出なしで表示される
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/2459858e-25ad-4ba9-8c66-d1de653be7f5.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/b67df28a-7eee-4037-86f3-68bcdb4b281a.png" width="320">
 </details>
 
 ### **再起動後も維持**: アプリを終了して再起動しても出会い済みの星座が灯ったまま表示される
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/59468448-d1a4-4467-9547-c15cf59b21f6.png" width="320">
 </details>
 
 </details>
@@ -75,11 +78,11 @@ last_verified_at: null
 
 - [ ] **プロフィール**: 灯った偉人をタップするとシートに名前・肩書・生没年・紹介文、「Words you received」（もらった格言の一覧）、「Read the letter」が表示される
   - 自動化: manual（出会い済みの偉人が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
+  - ❌ 失敗: シートに名前・肩書・生没年・紹介文までは出るが、**「Words you received」（もらった格言の一覧）と「Read the letter」ボタンがどちらも表示されない**（シートを一番上まで引き上げても紹介文の下は空白）。再現手順: 相談を 1 通送って返書を受け取る → ホーム →「Star Atlas」→ 灯った偉人（今回は Zeami）をタップ。原因: `ios/Igen/Features/Atlas/AtlasProfilePage.swift` は取得した返書が空でないときだけこの 2 つを描画し（`if !letters.isEmpty`）、取得に失敗しても `catch` で `letters = []` にするだけで何も出さない。その取得 `LettersStore.fetchLetters(personId:)` は `whereField("personId", isEqualTo:)` と `order(by: "consultedAt", descending: true)` の複合クエリで Firestore の複合インデックスを必要とするが、**igen-prod にはデプロイされていない**（`gcloud firestore indexes composite list --project igen-prod` が `Listed 0 items.`）。インデックス定義自体は `backend/firestore.indexes.json` に存在するため、未デプロイが原因。記録の一覧（`consultedAt` の単一フィールド順のみ）は既定インデックスで通るため正常に出ており、症状がプロフィールだけに出ることとも整合する。issue: 未起票
 - [ ] **返書を読む**: 「Read the letter」で登場演出なしの返書（Reply）が開き、「Close」でプロフィールに戻る
   - 自動化: manual（遷移の目視確認が必要）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
-- [ ] **閉じる**: × でシートが閉じ、ホームのピルまたは戻る操作でホームに戻る
+  - ❌ 失敗（上記「プロフィール」に起因）: プロフィールに「Read the letter」ボタンが表示されないため押せず、この経路の返書を開けない。ボタンが出ない原因と再現手順は「プロフィール」の記載を参照
+- [x] **閉じる**: × でシートが閉じ、ホームのピルまたは戻る操作でホームに戻る
   - 自動化: manual（遷移の目視確認が必要）
 
 #### 動作確認
@@ -104,7 +107,8 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/a459b17e-facd-43ca-81da-330f40ef7899.png" width="320">
 </details>
 
 </details>

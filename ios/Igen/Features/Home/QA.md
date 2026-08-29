@@ -1,8 +1,8 @@
 ---
 feature: Home
 verification: mobile-mcp
-last_verified_commit: null
-last_verified_at: null
+last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
+last_verified_at: 2026-08-29
 ---
 
 # Home QA
@@ -26,9 +26,9 @@ last_verified_at: null
 
 ## 1. 表示
 
-- [ ] **ホーム画面の表示**: 星空背景の上に見出し「Tell me about your day, or what's on your mind」、入力カード、「Ask the Greats」ボタン、ヘッダーの「Star Atlas」「Archive」ピル、「See the unlimited plan」リンクが表示され、文字の重なり・はみ出しが無い
+- [x] **ホーム画面の表示**: 星空背景の上に見出し「Tell me about your day, or what's on your mind」、入力カード、「Ask the Greats」ボタン、ヘッダーの「Star Atlas」「Archive」ピル、「See the unlimited plan」リンクが表示され、文字の重なり・はみ出しが無い
   - 自動化: manual（レイアウトの目視確認が必要）
-- [ ] **テキスト入力と送信ボタンの活性**: 入力が空のとき「Ask the Greats」が無効（薄い表示）で、文字を入力すると有効になり、文字数カウンタが増える
+- [x] **テキスト入力と送信ボタンの活性**: 入力が空のとき「Ask the Greats」が無効（薄い表示）で、文字を入力すると有効になり、文字数カウンタが増える
   - 自動化: manual（活性状態の目視確認が必要）
 
 #### 動作確認
@@ -39,14 +39,18 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/825bb59f-b1d1-4e35-a086-0034fa4ca751.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/31b49839-8341-4d76-aff8-36344442161c.png" width="320">
 </details>
 
 ### **テキスト入力と送信ボタンの活性**: 入力が空のとき「Ask the Greats」が無効（薄い表示）で、文字を入力すると有効になり、文字数カウンタが増える
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/1a2c8d85-67d4-4692-a156-01de2955125b.jpg" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/3bc094ab-1673-4e6f-84f3-ad1f4ccb4c36.jpg" width="320">
 </details>
 
 </details>
@@ -55,14 +59,14 @@ last_verified_at: null
 
 ## 2. 送信
 
-- [ ] **送信して返書画面へ遷移**: 相談本文を入力して「Ask the Greats」を押すと、キーボードが閉じて待機表示「The stars are searching for words…」が出て、返書画面（Reply）へ遷移する
+- [x] **送信して返書画面へ遷移**: 相談本文を入力して「Ask the Greats」を押すと、キーボードが閉じて待機表示「The stars are searching for words…」が出て、返書画面（Reply）へ遷移する
   - 自動化: manual（返書は LLM の生成結果で内容が毎回変わる。本番では無料枠 1 通を消費する）
-  - ⏭️ スキップ: 2026-08-29 の simtunnel セッション igen-49 で runner の Simulator が名前解決に失敗し（Safari で `asia-northeast1-igen-prod.cloudfunctions.net` も `bannzai.github.io` も「Safari can't open the page because the server can't be found.」）、相談の送信が 2 回とも約 300 秒の再照会の後に「The letter could not be delivered. Please try again later.」で失敗したため、送信後の画面に到達できず未確認。無料枠は未消費のまま
-- [ ] **待機表示の重なりなし**: 待機中に入力カード・ボタンが待機表示と重なって見えない（issue #36 の再発防止）
+- [x] **待機表示の重なりなし**: 待機中に入力カード・ボタンが待機表示と重なって見えない（issue #36 の再発防止）
   - 自動化: manual（待機中のスクリーンショットの目視確認が必要）
 - [ ] **文字数上限の警告**: 2,000 字（UTF-16）を超える本文を入力すると警告「Please keep it within 2,000 characters (now N)」が表示され、「Ask the Greats」が無効になる
   - 自動化: manual（長文の入力と目視確認が必要）
-- [ ] **送信失敗のアラート**: サーバーに到達できない状態で送信すると、保存済み結果の照会（最長 300 秒）の後にアラート「The letter could not be delivered. Please try again later.」が出て、「OK」で閉じると入力本文が保持されたままホームに戻る
+  - ⏭️ スキップ: main 取り込み前のセッションで確認済み（`a` を 2,010 文字入力してカウンタ 2,010・警告「Please keep it within 2,000 characters (now 2,010)」・「Ask the Greats」が無効になることを確認）。main の取り込みでオンボーディング等が入った後は再確認していないため、この記録では通過にしない
+- [x] **送信失敗のアラート**: サーバーに到達できない状態で送信すると、保存済み結果の照会（最長 300 秒）の後にアラート「The letter could not be delivered. Please try again later.」が出て、「OK」で閉じると入力本文が保持されたままホームに戻る
   - 自動化: manual（サーバーに到達できない状態を作る必要がある。2026-08-29 の QA では runner の Simulator が名前解決できない状態で意図せず再現できた）
 
 #### 動作確認
@@ -73,14 +77,17 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/0a882349-d46c-40a8-9522-14ca5ed50474.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/854b1f00-7a3c-4bd2-aefc-3c881b52742f.png" width="320">
 </details>
 
 ### **待機表示の重なりなし**: 待機中に入力カード・ボタンが待機表示と重なって見えない（issue #36 の再発防止）
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/0a882349-d46c-40a8-9522-14ca5ed50474.png" width="320">
 </details>
 
 ### **文字数上限の警告**: 2,000 字（UTF-16）を超える本文を入力すると警告「Please keep it within 2,000 characters (now N)」が表示され、「Ask the Greats」が無効になる
@@ -94,7 +101,8 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/559b7051-a077-4879-8669-fdde990eee54.png" width="320">
 </details>
 
 </details>
@@ -105,8 +113,10 @@ last_verified_at: null
 
 - [ ] **音声入力**: マイクボタンを押すと音声認識・マイクの許可ダイアログが出て、許可後に「Listening…」が表示され、発話がテキストとして入力される
   - 自動化: manual（Simulator では音声入力を再現できないため実機で確認する）
+  - ⏭️ スキップ: Simulator ではマイク入力を再現できない。実機で確認する
 - [ ] **許可拒否時のアラート**: 許可を拒否した状態でマイクボタンを押すとアラート「Microphone or speech recognition is not allowed. Please allow them in the Settings app.」が出る
   - 自動化: manual（許可ダイアログの操作と目視確認が必要）
+  - ⏭️ スキップ: main 取り込み前のセッションで確認済み（マイクボタン → 許可ダイアログで拒否 → アラート「Microphone or speech recognition is not allowed. Please allow them in the Settings app.」）。main の取り込み後は再確認していないため、この記録では通過にしない
 
 #### 動作確認
 <details>
@@ -132,7 +142,7 @@ last_verified_at: null
 
 ## 4. 画面遷移
 
-- [ ] **星図・記録・ペイウォールへの導線**: 「Star Atlas」で星図、「Archive」で記録、「See the unlimited plan」でペイウォールのシートがそれぞれ開き、戻るとホームに戻る
+- [x] **星図・記録・ペイウォールへの導線**: 「Star Atlas」で星図、「Archive」で記録、「See the unlimited plan」でペイウォールのシートがそれぞれ開き、戻るとホームに戻る
   - 自動化: manual（遷移先の目視確認が必要）
 
 #### 動作確認
@@ -143,7 +153,10 @@ last_verified_at: null
 
 <details><summary>動作確認スクショ</summary>
 
-（未実行）
+**確認日: 2026-08-29**
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/5db950e0-aa2c-4239-85c0-4078e41b3513.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/d83aaebc-5bec-4378-b8e1-634861f97bb8.png" width="320">
+<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260829/73569495-ea10-4f59-9945-b8fa8ce763a5.png" width="320">
 </details>
 
 </details>
