@@ -287,6 +287,9 @@ struct HomePage: View {
     } catch IgenAPI.APIError.freeQuotaExceeded {
       // 無料枠超過はペイウォールへ誘導する (チケット購入 or サブスク訴求)
       paywallSheetIsPresented = true
+    } catch IgenAPI.APIError.rateLimited {
+      // レート制限は時間経過でしか解除されないため、購入導線には流さず再試行を促す汎用エラー表示にする
+      sendErrorAlertIsPresented = true
     } catch {
       // 実機での障害切り分け (通信断・HTTP エラー・デコード失敗の区別) をログでできるようにする。
       // エラーには相談本文が含まれないため public で記録する (既定の private では実機ログで読めない)
