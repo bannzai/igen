@@ -4,8 +4,12 @@
 // RevenueCat の entitlement 識別子。RevenueCat プロジェクト設定 (#16 公開前チェックリスト) と揃える
 export const UNLIMITED_ENTITLEMENT_ID = "unlimited";
 
-// 相談チケット (consumable) のストア商品 id。ASC の IAP 登録 (#16) と揃える
-export const TICKET_PRODUCT_ID = "igen_ticket_1";
+// 相談チケット (consumable) のストア商品 id。ASC の IAP 登録 (fastlane/in_app_purchases/appstore.config.json) と揃える。
+// 識別子は作成後に変更できず、価格改定時は命名規則 (documents/app-store-connect.md「判断の記録」) に従い
+// 価格を含む新しい id で商品を作り直すため、購入の累計は複数 id にまたがる。
+// users/{uid}.ticketsUsed は商品を跨いだ累計で、旧 id で買った未使用チケットを失わないよう、
+// 販売を終了した旧 id もこの配列に残し続ける
+export const TICKET_PRODUCT_IDS = ["igen_ticket1_160yen"];
 
 /** uid の購入状態。unlimited はサブスク、ticketsPurchased は購入済みチケットの累計 */
 export interface Entitlement {
@@ -23,7 +27,11 @@ export function createNoEntitlementChecker(): CheckEntitlementFn {
 
 /**
  * RevenueCat REST API (GET /v1/subscribers/{uid}) で購入状態を確認するチェッカーを作る。
- * appUserID には Firebase 匿名認証の uid を使う (ADR 0001)
+ * appUserID には Firebase 匿名認証の uid を使う (ADR 0001)。
+ *
+ * Sandbox 購入 (App Review の審査・TestFlight での確認) も本番で有効として扱う。
+ * 審査員は本番バックエンドに接続したアプリで Sandbox Apple ID の購入を検証するため、
+ * Sandbox を除外すると審査・サンドボックス課金の検証が成立しない
  */
 export function createRevenueCatEntitlementChecker(options: {
   apiKey: string;
@@ -53,46 +61,31 @@ export function createRevenueCatEntitlementChecker(options: {
           {
             expires_date: string | null;
             grace_period_expires_date?: string | null;
-            /** entitlement を満たしている購読商品の識別子 (subscriptions のキー) */
-            product_identifier?: string;
           }
         >;
-        /** 購読の明細。Sandbox 判定 (is_sandbox) はこちらに入る */
-        subscriptions?: Record<string, { is_sandbox?: boolean }>;
-        non_subscriptions?: Record<string, { is_sandbox?: boolean }[]>;
+        non_subscriptions?: Record<string, unknown[]>;
       };
     };
     const entitlement =
       body.subscriber?.entitlements?.[UNLIMITED_ENTITLEMENT_ID];
-    // Sandbox の購入 (TestFlight 等) は課金されていないため、本番では利用枠として数えない
-    // (Emulator 実行時は開発検証のため数える)
-    const countsSandbox = process.env.FUNCTIONS_EMULATOR === "true";
     // expires_date が null (買い切り等) または未来ならアクティブ。
     // App Store の Billing Grace Period 中は expires_date が過去でも
     // grace_period_expires_date まで有効として扱う (支払い再試行中の購読者を拒否しない)
     const now = new Date();
-    // Sandbox 判定は subscriber.subscriptions 側に入る (entitlement 要素には含まれない)
-    const subscription =
-      entitlement?.product_identifier === undefined
-        ? undefined
-        : body.subscriber?.subscriptions?.[entitlement.product_identifier];
-    const isSandboxEntitlement = subscription?.is_sandbox === true;
     const unlimited =
       entitlement !== undefined &&
-      (countsSandbox || !isSandboxEntitlement) &&
       (entitlement.expires_date === null ||
         new Date(entitlement.expires_date) > now ||
         (entitlement.grace_period_expires_date != null &&
           new Date(entitlement.grace_period_expires_date) > now));
-    // Sandbox 購入 (TestFlight 等) は課金されていないため、本番の利用枠として数えない
-    // (Emulator 実行時は開発検証のため数える)
-    const ticketPurchases =
-      body.subscriber?.non_subscriptions?.[TICKET_PRODUCT_ID] ?? [];
     return {
       unlimited,
-      ticketsPurchased: ticketPurchases.filter(
-        (purchase) => countsSandbox || purchase.is_sandbox !== true,
-      ).length,
+      ticketsPurchased: TICKET_PRODUCT_IDS.reduce(
+        (total, productId) =>
+          total +
+          (body.subscriber?.non_subscriptions?.[productId] ?? []).length,
+        0,
+      ),
     };
   };
 }

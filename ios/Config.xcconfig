@@ -1,0 +1,21 @@
+// ビルド設定の既定値。このファイルは追跡する。
+//
+// REVENUECAT_PUBLIC_API_KEY は RevenueCat SDK の初期化に使う iOS 用 public API key (appl_ で始まる)。
+// このリポジトリは public のため実値をコミットせず、gitignore した Config.local.xcconfig に置いて
+// 末尾の #include? で上書きする (#include? は存在しないファイルを黙って読み飛ばす)。
+//
+// 既定値を空にしているのは、キーを持たない環境 (fork からの PR・クローン直後・CI の Secret 未登録)
+// でもビルドを通すため。空のまま実行すると PurchasesSetup が SDK の初期化をスキップし、
+// 課金 UI は準備中の案内を出す。
+//
+// 手元で課金導線を動かすには、次の 1 行だけを書いた Config.local.xcconfig を
+// このファイルと同じ階層に作る (雛形は Config.local.xcconfig.example):
+//
+//   REVENUECAT_PUBLIC_API_KEY = appl_xxxxxxxxxxxxxxxxxxxxxxxxxxx
+//
+// キーは RevenueCat Dashboard の Project Settings > API Keys、または API で取得できる:
+//   bash ~/.claude/skills/revenuecat-product-setup/scripts/rc_get_public_api_key.sh
+REVENUECAT_PUBLIC_API_KEY =
+
+// 実キーによる上書き。既定値より後ろに置かないと、後勝ちの xcconfig では空値に戻ってしまう
+#include? "Config.local.xcconfig"
