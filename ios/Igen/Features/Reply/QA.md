@@ -39,7 +39,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **2 回目以降の短縮演出**: 2 通目以降は演出が短縮版になる（初回の約半分の時間で本文に進む）
@@ -47,7 +46,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -74,7 +72,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **出典ブロック**: 「Source」に「Work」（作品名）と「Language」（原文の言語名。Latin / Classical Chinese / German / Ancient Greek / Japanese / English のいずれか）が表示され、原題・成立年があればそれも表示される
@@ -82,7 +79,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **原文の併記**: 「Original」に格言の原文がそのまま表示され、その下に訳文（表示言語に応じて Translation / 日本語訳）が並ぶ。漢文・ラテン語など原文の文字種が正しく描画される
@@ -90,7 +86,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **図解カード（該当人物なし）**: 該当人物のいない格言・ことわざでは、アバターの代わりに「Diagram — How the words work」の図解カード（Metaphor / Meaning / When to use）が表示される
@@ -98,7 +93,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -121,7 +115,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **記録・星図からの再訪**: 記録の一覧・星図のプロフィールから開いた返書は登場演出なしで本文が表示される
@@ -129,7 +122,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>

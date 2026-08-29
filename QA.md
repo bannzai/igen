@@ -74,7 +74,7 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 
 ## 1. 起動と認証
 
-- [ ] **初回起動**: インストール直後の起動でホーム画面（星空・入力カード・「Ask the Greats」）が表示され、エラーアラートが出ない
+- [ ] **初回起動**: インストール直後の起動でオンボーディング（Onboarding QA.md 参照）が表示され、閉じた後にホーム画面（星空・入力カード・「Ask the Greats」）が表示され、エラーアラートが出ない
   - 自動化: manual（Simulator の初回起動状態の作成と目視確認が必要）
 - [ ] **匿名認証**: 起動後にそのまま相談を送信でき、返書または相談窓口案内が返る（匿名サインインが完了している）
   - 自動化: manual（送信結果は Firebase / LLM の応答に依存する）
@@ -83,12 +83,11 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 <details>
 <summary>動作確認エビデンス</summary>
 
-### **初回起動**: インストール直後の起動でホーム画面（星空・入力カード・「Ask the Greats」）が表示され、エラーアラートが出ない
+### **初回起動**: インストール直後の起動でオンボーディング（Onboarding QA.md 参照）が表示され、閉じた後にホーム画面（星空・入力カード・「Ask the Greats」）が表示され、エラーアラートが出ない
 
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **匿名認証**: 起動後にそのまま相談を送信でき、返書または相談窓口案内が返る（匿名サインインが完了している）
@@ -96,7 +95,6 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -105,7 +103,7 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 
 ## 2. 英語モード（Dear Socrates）
 
-- [ ] **英語で一通り動作する**: 端末言語 en で表示名が Dear Socrates になり、ホーム → 送信 → 返書 → 共有カード → 記録 → 星図 → ペイウォールがすべて英語表示で動作し、文字のはみ出し・重なりが無い
+- [ ] **英語で一通り動作する**: 端末言語 en で表示名が Dear Socrates になり、オンボーディング → ホーム → 送信 → 返書 → 共有カード → 記録 → 星図 → ペイウォールがすべて英語表示で動作し、文字のはみ出し・重なりが無い
   - 自動化: manual（各画面の目視確認が必要。英語 UI は runner の既定ロケールで確認できる）
 - [ ] **返書の言語**: 英語で送信した返書は格言の原文がそのまま併記され、訳文・解説が英語になる
   - 自動化: manual（返書内容は LLM の生成結果）
@@ -114,12 +112,11 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 <details>
 <summary>動作確認エビデンス</summary>
 
-### **英語で一通り動作する**: 端末言語 en で表示名が Dear Socrates になり、ホーム → 送信 → 返書 → 共有カード → 記録 → 星図 → ペイウォールがすべて英語表示で動作し、文字のはみ出し・重なりが無い
+### **英語で一通り動作する**: 端末言語 en で表示名が Dear Socrates になり、オンボーディング → ホーム → 送信 → 返書 → 共有カード → 記録 → 星図 → ペイウォールがすべて英語表示で動作し、文字のはみ出し・重なりが無い
 
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **返書の言語**: 英語で送信した返書は格言の原文がそのまま併記され、訳文・解説が英語になる
@@ -127,7 +124,6 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -136,31 +132,27 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 
 ## 3. プライバシー（静的検査）
 
-- [x] **Analytics に相談本文を送らない**: `grep -rn logEvent ios/Igen` で列挙した全イベントのパラメータが `text_length` / `quote_id` / `letters_count` / `encounters_count` / `package` のみで、相談本文・返書本文・自由入力の文字列が含まれない
+- [ ] **Analytics に相談本文を送らない**: `grep -rn logEvent ios/Igen` で列挙した全イベントのパラメータが `text_length` / `quote_id` / `letters_count` / `encounters_count` / `package` / `step` / `index` / `skipped` のみで、相談本文・返書本文・自由入力の文字列が含まれない
   - 自動化: manual（grep の出力を目視で判定する。エビデンスは grep 結果の記録）
-- [x] **共有カードに悩み本文を含めない**: `ios/Igen/Features/Share/` 配下（`Components/ShareCardView.swift` を含む）が `letter.concern` を参照しない（`grep -rn concern ios/Igen/Features/Share --include=*.swift` が空）
+- [ ] **共有カードに悩み本文を含めない**: `ios/Igen/Features/Share/` 配下（`Components/ShareCardView.swift` を含む）が `letter.concern` を参照しない（`grep -rn concern ios/Igen/Features/Share --include=*.swift` が空）
   - 自動化: manual（grep の出力を目視で判定する）
 
 #### 動作確認
 <details>
 <summary>動作確認エビデンス</summary>
 
-### **Analytics に相談本文を送らない**: `grep -rn logEvent ios/Igen` で列挙した全イベントのパラメータが `text_length` / `quote_id` / `letters_count` / `encounters_count` / `package` のみで、相談本文・返書本文・自由入力の文字列が含まれない
+### **Analytics に相談本文を送らない**: `grep -rn logEvent ios/Igen` で列挙した全イベントのパラメータが `text_length` / `quote_id` / `letters_count` / `encounters_count` / `package` / `step` / `index` / `skipped` のみで、相談本文・返書本文・自由入力の文字列が含まれない
 
 <details><summary>動作確認スクショ</summary>
 
-**確認日: 2026-08-28**
-<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260828/559bff76-0bc5-4bee-8220-fff1999d7e82.png" width="320">
-
+（未実行）
 </details>
 
 ### **共有カードに悩み本文を含めない**: `ios/Igen/Features/Share/` 配下（`Components/ShareCardView.swift` を含む）が `letter.concern` を参照しない（`grep -rn concern ios/Igen/Features/Share --include=*.swift` が空）
 
 <details><summary>動作確認スクショ</summary>
 
-**確認日: 2026-08-28**
-<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260828/07e46fbd-874d-4ffa-87e5-8bc9fdc4f11c.png" width="320">
-
+（未実行）
 </details>
 
 </details>
@@ -169,7 +161,7 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 
 ## 4. 法務ドキュメント
 
-- [x] **法務リンク 3 種の遷移先が 200**: `ios/Igen/Shared/LegalDocumentURL.swift` が組み立てる利用規約 / プライバシーポリシー / 特定商取引法に基づく表示の URL（ja / en 各 3 = 6 URL）に curl して全て HTTP 200
+- [ ] **法務リンク 3 種の遷移先が 200**: `ios/Igen/Shared/LegalDocumentURL.swift` が組み立てる利用規約 / プライバシーポリシー / 特定商取引法に基づく表示の URL（ja / en 各 3 = 6 URL）に curl して全て HTTP 200
   - 自動化: manual（curl の結果を記録する）
 
 #### 動作確認
@@ -180,9 +172,7 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 
 <details><summary>動作確認スクショ</summary>
 
-**確認日: 2026-08-28**
-<img src="https://pub-7f3469dd3e2e445b9b8ec2d1381b5ea8.r2.dev/bannzai/igen/20260828/6d9222b5-b238-461f-94e9-ea249a4378cd.png" width="320">
-
+（未実行）
 </details>
 
 </details>
@@ -191,6 +181,7 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 
 ## 機能別 QA.md
 
+- [Onboarding](ios/Igen/Features/Onboarding/QA.md) — 初回起動オンボーディング
 - [Home](ios/Igen/Features/Home/QA.md) — ホーム画面（入力・送信・音声入力・ペイウォール導線）
 - [Reply](ios/Igen/Features/Reply/QA.md) — 返書画面（登場演出・出典・原文併記・図解カード）
 - [Safety](ios/Igen/Features/Safety/QA.md) — 危機ワード検知 → 相談窓口案内
@@ -200,8 +191,10 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 - [Share](ios/Igen/Features/Share/QA.md) — 共有カード
 - [Licenses](ios/Igen/Features/Licenses/QA.md) — OSS ライセンス一覧
 
-推奨の実行順（無料枠 1 日 1 通を活かす）: Archive の 0 件表示・Atlas の未出会い表示 → Safety（無料枠を消費しない）→ Home の通常送信（1 通目）→ Reply → Share → Archive → Atlas → Home の 2 通目送信 → Paywall → Licenses。
+推奨の実行順（無料枠 1 日 1 通を活かす）: 初回起動のオンボーディング → Archive の 0 件表示・Atlas の未出会い表示 → Safety（無料枠を消費しない）→ Home の通常送信（1 通目）→ Reply → Share → Archive → Atlas → Home の 2 通目送信 → Paywall → Licenses。
 
 ## QA 対象外
 
-対象外の feature は無い。`ios/Igen/Features/*` の 8 feature はすべてユーザー操作で到達できる画面を持つ（`ios/Igen/Utils/*`・`ios/Igen/Shared/*` は Firebase / RevenueCat の初期化と API クライアントで feature ディレクトリではない。横断確認項目「起動と認証」で覆う）。
+- `Debug`（`ios/Igen/Features/Debug/DebugMenuPage.swift`）: ファイル全体が `#if DEBUG` で囲まれた開発者メニューで、リリースビルド（App Store 配信・simtunnel の Release ビルド）には含まれない。到達導線であるホームの「Dev」ピルも `#if DEBUG` 限定
+
+残る 9 feature はすべてユーザー操作で到達できる画面を持つ（`ios/Igen/Utils/*`・`ios/Igen/Shared/*` は Firebase / RevenueCat の初期化と API クライアントで feature ディレクトリではない。横断確認項目「起動と認証」で覆う）。

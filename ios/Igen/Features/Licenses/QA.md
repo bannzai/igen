@@ -30,7 +30,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **ライセンス詳細**: 一覧の項目をタップするとライセンス本文とリポジトリへのリンクが表示される
@@ -38,7 +37,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **閉じる**: 「Close」でシートが閉じてペイウォールに戻る
@@ -46,7 +44,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>

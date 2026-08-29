@@ -30,6 +30,7 @@
 				Features/Atlas/QA.md,
 				Features/Home/QA.md,
 				Features/Licenses/QA.md,
+				Features/Onboarding/QA.md,
 				Features/Paywall/QA.md,
 				Features/Reply/QA.md,
 				Features/Safety/QA.md,

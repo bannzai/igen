@@ -38,7 +38,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **共有カードのプレビュー**: 見出し「Share Card」、注記「Your worry is not included in the card」、縦型のカード画像（IGEN ロゴ・星座線アバター・偉人名または「Proverb」・格言・原文・出典）が表示され、相談本文がカードに含まれていない
@@ -46,7 +45,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -71,7 +69,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **画像を保存**: 「Save image」で写真への追加の許可ダイアログが出て、許可するとアラート「The share card has been saved to your photos.」が出る
@@ -79,7 +76,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **戻る**: 「Back」でシートが閉じて返書画面に戻る
@@ -87,7 +83,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>

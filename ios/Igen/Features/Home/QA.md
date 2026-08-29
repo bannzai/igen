@@ -40,7 +40,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **テキスト入力と送信ボタンの活性**: 入力が空のとき「Ask the Greats」が無効（薄い表示）で、文字を入力すると有効になり、文字数カウンタが増える
@@ -48,7 +47,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -75,7 +73,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **待機表示の重なりなし**: 待機中に入力カード・ボタンが待機表示と重なって見えない（issue #36 の再発防止）
@@ -83,7 +80,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **文字数上限の警告**: 2,000 字（UTF-16）を超える本文を入力すると警告「Please keep it within 2,000 characters (now N)」が表示され、「Ask the Greats」が無効になる
@@ -91,7 +87,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **送信失敗のアラート**: サーバーに到達できない状態で送信すると、保存済み結果の照会（最長 300 秒）の後にアラート「The letter could not be delivered. Please try again later.」が出る
@@ -99,7 +94,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -122,7 +116,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **許可拒否時のアラート**: 許可を拒否した状態でマイクボタンを押すとアラート「Microphone or speech recognition is not allowed. Please allow them in the Settings app.」が出る
@@ -130,7 +123,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -151,7 +143,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>

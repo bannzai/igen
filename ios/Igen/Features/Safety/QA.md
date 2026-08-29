@@ -41,7 +41,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **通常の相談では案内が出ない**: 危機ワードを含まない相談では返書画面が表示され、案内画面は出ない
@@ -49,7 +48,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **無料枠を消費しない**: 危機ワードの送信の後に通常の相談を送信すると、ペイウォールではなく返書が返る（無料枠が残っている）
@@ -57,7 +55,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -84,7 +81,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **地域別の窓口（US / JP）**: 端末の地域が US なら「988 Suicide & Crisis Lifeline」、JP なら「いのちの電話」「よりそいホットライン」「まもろうよ こころ」、それ以外なら「Find a Helpline」が表示される（分岐は言語ではなく地域）
@@ -92,7 +88,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **窓口リンク**: 電話番号のカードをタップすると `tel:` の発信確認、Web の窓口をタップすると Safari で該当ページが開く
@@ -100,7 +95,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **ホームに戻る**: 「Back to Home」でホームに戻り、入力欄が空になっている
@@ -108,7 +102,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>

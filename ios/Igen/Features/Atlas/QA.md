@@ -41,7 +41,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **出会い後の表示**: 返書を受け取った偉人の星座が線でつながって明るく灯り、名前が表示され、カウンタが「1 / 5」になる
@@ -49,7 +48,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **新しい星座の演出**: 出会い後に初めて星図を開いたとき、星が集まって星座線が描かれる演出が再生され、2 回目以降は演出なしで表示される
@@ -57,7 +55,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **再起動後も維持**: アプリを終了して再起動しても出会い済みの星座が灯ったまま表示される
@@ -65,7 +62,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -90,7 +86,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **返書を読む**: 「Read the letter」で登場演出なしの返書（Reply）が開き、「Close」でプロフィールに戻る
@@ -98,7 +93,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **閉じる**: × でシートが閉じ、ホームのピルまたは戻る操作でホームに戻る
@@ -106,7 +100,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>

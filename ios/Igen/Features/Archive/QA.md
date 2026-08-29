@@ -39,7 +39,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **返書の一覧**: 相談を送った後にホームへ戻ってから「Archive」を開くと、新しい順に日付・相談本文（2 行まで）・偉人名のピル（人物なしは「Proverb & diagram」）・格言 1 行のカードが表示される
@@ -47,7 +46,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **追加読み込み**: 21 件以上の記録があるとき、末尾までスクロールすると次のページが読み込まれる
@@ -55,7 +53,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
@@ -78,7 +75,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 ### **ホームに戻る**: 「Home」ピルでホームに戻る
@@ -86,7 +82,6 @@ last_verified_at: null
 <details><summary>動作確認スクショ</summary>
 
 （未実行）
-
 </details>
 
 </details>
