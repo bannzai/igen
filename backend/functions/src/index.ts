@@ -4,6 +4,10 @@ import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
 import { createApp } from "./app";
 import {
+  createFirebaseAppCheckVerifier,
+  resolveAppCheckEnforcement,
+} from "./appCheck";
+import {
   createNoEntitlementChecker,
   createRevenueCatEntitlementChecker,
 } from "./entitlement";
@@ -17,6 +21,7 @@ import {
   createOpenAICrisisClassifier,
   createOpenAILetterComposer,
 } from "./openai";
+import { LETTER_RATE_LIMIT_PER_IP } from "./rateLimit";
 
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
 const revenuecatApiKey = defineSecret("REVENUECAT_API_KEY");
@@ -68,6 +73,11 @@ export const api = onRequest(
           revenuecatKey === ""
             ? createNoEntitlementChecker()
             : createRevenueCatEntitlementChecker({ apiKey: revenuecatKey }),
+        verifyAppCheckToken: createFirebaseAppCheckVerifier(),
+        appCheckEnforcement: resolveAppCheckEnforcement(
+          process.env.IGEN_APP_CHECK_ENFORCEMENT,
+        ),
+        letterRateLimit: LETTER_RATE_LIMIT_PER_IP,
       });
     }
     app(req, res);

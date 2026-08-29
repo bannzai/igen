@@ -6,8 +6,11 @@ import OSLog
 enum IgenAPI {
   /// 返書 API のエラー
   enum APIError: Error {
-    /// 無料枠 (1 日 1 通) を使い切った (HTTP 429)
+    /// 無料枠 (1 日 1 通) を使い切った (HTTP 429, code: free_quota_exceeded)
     case freeQuotaExceeded
+    /// IP 単位のレート制限に達した (HTTP 429, code: rate_limited)。
+    /// 購入では解除されないためペイウォールへは誘導しない
+    case rateLimited
     /// 匿名認証がまだ完了していない
     case unauthenticated
     /// その他の HTTP エラー
@@ -174,6 +177,9 @@ enum IgenAPI {
       "Bearer \(try await user.getIDToken())",
       forHTTPHeaderField: "Authorization"
     )
+    if let appCheckToken = await FirebaseSetup.appCheckToken() {
+      request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+    }
     let (data, response) = try await URLSession.shared.data(for: request)
     guard let httpResponse = response as? HTTPURLResponse else {
       throw APIError.invalidResponse
@@ -207,6 +213,9 @@ enum IgenAPI {
       "Bearer \(try await user.getIDToken(forcingRefresh: forcesTokenRefresh))",
       forHTTPHeaderField: "Authorization"
     )
+    if let appCheckToken = await FirebaseSetup.appCheckToken() {
+      request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+    }
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.httpBody = try JSONEncoder().encode([
       "text": text, "language": language, "timeZone": timeZone, "requestId": requestId,
@@ -223,6 +232,14 @@ enum IgenAPI {
   // IgenTests から検証するため
   static func parseLetterResponse(_ response: (statusCode: Int, data: Data)) throws -> LetterResult {
     if response.statusCode == 429 {
+      // 429 は無料枠切れとレート制限の 2 種類があり、ペイウォールへ誘導してよいのは前者だけ。
+      // エラーコードを返さない古いサーバー応答でも従来どおりペイウォールへ誘導するよう、
+      // デコードできない場合は freeQuotaExceeded に倒す
+      if (try? JSONDecoder().decode(ErrorEnvelope.self, from: response.data))?.error.code
+        == "rate_limited"
+      {
+        throw APIError.rateLimited
+      }
       throw APIError.freeQuotaExceeded
     }
     if response.statusCode != 200 {
@@ -250,4 +267,18 @@ enum IgenAPI {
 private struct LetterEnvelope: Codable {
   var type: String
   var letter: Letter?
+}
+
+/// エラー時のレスポンス形状 (backend/functions/src/app.ts の sendError)
+private struct ErrorEnvelope: Codable {
+  /// エラーの内容
+  var error: ErrorBody
+
+  /// エラーの種類と説明
+  struct ErrorBody: Codable {
+    /// エラーの種類を示すコード (free_quota_exceeded / rate_limited など)
+    var code: String
+    /// 開発者向けの説明。UI には表示しない
+    var message: String
+  }
 }

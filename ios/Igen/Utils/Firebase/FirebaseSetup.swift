@@ -1,7 +1,9 @@
+import FirebaseAppCheck
 import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
 import Foundation
+import OSLog
 
 /// Firebase の初期化と匿名認証を担う。
 /// 実プロジェクトの GoogleService-Info.plist がバンドルされていればそれで初期化し、
@@ -55,7 +57,43 @@ enum FirebaseSetup {
       settings.isSSLEnabled = false
       Firestore.firestore().settings = settings
     } else {
+      // Emulator (demo-igen) では factory を設定しない。demo-igen は実在しない Firebase プロジェクトで
+      // App Check トークンを発行できないため、設定してもトークン取得の失敗と警告ログを毎リクエスト出すだけになる。
+      // 実プロジェクトに向けた Debug ビルド (IGEN_USE_PROD=1) では Debug provider が使われ、
+      // Firebase Console に登録したデバッグトークンで検証できる。
+      // provider factory は FirebaseApp.configure() より前に設定する必要がある
+      AppCheck.setAppCheckProviderFactory(makeAppCheckProviderFactory())
       FirebaseApp.configure()
+    }
+  }
+
+  /// App Check の provider factory を作る。
+  /// DEBUG ビルドとシミュレータは App Attest が使えないため Debug provider を使う。
+  /// Debug provider が起動時にコンソールへ出すデバッグトークンは、Firebase Console の
+  /// App Check にデバイスとして登録して使う。トークン自体は端末ごとの秘密情報なので
+  /// ソースコードやログ保存ファイルには書かない
+  static func makeAppCheckProviderFactory() -> AppCheckProviderFactory {
+    #if DEBUG || targetEnvironment(simulator)
+      return AppCheckDebugProviderFactory()
+    #else
+      return AppAttestProviderFactory()
+    #endif
+  }
+
+  /// App Check のトークンを取得する。Emulator 開発では App Check を使わないため nil。
+  /// 取得できない場合もリクエストは送る。トークンが無いリクエストの扱い (監視ログのみ / 401 で拒否) は
+  /// サーバー側の設定 (Functions の環境変数 IGEN_APP_CHECK_ENFORCEMENT) が決める
+  static func appCheckToken() async -> String? {
+    if usesEmulator {
+      return nil
+    }
+    do {
+      return try await AppCheck.appCheck().token(forcingRefresh: false).token
+    } catch {
+      Logger(subsystem: "com.bannzai.Igen", category: "appcheck").error(
+        "app check token unavailable: \(error, privacy: .public)"
+      )
+      return nil
     }
   }
 
@@ -101,5 +139,17 @@ enum FirebaseSetup {
   static func resetAnonymousUser() async throws -> String {
     try Auth.auth().signOut()
     return try await Auth.auth().signInAnonymously().user.uid
+  }
+}
+
+/// 実機向けの App Attest provider を作る factory。
+/// AppCheckProviderFactory はクラス専用プロトコル (NSObject 継承が必要) のため、
+/// 関数ではなくクラスで実装する (フレームワークが要求するケース)。
+/// プロトコルが actor 隔離されていないため nonisolated にする
+nonisolated final class AppAttestProviderFactory: NSObject, AppCheckProviderFactory {
+  /// App Attest を使う AppCheckProvider を返す。iOS 17+ が対象のため DeviceCheck へのフォールバックはしない。
+  /// 引数ラベル `with:` はプロトコルの要件で変えられない
+  func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+    AppAttestProvider(app: app)
   }
 }

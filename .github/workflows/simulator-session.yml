@@ -73,7 +73,11 @@ jobs:
         run: |
           printf 'REVENUECAT_PUBLIC_API_KEY = %s\n' "$REVENUECAT_PUBLIC_API_KEY" > ios/Config.local.xcconfig
 
-      # runner には署名用の証明書が無いため署名を無効化する（Simulator 向けは署名不要）
+      # runner には署名用の証明書が無いため、証明書不要の ad-hoc 署名 (Sign to Run Locally) にする。
+      # CODE_SIGNING_ALLOWED=NO で署名を丸ごと省くと application-identifier entitlement が
+      # 埋め込まれず、Simulator の Keychain (SecItem) が使えない。Firebase Auth はサインイン後の
+      # ユーザー保存 (Keychain) に失敗するとサインイン全体をエラーで返すため、認証を伴う操作が
+      # すべて失敗する (issue #43 の PR #53 で main でも再現を確認)
       - name: Simulator 用にビルドする
         run: |
           mkdir -p tmp
@@ -84,7 +88,7 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath tmp/DerivedData \
             -skipPackagePluginValidation \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY=- \
             > tmp/simulator-build.log 2>&1 || {
             echo "ビルドに失敗。ログ末尾:" >&2
             tail -n 150 tmp/simulator-build.log >&2
