@@ -49,6 +49,8 @@ xcodebuild test \
 
 ビルド・テストのログは全文を `./tmp/` に保存し、warning / error を grep で検査して判定する。
 
+`ios/` を変更する PR では `.github/workflows/ios-test.yml` が `IgenTests` を自動実行する（ログは artifact `ios-test-log`）。
+
 ### バックエンド（`backend/` スキャフォールド後）
 
 ```bash

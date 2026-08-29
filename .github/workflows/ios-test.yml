@@ -1,0 +1,55 @@
+# ios/ の PR チェック。実行コマンドは CLAUDE.md の「iOS」検証方法と一致させる。
+# ユニットテスト (IgenTests) だけを回す。IgenUITests は Simulator の起動を伴い時間がかかるうえ、
+# UI の確認は simtunnel (simulator-session.yml) で行う方針のため対象にしない。
+name: iOS Tests
+
+on:
+  pull_request:
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios-test.yml'
+
+jobs:
+  test:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      # RevenueCat の public API key は gitignore された ios/Config.local.xcconfig 運用のため checkout に存在しない。
+      # 未登録でも空値のまま生成してビルドは通す（キーが空なら実行時に SDK の初期化をスキップする）
+      - name: Config.local.xcconfig を Secrets から生成する
+        env:
+          REVENUECAT_PUBLIC_API_KEY: ${{ secrets.REVENUECAT_PUBLIC_API_KEY_IOS }}
+        run: printf 'REVENUECAT_PUBLIC_API_KEY = %s\n' "$REVENUECAT_PUBLIC_API_KEY" > ios/Config.local.xcconfig
+
+      # -skipPackagePluginValidation: LicenseList の build tool plugin は GUI で一度許可するまで CLI から実行できない（Makefile 参照）
+      # CODE_SIGN_IDENTITY=-: runner に証明書が無い。無署名 (CODE_SIGNING_ALLOWED=NO) にすると application-identifier entitlement が
+      # 付かず Simulator の Keychain が使えなくなり、Firebase Auth のサインインが失敗する（PR #53）
+      - name: ユニットテストを実行する
+        run: |
+          mkdir -p tmp
+          xcodebuild test \
+            -project ios/Igen.xcodeproj \
+            -scheme Igen \
+            -destination "platform=iOS Simulator,name=iPhone 17" \
+            -derivedDataPath tmp/DerivedData \
+            -only-testing:IgenTests \
+            -skipPackagePluginValidation \
+            CODE_SIGN_IDENTITY=- \
+            > tmp/ios-test.log 2>&1 || {
+            echo "テストに失敗。ログ末尾:" >&2
+            tail -n 200 tmp/ios-test.log >&2
+            exit 1
+          }
+          grep -E '^Test Suite .* (passed|failed)' tmp/ios-test.log | tail -n 5
+
+      # 失敗時の切り分け用。ログ全文を残す（成功時も warning の確認に使える）
+      - if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: ios-test-log
+          path: tmp/ios-test.log
+          retention-days: 7
