@@ -25,12 +25,19 @@ export function createFirebaseAppCheckVerifier(): VerifyAppCheckTokenFn {
 
 /**
  * 環境変数の値を適用モードへ変換する。
- * 未設定・空・不正値の既定を monitor にするのは段階適用のため。App Check 未対応の
- * 既存クライアントを設定ミスで一斉に締め出さず、まず検証結果をログで観測して
- * 正当なリクエストがすべて検証を通ることを確認してから enforce へ切り替える
+ * 未リリースで締め出す既存クライアントが存在しないため、デプロイ環境の既定は enforce にして
+ * LLM 費用の濫用対策を初回から有効にする (オーナー決定 2026-08-29、issue #43)。
+ * Emulator の既定を monitor にするのは、ローカル開発のクライアントが demo-igen 向けで
+ * App Check トークンを持たない (FirebaseSetup が factory を設定しない) ため。
+ * 不正値を enforce 側に倒すのはフェイルクローズの判断で、設定ミスで守りが外れるより、
+ * monitor にしたい場合は明示の指定を要求する方が安全。
+ * enforce を戻す時は IGEN_APP_CHECK_ENFORCEMENT=monitor をデプロイ環境の env に設定する
  */
 export function resolveAppCheckEnforcement(
   raw: string | undefined,
 ): AppCheckEnforcement {
-  return raw === "enforce" ? "enforce" : "monitor";
+  if (raw === "enforce" || raw === "monitor") {
+    return raw;
+  }
+  return process.env.FUNCTIONS_EMULATOR === "true" ? "monitor" : "enforce";
 }
