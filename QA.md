@@ -59,16 +59,15 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 
 ### 再現が難しい操作の手順
 
-- 表示言語の切り替え（英語 / 日本語）: アプリ内に切り替え UI は無い。**simtunnel の runner では設定アプリで端末の優先言語を変更しない**（優先言語の追加・変更で SpringBoard がリロードされ、WDA が応答しなくなってセッションが watchdog に落とされる。2026-08-29 に実際にセッションが落ちた）。加えて、設定アプリ > Apps > Dear Socrates の「Language」行は端末の優先言語が 2 つ以上ないと現れないため、その経路自体が使えない。代わりに **WDA の launch API に起動引数 `-AppleLanguages` を渡してアプリだけを日本語で起動する**:
+- 表示言語の切り替え（英語 / 日本語）: アプリ内に切り替え UI は無い。**simtunnel の runner では設定アプリで端末の優先言語を変更しない**（優先言語の追加・変更で SpringBoard がリロードされ、WDA が応答しなくなってセッションが watchdog に落とされる。2026-08-29 に実際にセッションが落ちた）。加えて、設定アプリ > Apps > Dear Socrates の「Language」行は端末の優先言語が 2 つ以上ないと現れないため、その経路自体が使えない。代わりに **WDA の `POST /session` の capabilities に起動引数 `-AppleLanguages` を載せて新しいセッションを作る**。アプリを一度終了してから作り直すこと（起動中のままだと launch が activate になり引数が反映されない）:
 
 ```bash
-SID=$(bash ~/.claude/skills/ios-simulator/scripts/ios-wda.sh --session <session> session | python3 -c 'import json,sys; print(json.load(sys.stdin)["sessionId"])')
-curl -s -X POST "http://simtunnel-<session>:8100/session/$SID/wda/apps/launch" \
-  -H 'Content-Type: application/json' \
-  -d '{"bundleId":"com.bannzai.Igen","arguments":["-AppleLanguages","(ja)","-AppleLocale","ja_JP"],"shouldWaitForQuiescence":false}'
+bash ~/.claude/skills/ios-simulator/scripts/ios-wda.sh --session <session> terminate com.bannzai.Igen
+curl -s -X POST "http://simtunnel-<session>:8100/session" -H 'Content-Type: application/json' \
+  -d '{"capabilities":{"alwaysMatch":{"bundleId":"com.bannzai.Igen","arguments":["-AppleLanguages","(ja)","-AppleLocale","ja_JP"],"shouldWaitForQuiescence":false}}}'
 ```
 
-英語に戻すときは `("en")` / `en_US` を渡すか、引数なしで `launch` し直す。実機・ローカル Simulator では設定アプリ > Apps > Dear Socrates（偉言）> Language でも切り替えられる（`documents/app-review-notes.md`）。ただし runner の既定状態では設定アプリにこの Language 行が出ず、出すための優先言語の追加は simtunnel のセッションを落とす（下記「実行ナレッジ」参照）
+英語に戻すときは `(en)` / `en_US` を渡して同じ手順を踏む。既存セッションへの `POST /session/{sid}/wda/apps/launch` に `arguments` を渡しても言語は変わらない（2026-08-29 に確認）。**作ったセッション ID は `ios-wda.sh` のキャッシュ（`tmp/ios-wda/<WDA URL の cksum>.sid`）へ書き戻す**（書き戻さないと以降の `tap` / `swipe` が bundleId 無しで作られた古いセッションで実行され、アプリがバックグラウンドへ落ちてホーム画面や Spotlight を操作してしまう）。実機・ローカル Simulator では設定アプリ > Apps > Dear Socrates（偉言）> Language でも切り替えられる（`documents/app-review-notes.md`）が、その行は端末の優先言語が 2 つ以上ないと現れない
 - 相談窓口の地域分岐: 窓口は端末の「言語」ではなく「地域」で選ぶ（`ios/Igen/Features/Safety/SafetyPage.swift` が `Locale.autoupdatingCurrent.region` で分岐する）。runner の既定は US なので 988 Suicide & Crisis Lifeline が出る。**JP の窓口（いのちの電話・よりそいホットライン・まもろうよ こころ）を見るための Region 変更は、simtunnel では行わない**（設定アプリでの Region 変更も優先言語の変更と同じく SpringBoard のリロードを伴い、WDA が落ちてセッションが終了する恐れがある。上記の言語切り替えと同じ理由）。JP の窓口は実機・ローカル Simulator で確認する
 - 危機ワードの再現（本番）: 相談本文に `backend/functions/src/crisis.ts` のキーワード（例: `want to die` / `死にたい`）を含めて送信する。キーワード判定は LLM 呼び出し・無料枠消費の前に行われるため費用も無料枠も消費しない
 - 無料枠超過の再現（本番）: 同じ匿名ユーザーで同日 2 通目を送信すると HTTP 429 でペイウォールが自動表示される（LLM は呼ばれない）
@@ -82,6 +81,10 @@ curl -s -X POST "http://simtunnel-<session>:8100/session/$SID/wda/apps/launch" \
 ### simtunnel で端末の優先言語を変えるとセッションが落ちる
 
 発見日: 2026-08-29。事象: 設定アプリ > General > Language & Region > Add Language… で日本語を追加した直後、WDA (:8100) が 3 回連続でヘルスチェックに応答せず、workflow の watchdog がセッションを終了した（run 33239337299 が failure）。対処: 端末の優先言語は変更せず、「動作確認手段 > 再現が難しい操作の手順」の `-AppleLanguages` 起動引数でアプリだけ言語を変える。なおセッションが落ちなかったとしても、優先言語への「追加」では日本語 UI にはならない（判定は `ios/Igen/Shared/AppLanguage.swift` の `Bundle.main.preferredLocalizations.first == "ja"` のみで、日本語を 2 番目に足しても `en` のまま）。
+
+### 言語を変えて起動した後は ios-wda.sh のセッション ID を差し替える
+
+発見日: 2026-08-29。事象: 起動引数付きで作った WDA セッションでアプリを日本語起動した後、`ios-wda.sh` の `tap` / `swipe` を実行するとアプリがバックグラウンドへ落ち、ホーム画面や Spotlight が操作された。`ios-wda.sh` は自分が作った別のセッション（bundleId 無し = SpringBoard 相当）を `tmp/ios-wda/<cksum>.sid` にキャッシュしており、WDA がそのセッションのアプリを前面化するため。対処: 起動時に作ったセッション ID を同じファイルへ書き戻す（`tmp/qa/launch-lang.sh` が実施する）。
 
 ### simtunnel のスクリーンショットは MJPEG 経由だと途中で取れなくなる
 
