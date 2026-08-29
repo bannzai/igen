@@ -29,6 +29,7 @@ last_verified_at: null
   - 自動化: manual（レイアウトの目視確認が必要）
 - [ ] **価格の表示**: RevenueCat の offerings から取得した価格が各プランに表示される（取得できない時は「Prices could not be loaded. Tap to retry.」が出て再試行できる）
   - 自動化: manual（RevenueCat の public API key は gitignore した `ios/Config.local.xcconfig` 経由で注入する。simtunnel の runner では Secrets `REVENUECAT_PUBLIC_API_KEY_IOS` から生成され、未登録なら空値になり「準備中」表示になる）
+  - ❌ 失敗: US ストアフロントの端末で、サブスクは RevenueCat 由来の `$2.99 / 月`（USD）なのに、チケットは `¥160 / 1通`（JPY）と表示され、同じストアフロントの 2 商品で通貨が食い違う。この `¥160 / 1通` は `ios/Igen/Features/Paywall/Components/PaywallTicketPlanCard.swift` が `package?.storeProduct.localizedPriceString` を取得できない時に出す `Text(verbatim: "¥160 / 1通")` の仮価格と完全に一致する。サブスクが同じストアフロントから USD を取得できている以上、チケットの package が取れていれば USD になるはずで、チケットの package が offering から取得できていないことを示す。仕様では取得できない時は「価格を読み込めませんでした。タップして再試行できます。」を出して再試行できるはずだが、チケットはエラー表示にならず実際の請求額と異なる通貨の価格が黙って表示される。再現手順: ホームの「聞き放題プランをみる」でペイウォールを開く（相談の送信は不要）。RevenueCat の offering 設定（チケットの現行商品 ID は `igen_ticket1_160yen`）との照合が必要。issue: 未起票
 - [ ] **閉じる**: 右上の × でシートが閉じてホームに戻る
   - 自動化: manual（遷移の目視確認が必要）
 
@@ -85,8 +86,10 @@ last_verified_at: null
 
 - [ ] **サブスク購入**: 「Start Hoshiyomi」でサンドボックスの購入シートが出て、購入完了後にシートが閉じる
   - 自動化: manual（サンドボックス購入は StoreKit / RevenueCat の状態に依存する。RevenueCat の API key が空の環境ではアラート「Purchases are not available yet. Please check back soon.」が出る）
+  - ⏭️ スキップ: 実課金が発生しうるため simtunnel の runner では実行しない。サンドボックス購入は実機・TestFlight で確認する
 - [ ] **チケット購入**: 「Buy a ticket」でサンドボックスの購入シートが出て、購入完了後にシートが閉じる
   - 自動化: manual（同上）
+  - ⏭️ スキップ: 実課金が発生しうるため simtunnel の runner では実行しない。サンドボックス購入は実機・TestFlight で確認する（「価格の表示」の ❌ のとおり、チケットの package が offering から取得できていない疑いがあるため、実機確認時はあわせて購入可否も見る）
 - [ ] **購入の復元**: 「Restore purchases」でアラート「Your purchases have been restored.」が出る
   - 自動化: manual（同上）
 - [ ] **購入後に相談を続行**: 購入後に相談を送信すると無料枠超過でも返書が返る
@@ -130,7 +133,7 @@ last_verified_at: null
 
 ## 4. 法務リンク
 
-- [ ] **法務リンク 3 種**: 「Terms of Service」「Privacy Policy」「Disclosure under the Specified Commercial Transactions Act」をタップすると、表示言語に応じた `https://bannzai.github.io/igen/<Terms|PrivacyPolicy|SpecifiedCommercialTransactionAct>-<ja|en>.html` が Safari で開き、ページが表示される（HTTP 200 の確認はルート QA.md「法務ドキュメント」）
+- [ ] **法務リンク 3 種**: 「Terms of Service」「Privacy Policy」「Disclosure under the Specified Commercial Transactions Act」をタップすると Safari で `bannzai.github.io` の該当ページが開き、表示言語と同じ言語の本文が表示される（Safari の URL バーはドメインまでしか出さないため `-ja.html` / `-en.html` のパス自体は本文の言語で判定する。URL の組み立ては `ios/Igen/Shared/LegalDocumentURL.swift`、6 URL の HTTP 200 確認はルート QA.md「法務ドキュメント」）
   - 自動化: manual（遷移先の目視確認が必要）
 - [ ] **OSS ライセンス**: 「Open Source Licenses」で Licenses のシートが開く（内容は Licenses QA.md）
   - 自動化: manual（遷移の目視確認が必要）
@@ -139,7 +142,7 @@ last_verified_at: null
 <details>
 <summary>動作確認エビデンス</summary>
 
-### **法務リンク 3 種**: 「Terms of Service」「Privacy Policy」「Disclosure under the Specified Commercial Transactions Act」をタップすると、表示言語に応じた `https://bannzai.github.io/igen/<Terms|PrivacyPolicy|SpecifiedCommercialTransactionAct>-<ja|en>.html` が Safari で開き、ページが表示される（HTTP 200 の確認はルート QA.md「法務ドキュメント」）
+### **法務リンク 3 種**: 「Terms of Service」「Privacy Policy」「Disclosure under the Specified Commercial Transactions Act」をタップすると Safari で `bannzai.github.io` の該当ページが開き、表示言語と同じ言語の本文が表示される（Safari の URL バーはドメインまでしか出さないため `-ja.html` / `-en.html` のパス自体は本文の言語で判定する。URL の組み立ては `ios/Igen/Shared/LegalDocumentURL.swift`、6 URL の HTTP 200 確認はルート QA.md「法務ドキュメント」）
 
 <details><summary>動作確認スクショ</summary>
 
