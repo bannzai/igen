@@ -1,8 +1,8 @@
 ---
 feature: Share
 verification: mobile-mcp
-last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
-last_verified_at: 2026-08-29
+last_verified_commit: 78226c7062d7f2834aafa99d05625d3b6721836e
+last_verified_at: 2026-08-30
 ---
 
 # Share QA
@@ -55,11 +55,12 @@ last_verified_at: 2026-08-29
 
 ## 2. 共有と保存
 
-- [x] **共有シート**: 「Share」で iOS の共有シート（UIActivityViewController）が開き、カード画像が共有対象として表示される
+- [x] **共有シート**: 「Share」で iOS の共有シート（UIActivityViewController）が開き、カード画像が共有対象として表示される（画像向けの項目 Copy / Save Image / Assign to Contact 等が並ぶ）
   - 自動化: manual（共有シートの目視確認が必要）
+  - 補足: この項目はシートが開いて画像が共有対象として認識されるところまでを見る。実際に書き出す確認は「画像を保存」が受け持つが、そちらは https://github.com/bannzai/igen/issues/60 でアプリが落ちるため未確認
 - [ ] **画像を保存**: 「Save image」で写真への追加の許可ダイアログが出て、許可するとアラート「The share card has been saved to your photos.」が出る
   - 自動化: manual（許可ダイアログの操作と目視確認が必要）
-  - ❌ 失敗: 「Save image」を押すと許可ダイアログもアラートも出ず、**アプリがその場で落ちてホーム画面に戻る**。2 回連続で再現（1 回目は返書画面からの共有カード、2 回目は記録から再訪した返書の共有カード）。落ちた後の起動は状態を保持しないコールドスタートになる。再現手順: 相談を 1 通送って返書を受け取る →「Share」または「Create a share card」→「Save image」。原因の推定: `ios/Igen/Features/Share/SharePage.swift` の `save(cardImage:)` は `PHPhotoLibrary.requestAuthorization(for: .addOnly)` を呼ばずに `PHPhotoLibrary.shared().performChanges` を実行する。未決定状態でこの API を呼ぶと読み書き（`.readWrite`）の許可フローが走り、`ios/Igen/Info.plist` に無い `NSPhotoLibraryUsageDescription` が要求されて即時終了する（同 plist にあるのは `NSPhotoLibraryAddUsageDescription` のみ）。修正の方向は `performChanges` の前に `.addOnly` の許可を明示的に要求するか、`NSPhotoLibraryUsageDescription` を追加するかのいずれか。runner のクラッシュログは simtunnel 経由では取得できず未確認（推定の根拠は再現手順とコード・plist の突き合わせ）。issue: 未起票
+  - ❌ 失敗: 「Save image」を押すと許可ダイアログもアラートも出ず、**アプリがその場で落ちてホーム画面に戻る**。2 回連続で再現（1 回目は返書画面からの共有カード、2 回目は記録から再訪した返書の共有カード）。落ちた後の起動は状態を保持しないコールドスタートになる。再現手順: 相談を 1 通送って返書を受け取る →「Share」または「Create a share card」→「Save image」。原因の推定: `ios/Igen/Features/Share/SharePage.swift` の `save(cardImage:)` は `PHPhotoLibrary.requestAuthorization(for: .addOnly)` を呼ばずに `PHPhotoLibrary.shared().performChanges` を実行する。未決定状態でこの API を呼ぶと読み書き（`.readWrite`）の許可フローが走り、`ios/Igen/Info.plist` に無い `NSPhotoLibraryUsageDescription` が要求されて即時終了する（同 plist にあるのは `NSPhotoLibraryAddUsageDescription` のみ）。修正の方向は `performChanges` の前に `.addOnly` の許可を明示的に要求するか、`NSPhotoLibraryUsageDescription` を追加するかのいずれか。runner のクラッシュログは simtunnel 経由では取得できず未確認（推定の根拠は再現手順とコード・plist の突き合わせ）。issue: https://github.com/bannzai/igen/issues/60
 - [x] **戻る**: 「Back」でシートが閉じて返書画面に戻る
   - 自動化: manual（遷移の目視確認が必要）
 
@@ -67,7 +68,7 @@ last_verified_at: 2026-08-29
 <details>
 <summary>動作確認エビデンス</summary>
 
-### **共有シート**: 「Share」で iOS の共有シート（UIActivityViewController）が開き、カード画像が共有対象として表示される
+### **共有シート**: 「Share」で iOS の共有シート（UIActivityViewController）が開き、カード画像が共有対象として表示される（画像向けの項目 Copy / Save Image / Assign to Contact 等が並ぶ）
 
 <details><summary>動作確認スクショ</summary>
 

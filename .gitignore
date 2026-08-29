@@ -4,3 +4,6 @@ tmp/
 # RevenueCat の public API key を持つローカル設定 (public リポジトリのため実値をコミットしない。
 # 既定値の ios/Config.xcconfig と雛形の ios/Config.local.xcconfig.example は追跡する)
 ios/Config.local.xcconfig
+
+# simtunnel の mcp-config が生成するセッション固有の設定 (WDA の URL とローカル絶対パスを含むため追跡しない)
+.mcp.json

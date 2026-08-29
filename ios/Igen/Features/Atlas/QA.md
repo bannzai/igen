@@ -1,8 +1,8 @@
 ---
 feature: Atlas
 verification: mobile-mcp
-last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
-last_verified_at: 2026-08-29
+last_verified_commit: 78226c7062d7f2834aafa99d05625d3b6721836e
+last_verified_at: 2026-08-30
 ---
 
 # Atlas QA
@@ -78,7 +78,7 @@ last_verified_at: 2026-08-29
 
 - [ ] **プロフィール**: 灯った偉人をタップするとシートに名前・肩書・生没年・紹介文、「Words you received」（もらった格言の一覧）、「Read the letter」が表示される
   - 自動化: manual（出会い済みの偉人が必要）
-  - ❌ 失敗: シートに名前・肩書・生没年・紹介文までは出るが、**「Words you received」（もらった格言の一覧）と「Read the letter」ボタンがどちらも表示されない**（シートを一番上まで引き上げても紹介文の下は空白）。再現手順: 相談を 1 通送って返書を受け取る → ホーム →「Star Atlas」→ 灯った偉人（今回は Zeami）をタップ。原因: `ios/Igen/Features/Atlas/AtlasProfilePage.swift` は取得した返書が空でないときだけこの 2 つを描画し（`if !letters.isEmpty`）、取得に失敗しても `catch` で `letters = []` にするだけで何も出さない。その取得 `LettersStore.fetchLetters(personId:)` は `whereField("personId", isEqualTo:)` と `order(by: "consultedAt", descending: true)` の複合クエリで Firestore の複合インデックスを必要とするが、**igen-prod にはデプロイされていない**（`gcloud firestore indexes composite list --project igen-prod` が `Listed 0 items.`）。インデックス定義自体は `backend/firestore.indexes.json` に存在するため、未デプロイが原因。記録の一覧（`consultedAt` の単一フィールド順のみ）は既定インデックスで通るため正常に出ており、症状がプロフィールだけに出ることとも整合する。issue: 未起票
+  - ❌ 失敗: シートに名前・肩書・生没年・紹介文までは出るが、**「Words you received」（もらった格言の一覧）と「Read the letter」ボタンがどちらも表示されない**（シートを一番上まで引き上げても紹介文の下は空白）。再現手順: 相談を 1 通送って返書を受け取る → ホーム →「Star Atlas」→ 灯った偉人（今回は Zeami）をタップ。原因: `ios/Igen/Features/Atlas/AtlasProfilePage.swift` は取得した返書が空でないときだけこの 2 つを描画し（`if !letters.isEmpty`）、取得に失敗しても `catch` で `letters = []` にするだけで何も出さない。その取得 `LettersStore.fetchLetters(personId:)` は `whereField("personId", isEqualTo:)` と `order(by: "consultedAt", descending: true)` の複合クエリで Firestore の複合インデックスを必要とするが、**igen-prod にはデプロイされていない**（`gcloud firestore indexes composite list --project igen-prod` が `Listed 0 items.`）。インデックス定義自体は `backend/firestore.indexes.json` に存在するため、未デプロイが原因。記録の一覧（`consultedAt` の単一フィールド順のみ）は既定インデックスで通るため正常に出ており、症状がプロフィールだけに出ることとも整合する。issue: https://github.com/bannzai/igen/issues/61
 - [ ] **返書を読む**: 「Read the letter」で登場演出なしの返書（Reply）が開き、「Close」でプロフィールに戻る
   - 自動化: manual（遷移の目視確認が必要）
   - ❌ 失敗（上記「プロフィール」に起因）: プロフィールに「Read the letter」ボタンが表示されないため押せず、この経路の返書を開けない。ボタンが出ない原因と再現手順は「プロフィール」の記載を参照

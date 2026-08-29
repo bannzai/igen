@@ -1,8 +1,8 @@
 ---
 feature: Paywall
 verification: mobile-mcp
-last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
-last_verified_at: 2026-08-29
+last_verified_commit: 78226c7062d7f2834aafa99d05625d3b6721836e
+last_verified_at: 2026-08-30
 ---
 
 # Paywall QA
@@ -95,6 +95,7 @@ last_verified_at: 2026-08-29
   - ⏭️ スキップ: 実課金が発生しうるため simtunnel の runner では実行しない。サンドボックス購入は実機・TestFlight で確認する（「価格の表示」の ❌ のとおり、チケットの package が offering から取得できていない疑いがあるため、実機確認時はあわせて購入可否も見る）
 - [x] **購入の復元**: 「Restore purchases」でアラート「Your purchases have been restored.」が出る
   - 自動化: manual（同上）
+  - 補足: `PaywallPage.restore()` は `Purchases.shared.restorePurchases()` の戻り値を捨てて、例外が出なければ常にこのアラートを出す。したがってこの項目は「復元の導線が動く」ことしか見ていない。購入済みアカウントで entitlement が実際に戻るか（聞き放題が有効になるか）の確認は、購入を伴うため実機・TestFlight で行う
 - [ ] **購入後に相談を続行**: 購入後に相談を送信すると無料枠超過でも返書が返る
   - 自動化: manual（購入が通る環境が必要）
   - ⏭️ スキップ: 実課金が発生しうるため simtunnel の runner では購入を実行しない。購入を伴うこの確認は実機・TestFlight で行う

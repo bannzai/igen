@@ -1,8 +1,8 @@
 ---
 feature: _root
 verification: mobile-mcp
-last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
-last_verified_at: 2026-08-29
+last_verified_commit: 78226c7062d7f2834aafa99d05625d3b6721836e
+last_verified_at: 2026-08-30
 ---
 
 # QA 全体ガイド
@@ -56,6 +56,10 @@ Firebase Authentication の匿名認証のみ。起動時に自動でサイン�
 - 画面操作・スクリーンショット: `/verify-ui-mobile-mcp`（simtunnel 経由でもそのまま動く。セッション途中から simtunnel を使う時は `.mcp.json` が読まれないため `bash ~/.claude/skills/ios-simulator/scripts/ios-wda.sh --session <session> ...` を使う）
 - Maestro flow は未整備（`自動化: auto` の項目は無い）
 - エビデンスの画像は `gh-r2-image` でアップロードした URL のみを記録する
+- QA 用のヘルパースクリプトは `scripts/qa/` にある（リポジトリに追跡されているので clone すれば使える）
+  - `scripts/qa/launch-lang.sh <session> <ja|en>`: 端末設定を変えずにアプリだけ指定言語で起動する
+  - `scripts/qa/launch-appcheck.sh <session>`: App Check のデバッグトークンを載せてアプリを起動する
+  - `scripts/qa/shot.sh <session> <出力パス>`: MJPEG に依存しないスクリーンショット取得
 
 ### 再現が難しい操作の手順
 
@@ -82,7 +86,7 @@ curl -s -X POST "http://simtunnel-<session>:8100/session" -H 'Content-Type: appl
 
 発見日: 2026-08-29。事象: 新しいセッションの新規インストール直後に相談を送ると、待機表示すら出ずに数秒で「The letter could not be delivered. Please try again later.」になった。ネットワークは生きており（ペイウォールに RevenueCat 由来の `$2.99 / month` が出る）、Cloud Logging では `POST /api/letters` が 401 を返している（`gcloud logging read --project igen-prod` の httpRequest。クライアントは 401 でトークンを強制更新して 1 回だけ再送するため 1 回の送信につき 401 が 2 件並ぶ）。デプロイ済みの Cloud Run サービス `api` に `IGEN_APP_CHECK_ENFORCEMENT` が設定されておらず、`backend/functions/src/appCheck.ts` の既定で `enforce` になるため、App Check トークンが無い・未登録のリクエストは 401 `app_check_failed` で弾かれる。runner の Simulator は `AppCheckDebugProviderFactory` になり、デバッグトークンはインストールごとに変わるため、セッションを作り直すたびに未登録の状態になる。
 
-対処: CLAUDE.md「実装したUIの検証」の 4 のとおり、`FIRAAppCheckDebugToken` を環境変数に載せてアプリを起動し直す。`tmp/qa/launch-appcheck.sh <session>` がこれを行う（`~/.config/igen/appcheck-debug-token-simtunnel.secret` から読み、WDA の `POST /session` の capabilities の `environment` に載せて新しいセッションを作り、session id を `ios-wda.sh` のキャッシュへ書き戻す）。**起動中のまま launch すると activate になり環境変数が反映されない**ため、必ず terminate してから作り直す。なお同 secret ファイルのコメントにある `ios-wda.sh ... launch --env-file <ファイル>` という使い方は、`ios-wda.sh` に `--env-file` が実装されていないため現状は使えない。
+対処: CLAUDE.md「実装したUIの検証」の 4 のとおり、`FIRAAppCheckDebugToken` を環境変数に載せてアプリを起動し直す。`scripts/qa/launch-appcheck.sh <session>` がこれを行う（`~/.config/igen/appcheck-debug-token-simtunnel.secret` から読み、WDA の `POST /session` の capabilities の `environment` に載せて新しいセッションを作り、session id を `ios-wda.sh` のキャッシュへ書き戻す）。**起動中のまま launch すると activate になり環境変数が反映されない**ため、必ず terminate してから作り直す。なお同 secret ファイルのコメントにある `ios-wda.sh ... launch --env-file <ファイル>` という使い方は、`ios-wda.sh` に `--env-file` が実装されていないため現状は使えない。
 
 ### runner の Simulator が外部の名前解決をできなくなることがある
 
@@ -100,7 +104,7 @@ curl -s -X POST "http://simtunnel-<session>:8100/session" -H 'Content-Type: appl
 
 ### 言語を変えて起動した後は ios-wda.sh のセッション ID を差し替える
 
-発見日: 2026-08-29。事象: 起動引数付きで作った WDA セッションでアプリを日本語起動した後、`ios-wda.sh` の `tap` / `swipe` を実行するとアプリがバックグラウンドへ落ち、ホーム画面や Spotlight が操作された。`ios-wda.sh` は自分が作った別のセッション（bundleId 無し = SpringBoard 相当）を `tmp/ios-wda/<cksum>.sid` にキャッシュしており、WDA がそのセッションのアプリを前面化するため。対処: 起動時に作ったセッション ID を同じファイルへ書き戻す（`tmp/qa/launch-lang.sh` が実施する）。
+発見日: 2026-08-29。事象: 起動引数付きで作った WDA セッションでアプリを日本語起動した後、`ios-wda.sh` の `tap` / `swipe` を実行するとアプリがバックグラウンドへ落ち、ホーム画面や Spotlight が操作された。`ios-wda.sh` は自分が作った別のセッション（bundleId 無し = SpringBoard 相当）を `tmp/ios-wda/<cksum>.sid` にキャッシュしており、WDA がそのセッションのアプリを前面化するため。対処: 起動時に作ったセッション ID を同じファイルへ書き戻す（`scripts/qa/launch-lang.sh` が実施する）。
 
 ### simtunnel のスクリーンショットは MJPEG 経由だと取れないことがある
 

@@ -1,8 +1,8 @@
 ---
 feature: Home
 verification: mobile-mcp
-last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
-last_verified_at: 2026-08-29
+last_verified_commit: 78226c7062d7f2834aafa99d05625d3b6721836e
+last_verified_at: 2026-08-30
 ---
 
 # Home QA

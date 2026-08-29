@@ -1,8 +1,8 @@
 ---
 feature: Safety
 verification: mobile-mcp
-last_verified_commit: 260cc34ccaa5f1e5f0479e7e16d75806745d7829
-last_verified_at: 2026-08-29
+last_verified_commit: 78226c7062d7f2834aafa99d05625d3b6721836e
+last_verified_at: 2026-08-30
 ---
 
 # Safety QA
@@ -69,7 +69,7 @@ last_verified_at: 2026-08-29
 
 - [x] **案内画面の内容**: 「Thank you for telling me something so important.」、専門の支援を提供できない旨の文言、相談窓口カード、「No letter has been sent for this consultation.」、「Back to Home」が表示され、星空の演出が暗く抑えられている
   - 自動化: manual（トーン・レイアウトの目視確認が必要）
-- [x] **地域別の窓口（US / JP）**: 端末の地域が US なら「988 Suicide & Crisis Lifeline」、JP なら「いのちの電話」「よりそいホットライン」「まもろうよ こころ」、それ以外なら「Find a Helpline」が表示される（分岐は言語ではなく地域）
+- [ ] **地域別の窓口（US / JP）**: 端末の地域が US なら「988 Suicide & Crisis Lifeline」、JP なら「いのちの電話」「よりそいホットライン」「まもろうよ こころ」、それ以外なら「Find a Helpline」が表示される（分岐は言語ではなく地域）
   - 自動化: manual（地域の切り替えは設定アプリで行う。ルート QA.md「再現が難しい操作の手順」参照）
   - ⏭️ 一部のみ確認: runner の地域は US のため「988 Suicide & Crisis Lifeline」（988 / 24/7, free and confidential (US)）が出ることを確認した。JP の窓口（いのちの電話・よりそいホットライン・まもろうよ こころ）と既定の Find a Helpline は、地域の変更が設定アプリでの操作になり simtunnel ではセッションが落ちるため未確認（root QA.md「再現が難しい操作の手順」）
 - [ ] **窓口リンク**: 電話番号のカードをタップすると `tel:` の発信確認、Web の窓口をタップすると Safari で該当ページが開く
@@ -77,7 +77,7 @@ last_verified_at: 2026-08-29
   - ⏭️ スキップ: 988 のカードをタップしても発信の確認ダイアログは出ず、画面は変化しなかった。Simulator は telephony を持たず `tel:` を開けないため確認ダイアログ自体が出ない（実機で確認する）。US の窓口は `ios/Igen/Features/Safety/SafetyPage.swift` の `SafetyResource.resources(regionCode:)` で 988 の電話カード 1 件のみ（`url` は nil）で、Web の窓口が無いため Safari で開く経路もこの地域には存在しない
 - [ ] **ホームに戻る**: 「Back to Home」でホームに戻り、入力欄が空になっている
   - 自動化: manual（遷移の目視確認が必要）
-  - ❌ 失敗: 「Back to Home」でホームに戻っても入力欄に相談本文が残ったまま（文字数カウンタが 54 のままで、プレースホルダも出ない）。再現手順: ホームで危機ワードを含む本文（例: `I feel like I want to die and nothing matters anymore.`）を入力して「Ask the Greats」→ 案内画面 →「Back to Home」→ 入力欄を見る。原因: `ios/Igen/Features/Home/HomePage.swift` の `send()` は `.letter` の分岐でだけ `draft` を空にしており（生成中に編集されていなければクリアする条件つき）、`.safety` の分岐は `safetyNoticeIsPresented = true` にするだけで `draft` に触れない。危機を打ち明けた本文が画面に残り続ける点でも望ましくない。issue: 未起票
+  - ❌ 失敗: 「Back to Home」でホームに戻っても入力欄に相談本文が残ったまま（文字数カウンタが 54 のままで、プレースホルダも出ない）。再現手順: ホームで危機ワードを含む本文（例: `I feel like I want to die and nothing matters anymore.`）を入力して「Ask the Greats」→ 案内画面 →「Back to Home」→ 入力欄を見る。原因: `ios/Igen/Features/Home/HomePage.swift` の `send()` は `.letter` の分岐でだけ `draft` を空にしており（生成中に編集されていなければクリアする条件つき）、`.safety` の分岐は `safetyNoticeIsPresented = true` にするだけで `draft` に触れない。危機を打ち明けた本文が画面に残り続ける点でも望ましくない。issue: https://github.com/bannzai/igen/issues/62
 
 #### 動作確認
 <details>
