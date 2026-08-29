@@ -90,9 +90,13 @@ curl -s -X POST "http://simtunnel-<session>:8100/session" -H 'Content-Type: appl
 
 発見日: 2026-08-29。事象: 起動引数付きで作った WDA セッションでアプリを日本語起動した後、`ios-wda.sh` の `tap` / `swipe` を実行するとアプリがバックグラウンドへ落ち、ホーム画面や Spotlight が操作された。`ios-wda.sh` は自分が作った別のセッション（bundleId 無し = SpringBoard 相当）を `tmp/ios-wda/<cksum>.sid` にキャッシュしており、WDA がそのセッションのアプリを前面化するため。対処: 起動時に作ったセッション ID を同じファイルへ書き戻す（`tmp/qa/launch-lang.sh` が実施する）。
 
-### simtunnel のスクリーンショットは MJPEG 経由だと途中で取れなくなる
+### simtunnel のスクリーンショットは MJPEG 経由だと取れないことがある
 
-発見日: 2026-08-29。事象: `ios-wda.sh shot` が「MJPEG フレームを取得できませんでした」を返し続けた（WDA 自体は `status` / `elements` に応答しており生存していた）。対処: `~/ghq/github.com/bannzai/simtunnel/local/simtunnel screenshot <session> <出力パス>` で撮る（MJPEG を使わないため安定する）。
+発見日: 2026-08-29。事象: `ios-wda.sh shot` が「MJPEG フレームを取得できませんでした」、`simtunnel screenshot` が「フレームを取得できなかった (受信 0 bytes)」を返した（WDA 自体は `status` / `elements` に応答しており生存していた）。どちらも MJPEG (serve_sim) 経由のため、serve_sim が未起動・停止していると撮れない。対処: WDA の `GET /screenshot`（base64 PNG）を使う。serve_sim に依存しない:
+
+```bash
+curl -s "http://simtunnel-<session>:8100/screenshot" | python3 -c 'import base64,json,sys; sys.stdout.buffer.write(base64.b64decode(json.load(sys.stdin)["value"]))' > shot.png
+```
 
 ## 横断確認項目
 
