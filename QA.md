@@ -80,7 +80,13 @@ curl -s -X POST "http://simtunnel-<session>:8100/session" -H 'Content-Type: appl
 
 ### runner の Simulator が外部の名前解決をできなくなることがある
 
-発見日: 2026-08-29。事象: セッション途中から Simulator の全 HTTP 通信が失敗し、相談の送信が約 300 秒後に「The letter could not be delivered. Please try again later.」になった。Safari で `bannzai.github.io`（同じセッションで直前に開けていた）も「Safari can't open the page because the server can't be found.」になり、cloudfunctions.net 固有ではなく DNS 全体の障害と判明（ローカル macOS からは同じホストを解決できる）。WDA 自体は生存しており `status` / `elements` には応答する。対処: セッションを立て直す（`simtunnel up <session> --force`）。アプリ側の不具合と誤判定しないよう、送信が失敗したらまず Simulator の Safari で任意の外部サイトを開いて切り分ける。
+発見日: 2026-08-29。事象: セッション途中から Simulator の全 HTTP 通信が失敗し、相談の送信が約 300 秒後に「The letter could not be delivered. Please try again later.」になった。Safari で `bannzai.github.io`（同じセッションで直前に開けていた）も「Safari can't open the page because the server can't be found.」になり、cloudfunctions.net 固有ではなく DNS 全体の障害と判明（ローカル macOS からは同じホストを解決できる）。WDA 自体は生存しており `status` / `elements` には応答する。対処: セッションを立て直す（`simtunnel up <session> --force`）。アプリ側の不具合と誤判定しないよう、送信が失敗したら Simulator の Safari で任意の外部サイトを開いて切り分ける（ただし Safari の操作自体が WDA を落としうるため、送信前の定型手順にはしない。下記「Simulator の Safari で URL を開くと WDA が無応答になりセッションが落ちることがある」を参照）。
+
+### Simulator の Safari で URL を開くと WDA が無応答になりセッションが落ちることがある
+
+発見日: 2026-08-29。事象: セッション `igen-49`（run 33243817014）で、WDA が ready になった直後に `ios-wda.sh launch com.apple.mobilesafari` → アドレスバーを tap → `keys` で URL + 改行を送って外部サイトへ遷移させたところ、その直後から WDA (:8100) が `status` にも `elements` にも応答しなくなり、watchdog が 4 回連続の無応答でセッションを終了した（09:07:18 UTC にセッション維持開始 → 09:08:12 に無応答 1/4 → 09:09:27 に終了）。Safari を前面にしたままの `elements`（WDA の `GET /source`）は Web の DOM 全体をアクセシビリティツリーに展開するため重く、これが引き金になった可能性がある。
+
+対処と順序: **ネットワークの切り分けのために Safari を開くことを送信前の定型手順にしない**。危機ワードを含む相談の送信は無料枠も LLM 費用も消費しないので、まずそれを送るのが最も安全な疎通確認になる（成功すれば Safety の確認項目も同時に消化できる）。送信が約 300 秒後に「The letter could not be delivered. Please try again later.」で失敗した時にだけ、切り分けとして Safari を使う。その場合も Safari を前面にしたまま `elements` を叩かず、スクリーンショット（下記の `GET /screenshot`）で判定し、確認が終わったらすぐ `terminate com.apple.mobilesafari` する。
 
 ### simtunnel で端末の優先言語を変えるとセッションが落ちる
 
