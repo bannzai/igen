@@ -62,9 +62,21 @@ jobs:
           path: tmp/ios-test.log
           retention-days: 7
 
+      # xcresult はそのままだと数百 MB になりダウンロードが現実的でないため、
+      # UITests が添付したスクリーンショットだけを取り出して artifact にする
+      - name: スクリーンショットを取り出す
+        if: always()
+        run: |
+          mkdir -p tmp/attachments
+          xcrun xcresulttool export attachments \
+            --path tmp/IgenTests.xcresult \
+            --output-path tmp/attachments || echo "添付の取り出しに失敗（テストが添付を残していない場合もある）"
+          ls -la tmp/attachments || true
+
       - if: always()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: ios-test-xcresult
-          path: tmp/IgenTests.xcresult
+          name: ios-test-attachments
+          path: tmp/attachments
           retention-days: 7
+          if-no-files-found: ignore
