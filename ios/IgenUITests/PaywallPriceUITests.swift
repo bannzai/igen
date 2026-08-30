@@ -25,9 +25,20 @@ final class PaywallPriceUITests: XCTestCase {
     add(attachment)
   }
 
+  /// 新規インストール直後はオンボーディングが全画面で出るため、ホームに到達するまで閉じる。
+  /// 表示済み (onboardingCompleted) の端末では出ないので、出た時だけスキップする
+  @MainActor
+  private func dismissOnboardingIfNeeded(app: XCUIApplication) {
+    let skip = app.buttons["Skip"]
+    if skip.waitForExistence(timeout: 10) {
+      skip.tap()
+    }
+  }
+
   @MainActor
   func testPaywallShowsStorePrices() throws {
     let app = launchApp()
+    dismissOnboardingIfNeeded(app: app)
 
     let paywallLink = app.buttons["See the unlimited plan"]
     XCTAssertTrue(paywallLink.waitForExistence(timeout: 30))
