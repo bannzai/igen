@@ -2,10 +2,11 @@ import RevenueCat
 import SwiftUI
 
 /// 聞き放題サブスク「星読み」のプランカード (featured。金枠 + グロー + いちばん人気バッジ)。
-/// 価格は StoreKit のローカライズ済み価格を表示し、offering 未取得 (SDK 未設定) の間は仮価格を表示する
+/// 価格は StoreKit のローカライズ済み価格をそのまま表示する。ストアが正を持つ値のため、
+/// 取得できない時に代わりの金額を表示することはしない (#59。呼び出し側がカードごと出さない)
 struct PaywallUnlimitedPlanCard: View {
-  /// 購入対象の月額パッケージ。取得済みならローカライズ済み価格の表示にも使う
-  var package: Package?
+  /// 購入対象の月額パッケージ。ローカライズ済み価格の表示にも使う
+  var package: Package
   var purchasing: Bool
   var onPressed: () -> Void
 
@@ -25,17 +26,10 @@ struct PaywallUnlimitedPlanCard: View {
         .font(.igenSerif(size: 17, weight: .semibold))
         .foregroundStyle(Color.igenText)
 
-      if let priceString = package?.storeProduct.localizedPriceString {
-        // ja: %@ / 月
-        Text("\(priceString) / month")
-          .font(.igenSerif(size: 22, weight: .semibold))
-          .foregroundStyle(Color.igenGoldBright)
-      } else {
-        // SDK 未設定の間の仮価格 (#16 でストア価格を設定したら package 側の表示になる)
-        Text(verbatim: "¥480 / 月")
-          .font(.igenSerif(size: 22, weight: .semibold))
-          .foregroundStyle(Color.igenGoldBright)
-      }
+      // ja: %@ / 月
+      Text("\(package.storeProduct.localizedPriceString) / month")
+        .font(.igenSerif(size: 22, weight: .semibold))
+        .foregroundStyle(Color.igenGoldBright)
 
       VStack(alignment: .leading, spacing: 6) {
         // ja: 返書無制限
@@ -80,8 +74,30 @@ struct PaywallUnlimitedPlanCard: View {
 
 struct PaywallUnlimitedPlanCard_Previews: PreviewProvider {
   static var previews: some View {
-    PaywallUnlimitedPlanCard(package: nil, purchasing: false, onPressed: {})
-      .padding()
-      .background(Color.igenSheet)
+    PaywallUnlimitedPlanCard(
+      // 実行時はストアが解決した Package を渡す。プレビューは描画の確認だけが目的のため、
+      // RevenueCat がプレビュー・テスト用に用意している TestStoreProduct で組み立てる
+      package: Package(
+        identifier: "$rc_monthly",
+        packageType: .monthly,
+        storeProduct: TestStoreProduct(
+          localizedTitle: "Unlimited",
+          price: 480,
+          currencyCode: "JPY",
+          localizedPriceString: "¥480",
+          productIdentifier: "igen_unlimited_monthly_480yen",
+          productType: .autoRenewableSubscription,
+          localizedDescription: "",
+          subscriptionPeriod: SubscriptionPeriod(value: 1, unit: .month),
+          locale: Locale(identifier: "ja_JP")
+        ).toStoreProduct(),
+        offeringIdentifier: "default",
+        webCheckoutUrl: nil
+      ),
+      purchasing: false,
+      onPressed: {}
+    )
+    .padding()
+    .background(Color.igenSheet)
   }
 }

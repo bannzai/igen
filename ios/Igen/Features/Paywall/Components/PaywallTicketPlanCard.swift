@@ -2,10 +2,11 @@ import RevenueCat
 import SwiftUI
 
 /// 相談チケット「ひとしずく」(consumable) のプランカード。
-/// 価格は StoreKit のローカライズ済み価格を表示し、offering 未取得 (SDK 未設定) の間は仮価格を表示する
+/// 価格は StoreKit のローカライズ済み価格をそのまま表示する。ストアが正を持つ値のため、
+/// 取得できない時に代わりの金額を表示することはしない (#59。呼び出し側がカードごと出さない)
 struct PaywallTicketPlanCard: View {
-  /// 購入対象のチケットパッケージ。取得済みならローカライズ済み価格の表示にも使う
-  var package: Package?
+  /// 購入対象のチケットパッケージ。ローカライズ済み価格の表示にも使う
+  var package: Package
   var purchasing: Bool
   var onPressed: () -> Void
 
@@ -16,17 +17,10 @@ struct PaywallTicketPlanCard: View {
         .font(.igenSerif(size: 15, weight: .semibold))
         .foregroundStyle(Color.igenText)
 
-      if let priceString = package?.storeProduct.localizedPriceString {
-        // ja: %@ / 1通
-        Text("\(priceString) / 1 letter")
-          .font(.igenSerif(size: 18, weight: .semibold))
-          .foregroundStyle(Color.igenGoldBright)
-      } else {
-        // SDK 未設定の間の仮価格 (#16 でストア価格を設定したら package 側の表示になる)
-        Text(verbatim: "¥160 / 1通")
-          .font(.igenSerif(size: 18, weight: .semibold))
-          .foregroundStyle(Color.igenGoldBright)
-      }
+      // ja: %@ / 1通
+      Text("\(package.storeProduct.localizedPriceString) / 1 letter")
+        .font(.igenSerif(size: 18, weight: .semibold))
+        .foregroundStyle(Color.igenGoldBright)
 
       // ja: 今夜だけ、もう一通。
       Text("Just one more letter, for tonight.")
@@ -65,8 +59,29 @@ struct PaywallTicketPlanCard: View {
 
 struct PaywallTicketPlanCard_Previews: PreviewProvider {
   static var previews: some View {
-    PaywallTicketPlanCard(package: nil, purchasing: false, onPressed: {})
-      .padding()
-      .background(Color.igenSheet)
+    PaywallTicketPlanCard(
+      // 実行時はストアが解決した Package を渡す。プレビューは描画の確認だけが目的のため、
+      // RevenueCat がプレビュー・テスト用に用意している TestStoreProduct で組み立てる
+      package: Package(
+        identifier: "ticket_1",
+        packageType: .custom,
+        storeProduct: TestStoreProduct(
+          localizedTitle: "Ticket",
+          price: 160,
+          currencyCode: "JPY",
+          localizedPriceString: "¥160",
+          productIdentifier: "igen_ticket1_160yen",
+          productType: .consumable,
+          localizedDescription: "",
+          locale: Locale(identifier: "ja_JP")
+        ).toStoreProduct(),
+        offeringIdentifier: "default",
+        webCheckoutUrl: nil
+      ),
+      purchasing: false,
+      onPressed: {}
+    )
+    .padding()
+    .background(Color.igenSheet)
   }
 }

@@ -16,13 +16,13 @@ struct PaywallPage: View {
 
   /// チケット (consumable) のパッケージ。offering に別の custom package があっても
   /// バックエンドが数えるストア商品 ID (PurchasesSetup.ticketProductID) と一致するものだけを選ぶ
-  private var ticketPackage: Package? {
+  private func ticketPackage(offerings: Offerings?) -> Package? {
     offerings?.current?.availablePackages.first(where: {
       $0.storeProduct.productIdentifier == PurchasesSetup.ticketProductID
     })
   }
 
-  /// offering の取得中か (SDK が使える環境でのみ真になりうる)。取得完了まで購入 CTA を待機させる
+  /// offering の取得中か (SDK が使える環境でのみ真になりうる)。取得完了までプランを出さずに待たせる
   private var offeringsLoading: Bool {
     PurchasesSetup.isAvailable && offerings == nil && !offeringsLoadFailed
   }
@@ -59,20 +59,25 @@ struct PaywallPage: View {
             .lineSpacing(8)
             .foregroundStyle(Color.igenText.opacity(0.8))
 
-          PaywallUnlimitedPlanCard(
-            package: offerings?.current?.monthly,
-            purchasing: purchasing || offeringsLoading
-          ) {
-            Analytics.logEvent("paywall_subscribe_button_pressed", parameters: nil)
-            purchase(packageType: .monthly)
+          if offeringsLoading {
+            ProgressView()
+              .tint(Color.igenGoldBright)
+              .padding(.vertical, 24)
           }
 
-          PaywallTicketPlanCard(
-            package: ticketPackage,
-            purchasing: purchasing || offeringsLoading
-          ) {
-            Analytics.logEvent("paywall_ticket_button_pressed", parameters: nil)
-            purchase(packageType: .custom)
+          // 価格はストアが正を持つ。解決できなかったプランは代わりの金額を出さずに伏せる (#59)
+          if let monthlyPackage = offerings?.current?.monthly {
+            PaywallUnlimitedPlanCard(package: monthlyPackage, purchasing: purchasing) {
+              Analytics.logEvent("paywall_subscribe_button_pressed", parameters: nil)
+              purchase(packageType: .monthly)
+            }
+          }
+
+          if let ticketPackage = ticketPackage(offerings: offerings) {
+            PaywallTicketPlanCard(package: ticketPackage, purchasing: purchasing) {
+              Analytics.logEvent("paywall_ticket_button_pressed", parameters: nil)
+              purchase(packageType: .custom)
+            }
           }
 
           if offeringsLoadFailed {
@@ -168,7 +173,14 @@ struct PaywallPage: View {
     }
     offeringsLoadFailed = false
     do {
-      offerings = try await Purchases.shared.offerings()
+      let loadedOfferings = try await Purchases.shared.offerings()
+      offerings = loadedOfferings
+      // offering を取得できても購入できる package が 1 つも解決できなければ購入手段が無いため、
+      // 読み込み失敗として再試行導線に倒す
+      if loadedOfferings.current?.monthly == nil, ticketPackage(offerings: loadedOfferings) == nil {
+        offeringsLoadFailed = true
+        return
+      }
       Analytics.logEvent("paywall_offerings_loaded", parameters: nil)
     } catch {
       offeringsLoadFailed = true
@@ -181,7 +193,7 @@ struct PaywallPage: View {
       purchasesUnavailableAlertIsPresented = true
       return
     }
-    let package = packageType == .monthly ? offerings?.current?.monthly : ticketPackage
+    let package = packageType == .monthly ? offerings?.current?.monthly : ticketPackage(offerings: offerings)
     if let package {
       purchasing = true
       Task {
