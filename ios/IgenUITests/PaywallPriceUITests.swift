@@ -1,12 +1,16 @@
 import XCTest
 
-/// ペイウォールがストア価格を表示することを、実 RevenueCat (offerings) + StoreKit Configuration (Igen.storekit) で検証する。
-/// Igen スキームの StoreKit Configuration により、商品は App Store ではなく Igen.storekit から解決される
-/// (xcodebuild test / Xcode の Run にだけ反映される。simctl launch には渡せない)。
+/// ペイウォールがストア価格を表示することを、実 RevenueCat (offerings) 経由で検証する。
 /// offerings の取得には RevenueCat の public API key (ios/Config.local.xcconfig) と、
-/// 実 Firebase プロジェクトでの匿名認証 (IGEN_USE_PROD=1) が必要
+/// 実 Firebase プロジェクトでの匿名認証 (IGEN_USE_PROD=1) が必要。
+/// 価格は StoreKit のローカライズ済み価格をそのまま出すため、通貨・金額は実行環境のストアフロントで変わる
+/// (CI の macOS Runner は US ストアフロント)。金額を固定で期待せず、表示の形だけを見る。
+/// スキームには StoreKit Configuration (Igen.storekit) を設定しているが、iOS 26.5 の simulator では
+/// StoreKit Testing が機能しない既知の問題があり (IgenTests/Purchases/StoreKitConfigurationTests.swift 参照)、
+/// CI では実ストアの価格が出る
 final class PaywallPriceUITests: XCTestCase {
   /// Debug ビルドの既定は Firebase Emulator 向きのため、匿名認証と RevenueCat の初期化が通る実プロジェクトに向ける
+  @MainActor
   private func launchApp() -> XCUIApplication {
     let app = XCUIApplication()
     app.launchEnvironment["IGEN_USE_PROD"] = "1"
@@ -18,6 +22,7 @@ final class PaywallPriceUITests: XCTestCase {
 
   /// 画面を xcresult の添付として残す (PR の動作確認の軌跡用。
   /// `xcrun xcresulttool export attachments --path <xcresult> --output-path <dir>` で取り出せる)
+  @MainActor
   private func attachScreenshot(app: XCUIApplication, name: String) {
     let attachment = XCTAttachment(screenshot: app.screenshot())
     attachment.name = name
@@ -44,12 +49,17 @@ final class PaywallPriceUITests: XCTestCase {
     XCTAssertTrue(paywallLink.waitForExistence(timeout: 30))
     paywallLink.tap()
 
-    // 価格は "<localizedPriceString> / month" の形で表示される。offering 未取得の間の仮価格 (verbatim "¥480 / 月") とは区別できる。
     // 匿名認証 → RevenueCat 初期化 → offerings 取得 → StoreKit の商品解決までを待つ
-    let monthlyPrice = app.staticTexts["¥480 / month"]
-    XCTAssertTrue(monthlyPrice.waitForExistence(timeout: 60), "月額の価格が StoreKit Configuration の定義どおりに表示されない")
-    XCTAssertTrue(app.staticTexts["¥160 / 1 letter"].exists, "チケットの価格が StoreKit Configuration の定義どおりに表示されない")
+    let monthlyPrice = app.staticTexts.matching(NSPredicate(format: "label ENDSWITH %@", " / month")).firstMatch
+    XCTAssertTrue(monthlyPrice.waitForExistence(timeout: 60), "月額の価格がストア価格として表示されない")
     XCTAssertFalse(app.buttons["Prices could not be loaded. Tap to retry."].exists, "価格の取得に失敗している")
+
+    // チケットは実ストアの状態によって package が解決できないことがある。
+    // 解決できない時に仮価格で埋めず、カードごと出さないことを見る (#59)
+    if app.buttons["Buy a ticket"].exists {
+      let ticketPrice = app.staticTexts.matching(NSPredicate(format: "label ENDSWITH %@", " / 1 letter")).firstMatch
+      XCTAssertTrue(ticketPrice.exists, "チケットの価格がストア価格として表示されない")
+    }
 
     attachScreenshot(app: app, name: "paywall-store-prices")
   }
