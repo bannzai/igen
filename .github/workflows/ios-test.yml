@@ -63,7 +63,9 @@ jobs:
           retention-days: 7
 
       # xcresult はそのままだと数百 MB になりダウンロードが現実的でないため、
-      # UITests が添付したスクリーンショットだけを取り出して artifact にする
+      # UITests が添付したスクリーンショットだけを取り出して artifact にする。
+      # 取り出した中身も UITest の自動記録 (mp4) やログ (txt) が大半を占めるため、
+      # 画面の確認に使う png と、添付名を引くための manifest.json だけ残す
       - name: スクリーンショットを取り出す
         if: always()
         run: |
@@ -71,6 +73,7 @@ jobs:
           xcrun xcresulttool export attachments \
             --path tmp/IgenTests.xcresult \
             --output-path tmp/attachments || echo "添付の取り出しに失敗（テストが添付を残していない場合もある）"
+          find tmp/attachments -type f ! -name '*.png' ! -name 'manifest.json' -delete
           ls -la tmp/attachments || true
 
       - if: always()
