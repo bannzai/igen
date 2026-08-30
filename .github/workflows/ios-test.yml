@@ -37,6 +37,7 @@ jobs:
             -scheme Igen \
             -destination "platform=iOS Simulator,name=iPhone 17" \
             -derivedDataPath tmp/DerivedData \
+            -resultBundlePath tmp/IgenTests.xcresult \
             -skip-testing:IgenUITests/AppStoreScreenshot1PageSnapshotUITest \
             -skip-testing:IgenUITests/AppStoreScreenshot2PageSnapshotUITest \
             -skip-testing:IgenUITests/AppStoreScreenshot3PageSnapshotUITest \
@@ -53,10 +54,17 @@ jobs:
           # XCTest は「Test Suite ... passed」、Swift Testing は「✔ Test run with N tests ...」と別形式で出す
           grep -E "^Test Suite 'All tests' (passed|failed)|Test run with .* (passed|failed)" tmp/ios-test.log | tail -n 5
 
-      # 失敗時の切り分け用。ログ全文を残す（成功時も warning の確認に使える）
+      # 失敗時の切り分け用。ログ全文と xcresult（UITests のスクリーンショット添付を含む）を残す
       - if: always()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ios-test-log
           path: tmp/ios-test.log
+          retention-days: 7
+
+      - if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: ios-test-xcresult
+          path: tmp/IgenTests.xcresult
           retention-days: 7
