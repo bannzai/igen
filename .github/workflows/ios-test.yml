@@ -1,6 +1,7 @@
 # ios/ の PR チェック。実行コマンドは CLAUDE.md の「iOS」検証方法と一致させる。
-# ユニットテスト (IgenTests) だけを回す。IgenUITests は Simulator の起動を伴い時間がかかるうえ、
-# UI の確認は simtunnel (simulator-session.yml) で行う方針のため対象にしない。
+# IgenTests と IgenUITests の両方を回す (public リポジトリで macOS Runner が無料のため、実行時間より検出範囲を優先する)。
+# AppStoreScreenshot*PageSnapshotUITest だけは除外する。これらは検証ではなく scripts/generate_screenshots が
+# ストア用スクリーンショットを撮るための生成ツールで、CI で回しても成果物が捨てられるだけのため。
 name: iOS Tests
 
 on:
@@ -12,7 +13,7 @@ on:
 jobs:
   test:
     runs-on: macos-26
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -28,7 +29,7 @@ jobs:
       # -skipPackagePluginValidation: LicenseList の build tool plugin は GUI で一度許可するまで CLI から実行できない（Makefile 参照）
       # CODE_SIGN_IDENTITY=-: runner に証明書が無い。無署名 (CODE_SIGNING_ALLOWED=NO) にすると application-identifier entitlement が
       # 付かず Simulator の Keychain が使えなくなり、Firebase Auth のサインインが失敗する（PR #53）
-      - name: ユニットテストを実行する
+      - name: テストを実行する
         run: |
           mkdir -p tmp
           xcodebuild test \
@@ -36,7 +37,12 @@ jobs:
             -scheme Igen \
             -destination "platform=iOS Simulator,name=iPhone 17" \
             -derivedDataPath tmp/DerivedData \
-            -only-testing:IgenTests \
+            -skip-testing:IgenUITests/AppStoreScreenshot1PageSnapshotUITest \
+            -skip-testing:IgenUITests/AppStoreScreenshot2PageSnapshotUITest \
+            -skip-testing:IgenUITests/AppStoreScreenshot3PageSnapshotUITest \
+            -skip-testing:IgenUITests/AppStoreScreenshot4PageSnapshotUITest \
+            -skip-testing:IgenUITests/AppStoreScreenshot5PageSnapshotUITest \
+            -skip-testing:IgenUITests/AppStoreScreenshot6PageSnapshotUITest \
             -skipPackagePluginValidation \
             CODE_SIGN_IDENTITY=- \
             > tmp/ios-test.log 2>&1 || {
@@ -44,7 +50,8 @@ jobs:
             tail -n 200 tmp/ios-test.log >&2
             exit 1
           }
-          grep -E '^Test Suite .* (passed|failed)' tmp/ios-test.log | tail -n 5
+          # XCTest は「Test Suite ... passed」、Swift Testing は「✔ Test run with N tests ...」と別形式で出す
+          grep -E "^Test Suite 'All tests' (passed|failed)|Test run with .* (passed|failed)" tmp/ios-test.log | tail -n 5
 
       # 失敗時の切り分け用。ログ全文を残す（成功時も warning の確認に使える）
       - if: always()
