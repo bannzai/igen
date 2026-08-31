@@ -7,7 +7,7 @@ title: Disclosure under the Specified Commercial Transactions Act
 
 This document is an English translation of the disclosure required under the Specified Commercial Transactions Act of Japan ([特定商取引法に基づく表示](./SpecifiedCommercialTransactionAct-ja.html)), provided for reference. In the event of any discrepancy between the Japanese original and this translation, the Japanese original shall prevail.
 
-For matters not listed below, please contact kingkong999yhirose@gmail.com
+For matters not listed below, please contact bannzai.app@gmail.com
 
 ## Seller:
 
@@ -19,7 +19,7 @@ These will be disclosed without delay upon request from customers who wish to ma
 
 ## Contact:
 
-kingkong999yhirose@gmail.com
+bannzai.app@gmail.com
 
 ## Sales Price of Products and Consideration for Services:
 
