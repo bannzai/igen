@@ -5,7 +5,7 @@ title: 特定商取引法に基づく表示
 
 # 特定商取引法に基づく表示
 
-下記以外の事項につきましては、kingkong999yhirose@gmail.com にお問い合わせください
+下記以外の事項につきましては、bannzai.app@gmail.com にお問い合わせください
 
 ## 販売業者：
 
@@ -17,7 +17,7 @@ bannzai（個人）。氏名は、お取引をご希望のお客様から請求�
 
 ## 問い合わせ先
 
-kingkong999yhirose@gmail.com
+bannzai.app@gmail.com
 
 ## 商品の販売価格・サービスの対価：
 
