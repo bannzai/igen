@@ -436,6 +436,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Igen/Igen.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
+				"CODE_SIGN_STYLE[sdk=iphoneos*]" = Manual;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Igen/Info.plist;
@@ -450,6 +452,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bannzai.Igen;
 				PRODUCT_NAME = Igen;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Igen.AppStore;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
