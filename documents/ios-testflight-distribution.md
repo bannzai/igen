@@ -2,6 +2,7 @@
 
 GitHub Actions の `ios-deploy` workflowで、`main`のReleaseビルドをTestFlightへ配布する。
 署名情報はGitHubの`ios-deploy` environment secretsに置き、同environmentからデプロイできるブランチは`main`だけに制限する。
+RevenueCatの公開SDKキーは既存のrepository secret `REVENUECAT_PUBLIC_API_KEY_IOS`からビルド時に`ios/Config.local.xcconfig`へ書き出す。値が未登録または空の場合は、課金機能を無効にした配布物を作らずworkflowを失敗させる。
 
 ## 配布を起動する
 

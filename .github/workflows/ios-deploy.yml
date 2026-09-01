@@ -85,7 +85,7 @@ jobs:
           [ -n "$ASC_API_KEY_ISSUER_ID" ] || { echo "::error::Secret ASC_API_KEY_ISSUER_ID が空です"; exit 1; }
           [ -n "$ASC_API_KEY_P8_BASE64" ] || { echo "::error::Secret ASC_API_KEY_P8_BASE64 が空です"; exit 1; }
           mkdir -p ~/.appstoreconnect/private_keys
-          echo -n "$ASC_API_KEY_P8_BASE64" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${ASC_API_KEY_ID}.p8
+          echo -n "$ASC_API_KEY_P8_BASE64" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_${ASC_API_KEY_ID}.p8
 
       # P12 証明書のインポート (一時キーチェーンの作成・登録は action が行う)
       - name: Check code signing secrets
@@ -111,7 +111,7 @@ jobs:
           PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           XCODE_PROFILE_DIR="$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
           mkdir -p "$PROFILE_DIR" "$XCODE_PROFILE_DIR"
-          echo -n "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_DIR/Igen_AppStore.mobileprovision"
+          echo -n "$IOS_PROVISIONING_PROFILE_BASE64" | base64 -d > "$PROFILE_DIR/Igen_AppStore.mobileprovision"
           cp "$PROFILE_DIR/Igen_AppStore.mobileprovision" "$XCODE_PROFILE_DIR/Igen_AppStore.mobileprovision"
 
       - name: Resolve build number
@@ -119,6 +119,13 @@ jobs:
           BUILD_NUMBER=$((GITHUB_RUN_NUMBER + BUILD_NUMBER_OFFSET))
           echo "BUILD_NUMBER=${BUILD_NUMBER}" >> "$GITHUB_ENV"
           echo "CURRENT_PROJECT_VERSION=${BUILD_NUMBER}"
+
+      - name: Generate RevenueCat configuration
+        env:
+          REVENUECAT_PUBLIC_API_KEY: ${{ secrets.REVENUECAT_PUBLIC_API_KEY_IOS }}
+        run: |
+          [ -n "$REVENUECAT_PUBLIC_API_KEY" ] || { echo "::error::Secret REVENUECAT_PUBLIC_API_KEY_IOS が空です"; exit 1; }
+          printf 'REVENUECAT_PUBLIC_API_KEY = %s\n' "$REVENUECAT_PUBLIC_API_KEY" > ios/Config.local.xcconfig
 
       # CURRENT_PROJECT_VERSION の上書きは全ターゲットに効くため、app と extension のビルド番号は常に一致する
       # 署名は project.pbxproj の Release 設定 (CODE_SIGN_STYLE[sdk=iphoneos*] = Manual + PROVISIONING_PROFILE_SPECIFIER) に従う
@@ -197,3 +204,4 @@ jobs:
           rm -f ~/.appstoreconnect/private_keys/AuthKey_*.p8 || true
           rm -f ~/Library/MobileDevice/Provisioning\ Profiles/Igen_AppStore.mobileprovision || true
           rm -f ~/Library/Developer/Xcode/UserData/Provisioning\ Profiles/Igen_AppStore.mobileprovision || true
+          rm -f ios/Config.local.xcconfig || true
