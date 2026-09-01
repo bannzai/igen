@@ -1,0 +1,12 @@
+appId: com.bannzai.Igen
+---
+- launchApp
+- extendedWaitUntil:
+    visible: "Star Atlas"
+    timeout: 20000
+- tapOn: "Star Atlas"
+- extendedWaitUntil:
+    visible: "Your Star Atlas"
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 15000

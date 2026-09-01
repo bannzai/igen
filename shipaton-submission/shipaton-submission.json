@@ -1,0 +1,77 @@
+{
+  "rules": {
+    "url": "https://revenuecat-shipaton-2026.devpost.com/rules",
+    "checked_at": "2026-09-01",
+    "submission_start": "2026-07-31T08:00:00-07:00",
+    "submission_deadline": "2026-09-30T23:45:00-07:00",
+    "eligible_first_release_start": "2026-07-31",
+    "eligible_first_release_end": "2026-09-30",
+    "allowed_platforms": ["iOS", "iPadOS", "macOS", "Android"],
+    "allowed_stores": ["Apple App Store", "Google Play Store", "Samsung Galaxy Store"],
+    "premium_access_methods": ["free_trial", "promo_code"],
+    "unpublished_project_exception_award": "Next Gen Award",
+    "video": {
+      "max_duration_seconds": 120,
+      "public_hosts": ["youtube.com", "youtu.be", "vimeo.com"]
+    },
+    "app_icon": {
+      "width": 1024,
+      "height": 1024
+    },
+    "screenshot": {
+      "width": 1179,
+      "height": 2556,
+      "device_frames_allowed": false
+    },
+    "english_translation_required_for_non_english": true
+  },
+  "project": {
+    "name": "Dear Socrates",
+    "platform": "iOS",
+    "store": "Apple App Store",
+    "store_url": "",
+    "published": false,
+    "first_public_release_date": "",
+    "revenuecat_sdk_or_ads_integrated": true,
+    "purchase_or_ads_working": true,
+    "accessible_from_us": false,
+    "next_gen_award_only": false,
+    "source_repository_url": "https://github.com/bannzai/igen",
+    "source_repository_open_source": true,
+    "premium_access": {
+      "method": "",
+      "details": ""
+    },
+    "primary_language": "en",
+    "english_translation_path": ""
+  },
+  "artifacts": {
+    "demo_video": {
+      "config_path": "demo-video.config.json",
+      "local_path": "output/shipaton-demo.mp4",
+      "public_url": "",
+      "publicly_visible": false,
+      "shows_working_app": true,
+      "third_party_materials_cleared": true,
+      "uses_real_person_name_or_likeness": false,
+      "safe_variant_path": ""
+    },
+    "app_icon_path": "../ios/Igen/Assets.xcassets/AppIcon.appiconset/AppIcon.png",
+    "screenshot_paths": ["artifacts/igen-shipaton-screenshot.png"],
+    "screenshots_have_device_frames": false,
+    "submission_text_path": "devpost-submission.md",
+    "target_awards": ["HAMM Award", "Most Viral App (Noise)"],
+    "criteria_evidence": [
+      {
+        "award": "HAMM Award",
+        "official_criterion": "RevenueCatを活用した現実的で持続可能な収益設計、価格・パッケージ、転換実績を評価する",
+        "evidence": "RevenueCat SDKで、無料1日1通、160円の相談チケット、月額480円の聞き放題を統合している。実測の転換・収益値は公開後に追記する"
+      },
+      {
+        "award": "Most Viral App (Noise)",
+        "official_criterion": "Noiseで反復可能なコンテンツを配信し、注目をダウンロードへつなげた結果を評価する",
+        "evidence": "相談本文を含めず、出典付き格言と星座線アバターだけを縦型画像にする共有カードを実装している。Noiseでの公開・計測結果は未実施"
+      }
+    ]
+  }
+}
