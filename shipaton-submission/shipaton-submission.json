@@ -54,6 +54,7 @@
       "shows_working_app": true,
       "third_party_materials_cleared": true,
       "uses_real_person_name_or_likeness": false,
+      "real_person_note": "登場する人物名は Socrates (紀元前399年没) と Seneca (65年没) のみ。古代の歴史上の人物でパブリシティ権・肖像権の残存はなく、肖像は使わず独自の星座線表現で描く。引用は出典付きのパブリックドメイン文献。権利許諾を要する実在人物は登場しない",
       "safe_variant_path": ""
     },
     "app_icon_path": "../ios/Igen/Assets.xcassets/AppIcon.appiconset/AppIcon.png",

@@ -5,8 +5,11 @@ appId: com.bannzai.Igen
     visible: "Star Atlas"
     timeout: 20000
 - tapOn: "Star Atlas"
+# タイトルはロード完了前から表示されるため、ロード後にだけ出る件数表示で完了を待ち、
+# エラー状態を成功として収録しないことを保証する
 - extendedWaitUntil:
-    visible: "Your Star Atlas"
+    visible: "Great figures you have met:"
     timeout: 20000
+- assertNotVisible: "Your star atlas could not be loaded"
 - waitForAnimationToEnd:
     timeout: 15000
