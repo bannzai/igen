@@ -5,13 +5,14 @@ final class ShareSaveImageUITests: XCTestCase {
   func testSaveImageRequestsAddOnlyAuthorizationAndKeepsAppRunning() {
     let app = XCUIApplication()
     app.launchArguments += ["--isSnapshotUITest", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+    app.resetAuthorizationStatus(for: .photos)
+    var didAllowPhotos = false
 
     addUIInterruptionMonitor(withDescription: "Photos add-only authorization") { alert in
-      if alert.buttons["Allow"].exists {
-        alert.buttons["Allow"].tap()
-        return true
-      }
-      return false
+      guard alert.buttons.count == 2 else { return false }
+      alert.buttons.element(boundBy: 1).tap()
+      didAllowPhotos = true
+      return true
     }
 
     app.launch()
@@ -26,6 +27,7 @@ final class ShareSaveImageUITests: XCTestCase {
     saveImageButton.tap()
     app.tap()
 
+    XCTAssertTrue(didAllowPhotos)
     XCTAssertTrue(
       app.alerts["The share card has been saved to your photos."].waitForExistence(timeout: 5)
     )
