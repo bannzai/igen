@@ -4,3 +4,11 @@ tmp/
 # RevenueCat の public API key を持つローカル設定 (public リポジトリのため実値をコミットしない。
 # 既定値の ios/Config.xcconfig と雛形の ios/Config.local.xcconfig.example は追跡する)
 ios/Config.local.xcconfig
+
+# Shipaton デモ動画の中間生成物 (再生成可能。最終の output/shipaton-demo.mp4 と
+# artifacts/ のスクリーンショットだけ追跡する)
+shipaton-submission/output/clips/
+shipaton-submission/output/logs/
+shipaton-submission/output/work/
+shipaton-submission/output/card-work/
+shipaton-submission/output/cards/
