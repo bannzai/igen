@@ -148,14 +148,7 @@ struct SharePage: View {
       return false
     }
 
-    do {
-      try await PHPhotoLibrary.shared().performChanges {
-        PHAssetChangeRequest.creationRequestForAsset(from: cardImage)
-      }
-      return true
-    } catch {
-      return false
-    }
+    return await PhotoLibraryImageSaver().save(cardImage)
   }
 }
 
