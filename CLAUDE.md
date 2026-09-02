@@ -91,3 +91,14 @@ LLM 呼び出しは依存注入でモックする。ローカル開発は Fireba
 ### PR作成時の動作確認の軌跡
 
 - PRを作成する際は、動作確認のスクリーンショットを `gh-r2-image` でアップロードし、PR本文に埋め込んで軌跡を残すこと
+
+<!-- qa-config begin -->
+## QA
+
+本リポジトリは QA.md 体系で手動 QA を管理する (整備: setup-qa skill、実施・記録: run-qa skill)。ルートの `QA.md` が起点で、feature ごとの QA.md がテスト項目と最終実行記録を持つ。
+
+- 機能実装・UI 変更を含む PR は、作成前に該当 feature の QA を実施し、結果 (チェック・エビデンス・`last_verified_commit` / `last_verified_at`) を QA.md に記録する。未検証の項目は未検証である旨を QA.md に明記する (検証したことにしない)
+- QA 対象 feature・対象外 feature・横断確認項目はルート `QA.md` を参照する
+- QA.md のフォーマットは setup-qa skill の `references/qa-md-format.md` を SSOT とする (skill が無い環境では本リポジトリの既存 QA.md の形式に合わせる)
+- 新規 feature の追加時は setup-qa skill の雛形で対応する QA.md を新設する
+<!-- qa-config end -->

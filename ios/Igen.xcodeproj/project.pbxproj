@@ -26,6 +26,15 @@
 		A10000000000000000000005 /* Exceptions for "Igen" folder in "Igen" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Features/Archive/QA.md,
+				Features/Atlas/QA.md,
+				Features/Home/QA.md,
+				Features/Licenses/QA.md,
+				Features/Onboarding/QA.md,
+				Features/Paywall/QA.md,
+				Features/Reply/QA.md,
+				Features/Safety/QA.md,
+				Features/Share/QA.md,
 				Igen.entitlements,
 				Info.plist,
 			);
