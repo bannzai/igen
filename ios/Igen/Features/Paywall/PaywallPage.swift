@@ -7,7 +7,9 @@ import SwiftUI
 struct PaywallPage: View {
   @Environment(\.dismiss) var dismiss
   @State var offerings: Offerings?
-  @State var offeringsLoadFailed = false
+  /// offering の取得中か (RevenueCat の初期化待ちを含む)。取得が終わるまで購入 CTA と
+  /// 価格の取得失敗表示を待たせる
+  @State var offeringsLoading = true
   @State var purchasing = false
   @State var purchaseErrorAlertIsPresented = false
   @State var purchasesUnavailableAlertIsPresented = false
@@ -16,15 +18,16 @@ struct PaywallPage: View {
 
   /// チケット (consumable) のパッケージ。offering に別の custom package があっても
   /// バックエンドが数えるストア商品 ID (PurchasesSetup.ticketProductID) と一致するものだけを選ぶ
-  private func ticketPackage(offerings: Offerings?) -> Package? {
+  private var ticketPackage: Package? {
     offerings?.current?.availablePackages.first(where: {
       $0.storeProduct.productIdentifier == PurchasesSetup.ticketProductID
     })
   }
 
-  /// offering の取得中か (SDK が使える環境でのみ真になりうる)。取得完了までプランを出さずに待たせる
-  private var offeringsLoading: Bool {
-    PurchasesSetup.isAvailable && offerings == nil && !offeringsLoadFailed
+  /// 実価格を表示できない状態か。offering 自体の取得失敗だけでなく、取得できても目的の package が
+  /// 無い場合も含む (実際の請求額と異なる金額を見せない代わりに、再試行導線を出す)
+  private var priceUnavailable: Bool {
+    !offeringsLoading && (offerings?.current?.monthly == nil || ticketPackage == nil)
   }
 
   var body: some View {
@@ -59,28 +62,25 @@ struct PaywallPage: View {
             .lineSpacing(8)
             .foregroundStyle(Color.igenText.opacity(0.8))
 
-          if offeringsLoading {
-            ProgressView()
-              .tint(Color.igenGoldBright)
-              .padding(.vertical, 24)
+          PaywallUnlimitedPlanCard(
+            package: offerings?.current?.monthly,
+            loading: offeringsLoading,
+            purchasing: purchasing
+          ) {
+            Analytics.logEvent("paywall_subscribe_button_pressed", parameters: nil)
+            purchase(packageType: .monthly)
           }
 
-          // 価格はストアが正を持つ。解決できなかったプランは代わりの金額を出さずに伏せる (#59)
-          if let monthlyPackage = offerings?.current?.monthly {
-            PaywallUnlimitedPlanCard(package: monthlyPackage, purchasing: purchasing) {
-              Analytics.logEvent("paywall_subscribe_button_pressed", parameters: nil)
-              purchase(packageType: .monthly)
-            }
+          PaywallTicketPlanCard(
+            package: ticketPackage,
+            loading: offeringsLoading,
+            purchasing: purchasing
+          ) {
+            Analytics.logEvent("paywall_ticket_button_pressed", parameters: nil)
+            purchase(packageType: .custom)
           }
 
-          if let ticketPackage = ticketPackage(offerings: offerings) {
-            PaywallTicketPlanCard(package: ticketPackage, purchasing: purchasing) {
-              Analytics.logEvent("paywall_ticket_button_pressed", parameters: nil)
-              purchase(packageType: .custom)
-            }
-          }
-
-          if offeringsLoadFailed {
+          if priceUnavailable {
             Button {
               Analytics.logEvent("paywall_price_retry_button_pressed", parameters: nil)
               Task {
@@ -166,25 +166,20 @@ struct PaywallPage: View {
 
   /// offering を取得する。失敗したら再試行導線を表示する
   private func loadOfferings() async {
+    offeringsLoading = true
     if !PurchasesSetup.isAvailable {
-      // 初期化が終わらない場合も失敗状態にして再試行導線を出す (シートを開き直さずに読み直せるように)
-      offeringsLoadFailed = true
+      // 初期化が終わらない場合も取得できない状態として扱い、再試行導線を出す
+      // (シートを開き直さずに読み直せるように)
+      offeringsLoading = false
       return
     }
-    offeringsLoadFailed = false
     do {
-      let loadedOfferings = try await Purchases.shared.offerings()
-      offerings = loadedOfferings
-      // offering を取得できても購入できる package が 1 つも解決できなければ購入手段が無いため、
-      // 読み込み失敗として再試行導線に倒す
-      if loadedOfferings.current?.monthly == nil, ticketPackage(offerings: loadedOfferings) == nil {
-        offeringsLoadFailed = true
-        return
-      }
+      offerings = try await Purchases.shared.offerings()
       Analytics.logEvent("paywall_offerings_loaded", parameters: nil)
     } catch {
-      offeringsLoadFailed = true
+      // 取得できた package が無い状態として priceUnavailable が再試行導線を出す
     }
+    offeringsLoading = false
   }
 
   /// offering からパッケージを選んで購入する。SDK 未設定・未初期化の間は準備中の案内を出す
@@ -193,7 +188,7 @@ struct PaywallPage: View {
       purchasesUnavailableAlertIsPresented = true
       return
     }
-    let package = packageType == .monthly ? offerings?.current?.monthly : ticketPackage(offerings: offerings)
+    let package = packageType == .monthly ? offerings?.current?.monthly : ticketPackage
     if let package {
       purchasing = true
       Task {

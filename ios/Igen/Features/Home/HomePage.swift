@@ -275,12 +275,10 @@ struct HomePage: View {
       switch result {
       case .letter(let letter):
         Analytics.logEvent("reply_generated", parameters: ["quote_id": letter.quoteId])
-        // 生成中に編集されていなければクリアする (編集済みの下書きは残す)
-        if draft == sentText {
-          draft = ""
-        }
+        draft = Self.draftAfterSuccessfulRequest(currentDraft: draft, sentDraft: sentText)
         self.letter = letter
       case .safety:
+        draft = Self.draftAfterSuccessfulRequest(currentDraft: draft, sentDraft: sentText)
         // 案内画面の表示イベントは SafetyPage 側で送る (相談本文は送らない)
         safetyNoticeIsPresented = true
       }
@@ -298,6 +296,11 @@ struct HomePage: View {
       )
       sendErrorAlertIsPresented = true
     }
+  }
+
+  // 送信中に編集された下書きは残し、送信したままの本文だけをクリアする
+  static func draftAfterSuccessfulRequest(currentDraft: String, sentDraft: String) -> String {
+    currentDraft == sentDraft ? "" : currentDraft
   }
 }
 

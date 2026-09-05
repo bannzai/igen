@@ -2,11 +2,13 @@ import RevenueCat
 import SwiftUI
 
 /// 相談チケット「ひとしずく」(consumable) のプランカード。
-/// 価格は StoreKit のローカライズ済み価格をそのまま表示する。ストアが正を持つ値のため、
-/// 取得できない時に代わりの金額を表示することはしない (#59。呼び出し側がカードごと出さない)
+/// 価格は StoreKit のローカライズ済み価格だけを表示する。package を取得できない間は
+/// 実際の請求額と異なる金額を見せないよう、価格の代わりに取得失敗を示して購入ボタンを無効にする
 struct PaywallTicketPlanCard: View {
-  /// 購入対象のチケットパッケージ。ローカライズ済み価格の表示にも使う
-  var package: Package
+  /// 購入対象のチケットパッケージ。取得済みならローカライズ済み価格の表示にも使う
+  var package: Package?
+  /// package の取得中か。取得中は価格の代わりに読み込みを示し、取得失敗の表示を出さない
+  var loading: Bool
   var purchasing: Bool
   var onPressed: () -> Void
 
@@ -17,10 +19,21 @@ struct PaywallTicketPlanCard: View {
         .font(.igenSerif(size: 15, weight: .semibold))
         .foregroundStyle(Color.igenText)
 
-      // ja: %@ / 1通
-      Text("\(package.storeProduct.localizedPriceString) / 1 letter")
-        .font(.igenSerif(size: 18, weight: .semibold))
-        .foregroundStyle(Color.igenGoldBright)
+      if let priceString = package?.storeProduct.localizedPriceString {
+        // ja: %@ / 1通
+        Text("\(priceString) / 1 letter")
+          .font(.igenSerif(size: 18, weight: .semibold))
+          .foregroundStyle(Color.igenGoldBright)
+      } else if loading {
+        ProgressView()
+          .controlSize(.small)
+          .tint(Color.igenGoldBright)
+      } else {
+        // ja: 価格を取得できませんでした
+        Text("Price unavailable")
+          .font(.system(size: 13))
+          .foregroundStyle(Color.igenText.opacity(0.6))
+      }
 
       // ja: 今夜だけ、もう一通。
       Text("Just one more letter, for tonight.")
@@ -40,8 +53,9 @@ struct PaywallTicketPlanCard: View {
           .overlay(
             Capsule().stroke(Color.igenGold.opacity(0.6), lineWidth: 1)
           )
+          .opacity(package == nil ? 0.5 : 1)
       }
-      .disabled(purchasing)
+      .disabled(purchasing || package == nil)
     }
     .frame(maxWidth: .infinity)
     .padding(.vertical, 14)
@@ -59,29 +73,8 @@ struct PaywallTicketPlanCard: View {
 
 struct PaywallTicketPlanCard_Previews: PreviewProvider {
   static var previews: some View {
-    PaywallTicketPlanCard(
-      // 実行時はストアが解決した Package を渡す。プレビューは描画の確認だけが目的のため、
-      // RevenueCat がプレビュー・テスト用に用意している TestStoreProduct で組み立てる
-      package: Package(
-        identifier: "ticket_1",
-        packageType: .custom,
-        storeProduct: TestStoreProduct(
-          localizedTitle: "Ticket",
-          price: 160,
-          currencyCode: "JPY",
-          localizedPriceString: "¥160",
-          productIdentifier: "igen_ticket1_160yen",
-          productType: .consumable,
-          localizedDescription: "",
-          locale: Locale(identifier: "ja_JP")
-        ).toStoreProduct(),
-        offeringIdentifier: "default",
-        webCheckoutUrl: nil
-      ),
-      purchasing: false,
-      onPressed: {}
-    )
-    .padding()
-    .background(Color.igenSheet)
+    PaywallTicketPlanCard(package: nil, loading: false, purchasing: false, onPressed: {})
+      .padding()
+      .background(Color.igenSheet)
   }
 }

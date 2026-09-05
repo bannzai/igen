@@ -2,11 +2,13 @@ import RevenueCat
 import SwiftUI
 
 /// 聞き放題サブスク「星読み」のプランカード (featured。金枠 + グロー + いちばん人気バッジ)。
-/// 価格は StoreKit のローカライズ済み価格をそのまま表示する。ストアが正を持つ値のため、
-/// 取得できない時に代わりの金額を表示することはしない (#59。呼び出し側がカードごと出さない)
+/// 価格は StoreKit のローカライズ済み価格だけを表示する。package を取得できない間は
+/// 実際の請求額と異なる金額を見せないよう、価格の代わりに取得失敗を示して購入ボタンを無効にする
 struct PaywallUnlimitedPlanCard: View {
-  /// 購入対象の月額パッケージ。ローカライズ済み価格の表示にも使う
-  var package: Package
+  /// 購入対象の月額パッケージ。取得済みならローカライズ済み価格の表示にも使う
+  var package: Package?
+  /// package の取得中か。取得中は価格の代わりに読み込みを示し、取得失敗の表示を出さない
+  var loading: Bool
   var purchasing: Bool
   var onPressed: () -> Void
 
@@ -26,10 +28,21 @@ struct PaywallUnlimitedPlanCard: View {
         .font(.igenSerif(size: 17, weight: .semibold))
         .foregroundStyle(Color.igenText)
 
-      // ja: %@ / 月
-      Text("\(package.storeProduct.localizedPriceString) / month")
-        .font(.igenSerif(size: 22, weight: .semibold))
-        .foregroundStyle(Color.igenGoldBright)
+      if let priceString = package?.storeProduct.localizedPriceString {
+        // ja: %@ / 月
+        Text("\(priceString) / month")
+          .font(.igenSerif(size: 22, weight: .semibold))
+          .foregroundStyle(Color.igenGoldBright)
+      } else if loading {
+        ProgressView()
+          .controlSize(.small)
+          .tint(Color.igenGoldBright)
+      } else {
+        // ja: 価格を取得できませんでした
+        Text("Price unavailable")
+          .font(.system(size: 13))
+          .foregroundStyle(Color.igenText.opacity(0.6))
+      }
 
       VStack(alignment: .leading, spacing: 6) {
         // ja: 返書無制限
@@ -54,8 +67,9 @@ struct PaywallUnlimitedPlanCard: View {
             LinearGradient(colors: [Color.igenGold, Color.igenGoldDark], startPoint: .top, endPoint: .bottom)
           )
           .clipShape(Capsule())
+          .opacity(package == nil ? 0.5 : 1)
       }
-      .disabled(purchasing)
+      .disabled(purchasing || package == nil)
     }
     .frame(maxWidth: .infinity)
     .padding(.vertical, 16)
@@ -74,30 +88,8 @@ struct PaywallUnlimitedPlanCard: View {
 
 struct PaywallUnlimitedPlanCard_Previews: PreviewProvider {
   static var previews: some View {
-    PaywallUnlimitedPlanCard(
-      // 実行時はストアが解決した Package を渡す。プレビューは描画の確認だけが目的のため、
-      // RevenueCat がプレビュー・テスト用に用意している TestStoreProduct で組み立てる
-      package: Package(
-        identifier: "$rc_monthly",
-        packageType: .monthly,
-        storeProduct: TestStoreProduct(
-          localizedTitle: "Unlimited",
-          price: 480,
-          currencyCode: "JPY",
-          localizedPriceString: "¥480",
-          productIdentifier: "igen_unlimited_monthly_480yen",
-          productType: .autoRenewableSubscription,
-          localizedDescription: "",
-          subscriptionPeriod: SubscriptionPeriod(value: 1, unit: .month),
-          locale: Locale(identifier: "ja_JP")
-        ).toStoreProduct(),
-        offeringIdentifier: "default",
-        webCheckoutUrl: nil
-      ),
-      purchasing: false,
-      onPressed: {}
-    )
-    .padding()
-    .background(Color.igenSheet)
+    PaywallUnlimitedPlanCard(package: nil, loading: false, purchasing: false, onPressed: {})
+      .padding()
+      .background(Color.igenSheet)
   }
 }
