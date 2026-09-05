@@ -2,10 +2,13 @@ import RevenueCat
 import SwiftUI
 
 /// 聞き放題サブスク「星読み」のプランカード (featured。金枠 + グロー + いちばん人気バッジ)。
-/// 価格は StoreKit のローカライズ済み価格を表示し、offering 未取得 (SDK 未設定) の間は仮価格を表示する
+/// 価格は StoreKit のローカライズ済み価格だけを表示する。package を取得できない間は
+/// 実際の請求額と異なる金額を見せないよう、価格の代わりに取得失敗を示して購入ボタンを無効にする
 struct PaywallUnlimitedPlanCard: View {
   /// 購入対象の月額パッケージ。取得済みならローカライズ済み価格の表示にも使う
   var package: Package?
+  /// package の取得中か。取得中は価格の代わりに読み込みを示し、取得失敗の表示を出さない
+  var loading: Bool
   var purchasing: Bool
   var onPressed: () -> Void
 
@@ -30,11 +33,15 @@ struct PaywallUnlimitedPlanCard: View {
         Text("\(priceString) / month")
           .font(.igenSerif(size: 22, weight: .semibold))
           .foregroundStyle(Color.igenGoldBright)
+      } else if loading {
+        ProgressView()
+          .controlSize(.small)
+          .tint(Color.igenGoldBright)
       } else {
-        // SDK 未設定の間の仮価格 (#16 でストア価格を設定したら package 側の表示になる)
-        Text(verbatim: "¥480 / 月")
-          .font(.igenSerif(size: 22, weight: .semibold))
-          .foregroundStyle(Color.igenGoldBright)
+        // ja: 価格を取得できませんでした
+        Text("Price unavailable")
+          .font(.system(size: 13))
+          .foregroundStyle(Color.igenText.opacity(0.6))
       }
 
       VStack(alignment: .leading, spacing: 6) {
@@ -60,8 +67,9 @@ struct PaywallUnlimitedPlanCard: View {
             LinearGradient(colors: [Color.igenGold, Color.igenGoldDark], startPoint: .top, endPoint: .bottom)
           )
           .clipShape(Capsule())
+          .opacity(package == nil ? 0.5 : 1)
       }
-      .disabled(purchasing)
+      .disabled(purchasing || package == nil)
     }
     .frame(maxWidth: .infinity)
     .padding(.vertical, 16)
@@ -80,7 +88,7 @@ struct PaywallUnlimitedPlanCard: View {
 
 struct PaywallUnlimitedPlanCard_Previews: PreviewProvider {
   static var previews: some View {
-    PaywallUnlimitedPlanCard(package: nil, purchasing: false, onPressed: {})
+    PaywallUnlimitedPlanCard(package: nil, loading: false, purchasing: false, onPressed: {})
       .padding()
       .background(Color.igenSheet)
   }

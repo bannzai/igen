@@ -33,12 +33,14 @@ final class PaywallPriceUITests: XCTestCase {
     XCTAssertTrue(paywallLink.waitForExistence(timeout: 30))
     paywallLink.tap()
 
-    // 価格は "<localizedPriceString> / month" の形で表示される。offering 未取得の間の仮価格 (verbatim "¥480 / 月") とは区別できる。
+    // 価格は "<localizedPriceString> / month" の形で、StoreKit から取得できた時だけ表示される
+    // (取得できない時は "Price unavailable" と再試行導線になる)。
     // 匿名認証 → RevenueCat 初期化 → offerings 取得 → StoreKit の商品解決までを待つ
     let monthlyPrice = app.staticTexts["¥480 / month"]
     XCTAssertTrue(monthlyPrice.waitForExistence(timeout: 60), "月額の価格が StoreKit Configuration の定義どおりに表示されない")
     XCTAssertTrue(app.staticTexts["¥160 / 1 letter"].exists, "チケットの価格が StoreKit Configuration の定義どおりに表示されない")
     XCTAssertFalse(app.buttons["Prices could not be loaded. Tap to retry."].exists, "価格の取得に失敗している")
+    XCTAssertFalse(app.staticTexts["Price unavailable"].exists, "価格を取得できない状態の表示が残っている")
 
     attachScreenshot(app: app, name: "paywall-store-prices")
   }

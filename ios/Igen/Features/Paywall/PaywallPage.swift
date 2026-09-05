@@ -7,7 +7,9 @@ import SwiftUI
 struct PaywallPage: View {
   @Environment(\.dismiss) var dismiss
   @State var offerings: Offerings?
-  @State var offeringsLoadFailed = false
+  /// offering の取得中か (RevenueCat の初期化待ちを含む)。取得が終わるまで購入 CTA と
+  /// 価格の取得失敗表示を待たせる
+  @State var offeringsLoading = true
   @State var purchasing = false
   @State var purchaseErrorAlertIsPresented = false
   @State var purchasesUnavailableAlertIsPresented = false
@@ -22,9 +24,10 @@ struct PaywallPage: View {
     })
   }
 
-  /// offering の取得中か (SDK が使える環境でのみ真になりうる)。取得完了まで購入 CTA を待機させる
-  private var offeringsLoading: Bool {
-    PurchasesSetup.isAvailable && offerings == nil && !offeringsLoadFailed
+  /// 実価格を表示できない状態か。offering 自体の取得失敗だけでなく、取得できても目的の package が
+  /// 無い場合も含む (実際の請求額と異なる金額を見せない代わりに、再試行導線を出す)
+  private var priceUnavailable: Bool {
+    !offeringsLoading && (offerings?.current?.monthly == nil || ticketPackage == nil)
   }
 
   var body: some View {
@@ -61,7 +64,8 @@ struct PaywallPage: View {
 
           PaywallUnlimitedPlanCard(
             package: offerings?.current?.monthly,
-            purchasing: purchasing || offeringsLoading
+            loading: offeringsLoading,
+            purchasing: purchasing
           ) {
             Analytics.logEvent("paywall_subscribe_button_pressed", parameters: nil)
             purchase(packageType: .monthly)
@@ -69,13 +73,14 @@ struct PaywallPage: View {
 
           PaywallTicketPlanCard(
             package: ticketPackage,
-            purchasing: purchasing || offeringsLoading
+            loading: offeringsLoading,
+            purchasing: purchasing
           ) {
             Analytics.logEvent("paywall_ticket_button_pressed", parameters: nil)
             purchase(packageType: .custom)
           }
 
-          if offeringsLoadFailed {
+          if priceUnavailable {
             Button {
               Analytics.logEvent("paywall_price_retry_button_pressed", parameters: nil)
               Task {
@@ -161,18 +166,20 @@ struct PaywallPage: View {
 
   /// offering を取得する。失敗したら再試行導線を表示する
   private func loadOfferings() async {
+    offeringsLoading = true
     if !PurchasesSetup.isAvailable {
-      // 初期化が終わらない場合も失敗状態にして再試行導線を出す (シートを開き直さずに読み直せるように)
-      offeringsLoadFailed = true
+      // 初期化が終わらない場合も取得できない状態として扱い、再試行導線を出す
+      // (シートを開き直さずに読み直せるように)
+      offeringsLoading = false
       return
     }
-    offeringsLoadFailed = false
     do {
       offerings = try await Purchases.shared.offerings()
       Analytics.logEvent("paywall_offerings_loaded", parameters: nil)
     } catch {
-      offeringsLoadFailed = true
+      // 取得できた package が無い状態として priceUnavailable が再試行導線を出す
     }
+    offeringsLoading = false
   }
 
   /// offering からパッケージを選んで購入する。SDK 未設定・未初期化の間は準備中の案内を出す
