@@ -1,5 +1,4 @@
 # backend/ (Firebase Functions) の PR チェック。実行コマンドは CLAUDE.md の「バックエンド」検証方法と一致させる。
-# iOS 側の CI は用意しない (private リポジトリの macOS ランナーは高額なため、ローカルの xcodebuild 検証のみ)。
 name: Backend Tests
 
 on:

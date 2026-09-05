@@ -25,7 +25,13 @@ final class ShareSaveImageUITests: XCTestCase {
     let saveImageButton = app.buttons["Save image"]
     XCTAssertTrue(saveImageButton.waitForExistence(timeout: 5))
     saveImageButton.tap()
-    app.tap()
+    // 権限ダイアログは別プロセスに出るため、addUIInterruptionMonitor はアプリを操作した時にだけ
+    // 評価される。CI の runner ではダイアログの表示がタップに間に合わず 1 回では取りこぼすので、
+    // 監視が発火するまでアプリへの操作を繰り返す (ローカルでは初回で発火する)
+    let allowPhotosDeadline = Date.now.addingTimeInterval(30)
+    while !didAllowPhotos, Date.now < allowPhotosDeadline {
+      app.tap()
+    }
 
     XCTAssertTrue(didAllowPhotos)
     XCTAssertTrue(
