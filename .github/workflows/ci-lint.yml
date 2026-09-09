@@ -1,0 +1,29 @@
+# managed-by: setup-ci (bannzai/castle)
+name: Swift の lint
+
+on:
+  pull_request:
+    paths:
+      - 'ios/**/*.swift'
+      - '.swift-format'
+      - '.github/workflows/ci-lint.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: macos-26
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: フォーマッターのバージョンを確認する
+        run: xcrun swift-format --version
+      - name: Swift の lint を実行する
+        run: xcrun swift-format lint --strict --recursive ios
