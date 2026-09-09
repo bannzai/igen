@@ -2,16 +2,10 @@
 
 要件・競合調査・マネタイズ・リスクは `documents/PROJECT.md` を参照してください。インフラ構成の決定は `documents/adr/0001-ios-swiftui-firebase-functions-firestore.md` にまとまっています。
 
-## 技術構成
+## 設計の参照先と境界
 
-- クライアント: SwiftUI (iOS 17+)。`ios/` 配下
-- バックエンド: Cloud Functions for Firebase (gen2) / Node.js 22 / TypeScript。`backend/` 配下。LLM 呼び出しと Firestore への書き込みはすべてここを経由する
-- DB: Cloud Firestore。スキーマは `documents/design/db-schema.md` を単一の真実とする。ルールは `.claude/rules/firestore-rules.md`
-- 認証: Firebase Authentication 匿名認証
-- 課金: RevenueCat（相談チケット consumable + 聞き放題サブスク）
-- Analytics: Firebase Analytics
-- 法務ドキュメント: `docs/`（GitHub Pages で公開予定）
-- UI デザイン: `design_handoff_igen/` が最終形（High-fidelity プロトタイプ）。UI 実装時は同ディレクトリの README をデザインの SSOT として再現する
+- LLM 呼び出しと Firestore への書き込みは Functions を経由する。スキーマは `documents/design/db-schema.md`、アクセス方針は `.claude/rules/firestore-rules.md` を参照する
+- UI 実装は `design_handoff_igen/README.md` をデザインの SSOT として再現する
 
 ## コードフォーマッター
 
@@ -26,7 +20,7 @@
 
 ## ビルド・テスト・UI検証・検証方法
 
-### iOS（`ios/` スキャフォールド後）
+### iOS
 
 コンパイルチェック:
 
@@ -49,9 +43,7 @@ xcodebuild test \
 
 ビルド・テストのログは全文を `./tmp/` に保存し、warning / error を grep で検査して判定する。
 
-`ios/` を変更する PR では `.github/workflows/ios-test.yml` が `IgenTests` を自動実行する（ログは artifact `ios-test-log`）。
-
-### バックエンド（`backend/` スキャフォールド後）
+### バックエンド
 
 ```bash
 cd backend/functions
