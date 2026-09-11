@@ -14,19 +14,19 @@
     "serve": "npm run build && firebase emulators:start --project demo-igen --only auth,functions,firestore"
   },
   "dependencies": {
-    "express": "^4.21.2",
+    "express": "^5.2.1",
     "firebase-admin": "^13.0.0",
     "firebase-functions": "^6.3.0",
-    "openai": "^6.49.0"
+    "openai": "^7.5.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/express": "^4.17.21",
+    "@types/express": "^5.0.6",
     "@types/node": "^22.0.0",
     "@types/supertest": "^6.0.2",
     "firebase-tools": "^15.28.1",
     "supertest": "^7.0.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.11"
   }
 }
