@@ -1,5 +1,5 @@
-import { FieldValue } from "firebase-admin/firestore";
 import type { Firestore } from "firebase-admin/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 import { db } from "./firestore";
 import { persons, quotes } from "./quotesDb";
 

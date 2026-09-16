@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Request } from "express";
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { Firestore } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 
 /** レート制限の上限。 */
 export interface RateLimitPolicy {
