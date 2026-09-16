@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  TICKET_PRODUCT_IDS,
-  UNLIMITED_ENTITLEMENT_ID,
   createNoEntitlementChecker,
   createRevenueCatEntitlementChecker,
+  TICKET_PRODUCT_IDS,
+  UNLIMITED_ENTITLEMENT_ID,
 } from "./entitlement";
 
 // RevenueCat REST API は呼ばず、GET /v1/subscribers の応答 body だけを差し替えて判定ロジックを検証する

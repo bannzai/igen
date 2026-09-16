@@ -1,5 +1,5 @@
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { Firestore } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { LetterComposition, LetterLanguage } from "./letter";
 import { findPerson, findQuote } from "./quotesDb";
 
