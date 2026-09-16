@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    // TypeScript 7 で moduleResolution=node10 が削除されたため node16 を使う。
+    // package.json に type: module が無いので出力は従来どおり CommonJS のままで、
+    // Firebase Functions の main (lib/index.js) の読み込み方は変わらない。
+    "module": "node16",
+    "moduleResolution": "node16",
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
