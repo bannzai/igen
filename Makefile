@@ -28,3 +28,15 @@ device-install: device-build
 # 実機でアプリを起動 (実機のロック解除が必要)
 device-launch:
 	xcrun devicectl device process launch --device $(DEVICE) com.bannzai.Igen
+
+# 引数なしの make で動作確認 (verify) を実行する
+.DEFAULT_GOAL := verify
+
+.PHONY: verify
+verify:
+	xcrun swift-format lint --strict --recursive ios
+	npm --prefix backend/functions ci
+	npm --prefix backend/functions run lint
+	npm --prefix backend/functions run build
+	npm --prefix backend/functions test
+	xcodebuild test -project ios/Igen.xcodeproj -scheme Igen -destination "platform=iOS Simulator,name=iPhone 17" -derivedDataPath tmp/DerivedData -skip-testing:IgenUITests/AppStoreScreenshot1PageSnapshotUITest -skip-testing:IgenUITests/AppStoreScreenshot2PageSnapshotUITest -skip-testing:IgenUITests/AppStoreScreenshot3PageSnapshotUITest -skip-testing:IgenUITests/AppStoreScreenshot4PageSnapshotUITest -skip-testing:IgenUITests/AppStoreScreenshot5PageSnapshotUITest -skip-testing:IgenUITests/AppStoreScreenshot6PageSnapshotUITest -skipPackagePluginValidation CODE_SIGN_IDENTITY=-
