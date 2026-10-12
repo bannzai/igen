@@ -141,9 +141,8 @@ struct AtlasPageBody: View {
     Color.clear.frame(height: 0)
       .sheet(item: $selectedEncounter) { encounter in
         // その偉人の返書はシート側で personId 指定で取得する (星図を開くだけで全返書を読まない)。
-        // デザイン指定の下部プロフィールシートとして表示し、星図とのつながりを保つ
+        // シートの高さは本文の高さを測る AtlasProfilePage 側で決める
         AtlasProfilePage(encounter: encounter)
-          .presentationDetents([.medium, .large])
       }
   }
 }
