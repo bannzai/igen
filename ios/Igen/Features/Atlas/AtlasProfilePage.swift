@@ -7,6 +7,8 @@ struct AtlasProfilePage: View {
   var encounter: Encounter
   /// この偉人からもらった返書 (新しい順)。表示時に personId 指定で取得する (nil は取得中)
   @State var letters: [Letter]?
+  /// プロフィール本文 (閉じるボタンから「返書を読む」まで) の高さ。シートの高さを本文に合わせるために測る (nil は取得中・計測前)
+  @State var profileContentHeight: CGFloat?
 
   var body: some View {
     NavigationStack {
@@ -15,7 +17,7 @@ struct AtlasProfilePage: View {
           .ignoresSafeArea()
 
         if let letters {
-          AtlasProfilePageBody(encounter: encounter, letters: letters)
+          AtlasProfilePageBody(encounter: encounter, letters: letters, contentHeight: $profileContentHeight)
         } else {
           ProgressView()
             .tint(Color.igenGold)
@@ -32,6 +34,17 @@ struct AtlasProfilePage: View {
         }
       }
     }
+    // デザイン指定の下部プロフィールシートとして星図とのつながりを保ちつつ、本文が収まる高さで開く。
+    // .medium は画面の高さの約半分のため、iPhone Duo の外側ディスプレイのように画面の低い端末では「返書を読む」が見切れる
+    .presentationDetents(
+      {
+        // .height はシート下端の safe area を含まない高さとして扱われる (iPhone Duo の Simulator で実測) ため、本文の高さをそのまま渡す
+        if let profileContentHeight {
+          return [.height(profileContentHeight), .large]
+        }
+        return [.medium, .large]
+      }()
+    )
   }
 }
 
@@ -40,6 +53,8 @@ private struct AtlasProfilePageBody: View {
   var encounter: Encounter
   /// この偉人からもらった返書 (新しい順)
   var letters: [Letter]
+  /// 本文の高さの計測結果の書き込み先 (シートの高さを決める AtlasProfilePage が持つ)
+  @Binding var contentHeight: CGFloat?
 
   @Environment(\.dismiss) var dismiss
   @State var selectedLetter: Letter?
@@ -128,6 +143,11 @@ private struct AtlasProfilePageBody: View {
       }
       .padding(.horizontal, 24)
       .padding(.bottom, 24)
+      .onGeometryChange(for: CGFloat.self) { proxy in
+        proxy.size.height
+      } action: { height in
+        contentHeight = height
+      }
     }
     .navigationDestination(item: $selectedLetter) { letter in
       ReplyPage(letter: letter, showsRitual: false)
