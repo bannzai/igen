@@ -196,7 +196,8 @@ run_inner_test() {
 }
 
 # ---- 1. シミュレータの用意と外側 (閉じた姿勢) ----
-ensure_simulator_booted | tee -a "$LOG_FILE"
+# パイプで tee に渡すとサブシェルになり、関数が export する DESTINATION が失われるため直接呼ぶ
+ensure_simulator_booted
 SIMULATOR_UDID="${DESTINATION#*id=}"
 
 sep "Pose: closed (outer display)"
