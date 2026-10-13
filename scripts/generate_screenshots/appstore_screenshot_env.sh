@@ -23,13 +23,15 @@ export UITEST_SOURCE_DIR="ios/IgenUITests/AppStoreScreenshots"
 export DERIVED_DATA_PATH="tmp/appstore_screenshots/derived_data"
 export RESULT_BUNDLE_BASE_DIR="tmp/appstore_screenshots/results"
 
-# fastlane のスクリーンショット出力先
-export FASTLANE_SCREENSHOTS_DIR="fastlane/screenshots"
+# スクリーンショットの出力先。既定は fastlane deliver が読む場所。
+# iPhone Duo (generate_duo_screenshots.sh) は deliver が Duo の寸法を受け付けないため、環境変数で別の場所に向ける
+export FASTLANE_SCREENSHOTS_DIR="${FASTLANE_SCREENSHOTS_DIR:-fastlane/screenshots}"
 
-# App Store の 6.9 インチ (1320x2868 px) 用のファイル名接頭辞と期待寸法
-export SCREENSHOT_FILENAME_SUFFIX="APP_IPHONE_69"
-export EXPECTED_PIXEL_WIDTH=1320
-export EXPECTED_PIXEL_HEIGHT=2868
+# ファイル名の中央に入る App Store Connect の表示タイプと、生成後に検査する期待寸法。
+# 既定は 6.9 インチ (1320x2868 px)。iPhone Duo は generate_duo_screenshots.sh が環境変数で上書きする
+export SCREENSHOT_FILENAME_SUFFIX="${SCREENSHOT_FILENAME_SUFFIX:-APP_IPHONE_69}"
+export EXPECTED_PIXEL_WIDTH="${EXPECTED_PIXEL_WIDTH:-1320}"
+export EXPECTED_PIXEL_HEIGHT="${EXPECTED_PIXEL_HEIGHT:-2868}"
 
 # シミュレータ名・デバイスタイプ。環境変数で上書きできる。
 # 複数の worktree / セッションが同時にスクショ生成すると同名シミュレータの奪い合いで
