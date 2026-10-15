@@ -1,7 +1,7 @@
 import XCTest
 
 /// App Store スクリーンショット 2 枚目 (AppStoreScreenshot2Page) を全言語で撮影する。
-/// Attachment 名 `{クラス名}---{関数名}---{言語}---{index}` は scripts/generate_screenshots/organize_appstore_screenshots.sh が解析する
+/// 撮影の手順と Attachment の命名は XCTestCase+AppStoreScreenshots.swift
 final class AppStoreScreenshot2PageSnapshotUITest: XCTestCase {
   override class var runsForEachTargetApplicationUIConfiguration: Bool {
     // 有効にするとテスト側で Locale が取れず全言語 en になるため無効にする
@@ -18,25 +18,6 @@ final class AppStoreScreenshot2PageSnapshotUITest: XCTestCase {
 
   @MainActor
   func testSnapshot() throws {
-    XCUIDevice.shared.appearance = .dark
-    let fileName = URL(fileURLWithPath: #file).deletingPathExtension().lastPathComponent
-    let functionName = #function.replacingOccurrences(of: "()", with: "")
-
-    for (language, _) in filteredLanguages() {
-      let app = XCUIApplication.instantiateForSnapshot()
-      app.launchArguments += ["-AppleLanguages", "(\(language))"]
-      app.launch()
-
-      for index in 0..<previewCount {
-        app.buttons["\(previewType)_\(index)"].firstMatch.tap()
-        // 星空・グローのアニメーションと画面遷移が落ち着いてから撮る
-        sleep(2)
-
-        let attachment = XCTAttachment(screenshot: app.screenshot())
-        attachment.name = "\(fileName)---\(functionName)---\(language)---\(index)"
-        attachment.lifetime = .keepAlways
-        add(attachment)
-      }
-    }
+    try captureAppStoreScreenshots(previewType: previewType, previewCount: previewCount)
   }
 }

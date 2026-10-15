@@ -20,8 +20,9 @@ App Store のスクリーンショットを SwiftUI + UITest で生成するス�
 | `run_appstore_screenshot.sh` | 個別テストの実行 (`xcodebuild test-without-building`) |
 | `organize_appstore_screenshots.sh` | xcresult から書き出した PNG を fastlane 形式に配置 |
 | `generate_appstore_screenshots.sh` | メインオーケストレーション (ビルド → 撮影 → 配置 → 検査) |
+| `generate_duo_screenshots.sh` | iPhone Duo (折りたたみ端末) の外側・内側ディスプレイ用の生成 (下記「iPhone Duo 版」) |
 
-通常は `generate_appstore_screenshots.sh` だけを使う。
+通常は `generate_appstore_screenshots.sh` だけを使う。iPhone Duo 版は `generate_duo_screenshots.sh` を使う。
 
 ## 使い方
 
@@ -107,6 +108,46 @@ DESTINATION_SIM_NAME=igen-issue-44-45-46-iOS26.5 \
 
 デバイスタイプは 6.9 インチのスクリーンショットが撮れるものにする
 (`iPhone 17 Pro Max` の 1320x2868 px)。別のデバイスタイプにすると寸法検査で落ちる。
+
+## iPhone Duo 版 (外側・内側ディスプレイ)
+
+Apple のスクリーンショット仕様 ( https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications ) は
+iPhone Duo の枠に外側ディスプレイ (1398×2034 / 2034×1398 px) と内側ディスプレイ (2007×2853 / 2853×2007 px) の寸法を挙げている
+(同ページの注記: 2027 年 4 月から iOS 27.1 SDK 以降でビルドしたアプリに必須)。6.9 インチ版と同じページ・同じ言語を、
+iPhone Duo のシミュレータで両ディスプレイぶん生成する。
+
+```bash
+./scripts/generate_screenshots/generate_duo_screenshots.sh              # 全言語・全番号
+./scripts/generate_screenshots/generate_duo_screenshots.sh -n "1" -l "ja"   # 1 枚だけ (配管の確認用)
+```
+
+- 外側は閉じた姿勢で 6.9 インチ版と同じ経路 (XCTAttachment) で撮る。内側は XCTest の API では仕様の寸法で撮れないため、
+  開いた姿勢に切り替えてから、テストがページを表示するたびにホスト側が `xcrun simctl io --display=primary-1` で撮る
+  (テストとホストの同期は `tmp/appstore_screenshots/duo_inner_sync/` の `.ready` / `.done` ファイル)
+- 内側は横 (2853×2007) で作る。開いた姿勢のシミュレータは向きが横になり、simctl のスクリーンショットがそのまま横の寸法で
+  撮れるため。レイアウトは `AppStoreScreenshotLayout.swift` が画面の縦横比から描画先 (iPhone / Duo 外側 / Duo 内側) を判定して切り替える
+- 姿勢の切り替えは ios-simulator skill の `duo-pose.sh` (Device Hub のウィンドウをアクセシビリティ API で操作する) に任せるため、
+  ローカルの Mac でしか実行できない。パスは環境変数 `DUO_POSE_SCRIPT` で変えられる
+- 必要なツール: 上記に加えて `magick` (ImageMagick。simctl の画像から alpha を落とす)
+
+### 出力先と App Store Connect への載せ方
+
+fastlane deliver は Duo の寸法を受け付けず、`fastlane/screenshots/{lang}/` に置くとアップロード全体が止まるため、
+deliver が読まない `fastlane/screenshots_duo/` に置く。
+
+```
+fastlane/screenshots_duo/
+├── outer/{ja,en-US}/{番号}_APP_IPHONE_DUO_{番号}.png   # 1398×2034 px (閉じた姿勢)
+└── inner/{ja,en-US}/{番号}_APP_IPHONE_DUO_{番号}.png   # 2853×2007 px (開いた姿勢・横)
+```
+
+App Store Connect へは手で上げる。外側と内側は同じ 1 つの表示タイプ (`APP_IPHONE_DUO`。API の公開仕様には無いが、
+App Store Connect CLI の `asc` 5.12.0 以降が送れる値。`~/.claude/skills/appstore-screenshot-builder/references/iphone-duo.md` の調査) で、
+枠は言語ごとに最大 10 枚。本リポジトリの手元の `asc` は 1.2.8 で Duo を送れないため、Web UI で上げる:
+
+1. App Store Connect の対象アプリ → バージョン → 言語 (日本語 / 英語 (米国)) のスクリーンショットの節で iPhone Duo の枠を開く
+2. `outer/{言語}/` の 6 枚と `inner/{言語}/` の 6 枚から、載せる画像を枠の上限 (10 枚) に収まるように選んでドラッグする
+   (外側 6 枚 + 内側 4 枚など。枠が外側・内側で分かれているか、内側の寸法をサーバが受け付けるかは Web UI で未確認)
 
 ## 撮影対象を増やす場合
 
