@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  CRASHLYTICS_SLACK_CHANNEL,
+  crashlyticsSlackChannel,
   formatCrashlyticsAlertText,
 } from "./crashlyticsAlert";
 
@@ -12,11 +12,21 @@ const issue = {
   appVersion: "1.0.0 (1)",
 };
 
-describe("formatCrashlyticsAlertText", () => {
-  it("投稿先は igen の通知チャンネル", () => {
-    expect(CRASHLYTICS_SLACK_CHANNEL).toBe("#igen-notification");
+describe("crashlyticsSlackChannel", () => {
+  it("本番のプロジェクト ID では本番の通知チャンネル", () => {
+    expect(crashlyticsSlackChannel("igen-prod")).toBe("#igen-notification");
   });
 
+  it("別のプロジェクト ID では QA の通知チャンネル", () => {
+    expect(crashlyticsSlackChannel("demo-igen")).toBe("#igen-notification-qa");
+  });
+
+  it("プロジェクト ID が空文字では QA の通知チャンネル", () => {
+    expect(crashlyticsSlackChannel("")).toBe("#igen-notification-qa");
+  });
+});
+
+describe("formatCrashlyticsAlertText", () => {
   it("新規 fatal issue は見出し・issue の概要・コンソール URL・分析コマンドを 1 通にまとめる", () => {
     expect(
       formatCrashlyticsAlertText({
