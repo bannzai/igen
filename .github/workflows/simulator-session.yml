@@ -45,7 +45,7 @@ jobs:
       CONFIGURATION: ${{ inputs.configuration }}
     steps:
       # simtunnel 経路の workflow は uses を commit SHA で固定する（simtunnel PROJECT.md「リポジトリ公開に耐える安全性」）
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -100,7 +100,7 @@ jobs:
 
       # upload-artifact は実行権限を保持しない（全ファイル 644 になる）が、session.yml 側の
       # runner/install-artifact-app.sh が install 前に各バンドルの CFBundleExecutable へ実行権限を復元するため tar 化は不要
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: simulator-app
           path: tmp/simulator-app # .app の親ディレクトリ（.app 直指定は中身が flatten される）

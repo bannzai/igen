@@ -1,5 +1,5 @@
-import { FieldValue } from "firebase-admin/firestore";
 import type { Firestore } from "firebase-admin/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 
 // 無料枠は 1 日 1 通 (documents/PROJECT.md「マネタイズ」)。
 // IGEN_FREE_LETTERS_PER_DAY はローカル開発 (Emulator) で複数通の UI 検証をするための上書き。

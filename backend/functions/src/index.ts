@@ -83,3 +83,11 @@ export const api = onRequest(
     app(req, res);
   },
 );
+
+// firebase-crashlytics-alert-setup begin (bannzai/castle の skill が管理する区間。手で編集しない)
+export {
+  crashlyticsNewFatalIssueToSlack,
+  crashlyticsRegressionToSlack,
+  crashlyticsVelocityToSlack,
+} from "./lib/crashlyticsAlert";
+// firebase-crashlytics-alert-setup end

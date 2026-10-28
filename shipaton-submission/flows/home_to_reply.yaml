@@ -1,0 +1,33 @@
+appId: com.bannzai.Igen
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+- extendedWaitUntil:
+    visible: "Tell me about your day, or what's on your mind"
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn: "e.g. Lately, I can't stop thinking before I fall asleep…"
+- inputText: "I want to begin something new, but I am afraid to take the first step."
+- waitForAnimationToEnd:
+    timeout: 2500
+# iOS の hideKeyboard は不安定なため、ヘッドライン付近のスクロールで
+# キーボード下のボタンを可視領域へ出してからタップする
+- swipe:
+    start: 50%, 25%
+    end: 50%, 10%
+- swipe:
+    start: 50%, 25%
+    end: 50%, 10%
+- tapOn: "Ask the Greats"
+- extendedWaitUntil:
+    visible: "A Letter for You"
+    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 10000

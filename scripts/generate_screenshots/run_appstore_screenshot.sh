@@ -19,6 +19,9 @@
 #   xcodebuild の TEST_RUNNER_ プレフィックス機構により、テストランナープロセスへ
 #   SNAPSHOT_LANGUAGES として引き渡され、
 #   ios/IgenUITests/AppStoreScreenshots/Languages.swift の filteredLanguages() が読む。
+#   -parallel-testing-enabled NO は、xcodebuild がシミュレータの clone でテストを実行するのを止める。
+#   clone は iPhone Duo で閉じた姿勢で起動するため、元のシミュレータを開いた姿勢にしても内側が撮れない
+#   (clone で実行した後は元のシミュレータが Shutdown になる)。1 台で逐次実行するため他の機種でも影響はない。
 #
 set -euo pipefail
 
@@ -54,6 +57,7 @@ xcodebuild test-without-building \
   -only-testing:"$TEST" \
   -resultBundlePath "$RESULT_BUNDLE_PATH" \
   -derivedDataPath "$DERIVED_DATA_PATH" \
+  -parallel-testing-enabled NO \
   "${XCODEBUILD_COMMON_FLAGS[@]}"
 
 echo "==== Test completed: $TEST ===="

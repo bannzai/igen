@@ -23,10 +23,10 @@ import {
 } from "./quota";
 import { quotes } from "./quotesDb";
 import {
-  type RateLimitPolicy,
   clientIp,
   consumeRateLimit,
   forwardedForHopCount,
+  type RateLimitPolicy,
   rateLimitKeyForIp,
 } from "./rateLimit";
 import {

@@ -1,0 +1,40 @@
+appId: com.bannzai.Igen
+---
+- launchApp
+- extendedWaitUntil:
+    visible: "Archive"
+    timeout: 20000
+- tapOn: "Archive"
+- extendedWaitUntil:
+    visible: "I want to begin something new, but I am afraid to take the first step."
+    timeout: 20000
+- tapOn: "I want to begin something new, but I am afraid to take the first step."
+- extendedWaitUntil:
+    visible: "A Letter for You"
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 4000
+- swipe:
+    start: 50%, 82%
+    end: 50%, 30%
+- waitForAnimationToEnd:
+    timeout: 3000
+- swipe:
+    start: 50%, 82%
+    end: 50%, 28%
+- waitForAnimationToEnd:
+    timeout: 2000
+# "Share" は画面内の複数要素に部分一致するため、一意な文言のボタンで共有カードを開く
+- tapOn: "Create a share card"
+- extendedWaitUntil:
+    visible: "Your worry is not included in the card"
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn: "Back"
+- extendedWaitUntil:
+    visible: "A Letter for You"
+    timeout: 20000
+- tapOn: "Close"
+- waitForAnimationToEnd:
+    timeout: 2000

@@ -841,6 +841,16 @@
         }
       }
     },
+    "Price unavailable": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "価格を取得できませんでした"
+          }
+        }
+      }
+    },
     "Prices could not be loaded. Tap to retry.": {
       "localizations": {
         "ja": {

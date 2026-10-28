@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "mobile": {
+      "command": "node",
+      "args": [
+        "/Users/bannzai/ghq/github.com/bannzai/simtunnel/mcp/index.mjs"
+      ],
+      "env": {
+        "SIMTUNNEL_WDA_URL": "http://simtunnel-igen-49:8100"
+      }
+    }
+  }
+}

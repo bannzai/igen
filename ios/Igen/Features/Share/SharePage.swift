@@ -144,14 +144,11 @@ struct SharePage: View {
   /// カード画像をフォトライブラリへ保存し、成功したかを返す。
   /// Analytics・アラートなどの副作用は呼び出し元で処理する (.claude/rules/coding-rules-analytics.md)
   private func save(cardImage: UIImage) async -> Bool {
-    do {
-      try await PHPhotoLibrary.shared().performChanges {
-        PHAssetChangeRequest.creationRequestForAsset(from: cardImage)
-      }
-      return true
-    } catch {
+    if !(await PHPhotoLibrary.requestAuthorization(for: .addOnly)).allowsAddingAssets {
       return false
     }
+
+    return await PhotoLibraryImageSaver().save(cardImage)
   }
 }
 

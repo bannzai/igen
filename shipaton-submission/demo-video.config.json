@@ -1,0 +1,70 @@
+{
+  "profile": {
+    "name": "shipaton-2026-portrait",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "min_duration": 1,
+    "max_duration": 120
+  },
+  "output_dir": "output",
+  "output_name": "shipaton-demo.mp4",
+  "title_card": {
+    "text": "",
+    "subtext": "",
+    "duration": 0,
+    "background": "black"
+  },
+  "font": "",
+  "subtitle_scale": 1,
+  "scenes": [
+    {
+      "id": "opening",
+      "card": {
+        "background": "#07081a",
+        "lines": [
+          {"text": "Dear Socrates", "size": 68, "color": "#f5dfa4"},
+          {"text": "A letter from a great mind, chosen for tonight", "size": 34, "color": "#ece7f4"}
+        ]
+      },
+      "target_duration": 5
+    },
+    {
+      "id": "home_to_reply",
+      "flow": "flows/home_to_reply.yaml",
+      "title": "Write what is on your mind",
+      "subtitle": "Stars gather, then a sourced quote arrives as a personal letter",
+      "target_duration": 44,
+      "trim_start": 9,
+      "speed": 2
+    },
+    {
+      "id": "reply_and_share",
+      "flow": "flows/reply_and_share.yaml",
+      "title": "Keep the source, not the worry",
+      "subtitle": "Every quote includes its original text and citation; share cards omit private input",
+      "target_duration": 36,
+      "trim_start": 4,
+      "speed": 3
+    },
+    {
+      "id": "star_atlas",
+      "flow": "flows/star_atlas.yaml",
+      "title": "Build your Star Atlas",
+      "subtitle": "Each great mind you meet lights up as a constellation",
+      "target_duration": 22,
+      "trim_start": 6
+    },
+    {
+      "id": "closing",
+      "card": {
+        "background": "#07081a",
+        "lines": [
+          {"text": "One free letter each day", "size": 44, "color": "#f5dfa4"},
+          {"text": "Powered by RevenueCat tickets and an unlimited plan", "size": 30, "color": "#ece7f4"}
+        ]
+      },
+      "target_duration": 5
+    }
+  ]
+}

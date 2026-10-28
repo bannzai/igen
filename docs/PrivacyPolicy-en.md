@@ -86,7 +86,7 @@ When the Provider is requested by a user to disclose personal information pursua
 
 For opinions, questions, complaints, and other inquiries regarding the handling of user information, please contact the email address below.
 
-kingkong999yhirose@gmail.com
+bannzai.app@gmail.com
 
 ## Changes to This Privacy Policy
 

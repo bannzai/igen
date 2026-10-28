@@ -7,3 +7,11 @@ ios/Config.local.xcconfig
 
 # simtunnel の mcp-config が生成するセッション固有の設定 (WDA の URL とローカル絶対パスを含むため追跡しない)
 .mcp.json
+
+# Shipaton デモ動画の中間生成物 (再生成可能。最終の output/shipaton-demo.mp4 と
+# artifacts/ のスクリーンショットだけ追跡する)
+shipaton-submission/output/clips/
+shipaton-submission/output/logs/
+shipaton-submission/output/work/
+shipaton-submission/output/card-work/
+shipaton-submission/output/cards/

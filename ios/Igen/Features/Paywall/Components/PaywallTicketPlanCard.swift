@@ -2,10 +2,13 @@ import RevenueCat
 import SwiftUI
 
 /// 相談チケット「ひとしずく」(consumable) のプランカード。
-/// 価格は StoreKit のローカライズ済み価格を表示し、offering 未取得 (SDK 未設定) の間は仮価格を表示する
+/// 価格は StoreKit のローカライズ済み価格だけを表示する。package を取得できない間は
+/// 実際の請求額と異なる金額を見せないよう、価格の代わりに取得失敗を示して購入ボタンを無効にする
 struct PaywallTicketPlanCard: View {
   /// 購入対象のチケットパッケージ。取得済みならローカライズ済み価格の表示にも使う
   var package: Package?
+  /// package の取得中か。取得中は価格の代わりに読み込みを示し、取得失敗の表示を出さない
+  var loading: Bool
   var purchasing: Bool
   var onPressed: () -> Void
 
@@ -21,11 +24,15 @@ struct PaywallTicketPlanCard: View {
         Text("\(priceString) / 1 letter")
           .font(.igenSerif(size: 18, weight: .semibold))
           .foregroundStyle(Color.igenGoldBright)
+      } else if loading {
+        ProgressView()
+          .controlSize(.small)
+          .tint(Color.igenGoldBright)
       } else {
-        // SDK 未設定の間の仮価格 (#16 でストア価格を設定したら package 側の表示になる)
-        Text(verbatim: "¥160 / 1通")
-          .font(.igenSerif(size: 18, weight: .semibold))
-          .foregroundStyle(Color.igenGoldBright)
+        // ja: 価格を取得できませんでした
+        Text("Price unavailable")
+          .font(.system(size: 13))
+          .foregroundStyle(Color.igenText.opacity(0.6))
       }
 
       // ja: 今夜だけ、もう一通。
@@ -46,8 +53,9 @@ struct PaywallTicketPlanCard: View {
           .overlay(
             Capsule().stroke(Color.igenGold.opacity(0.6), lineWidth: 1)
           )
+          .opacity(package == nil ? 0.5 : 1)
       }
-      .disabled(purchasing)
+      .disabled(purchasing || package == nil)
     }
     .frame(maxWidth: .infinity)
     .padding(.vertical, 14)
@@ -65,7 +73,7 @@ struct PaywallTicketPlanCard: View {
 
 struct PaywallTicketPlanCard_Previews: PreviewProvider {
   static var previews: some View {
-    PaywallTicketPlanCard(package: nil, purchasing: false, onPressed: {})
+    PaywallTicketPlanCard(package: nil, loading: false, purchasing: false, onPressed: {})
       .padding()
       .background(Color.igenSheet)
   }

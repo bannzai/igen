@@ -1,4 +1,4 @@
-import { type Quote, findQuote } from "./quotesDb";
+import { findQuote, type Quote } from "./quotesDb";
 
 /** 返書の言語。訳文・解説をどの言語で返すかを決める (原文はどの言語でも併記する) */
 export type LetterLanguage = "ja" | "en";
