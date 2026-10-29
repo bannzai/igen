@@ -22,20 +22,11 @@ import type {
 } from "firebase-functions/v2/alerts/crashlytics";
 
 /**
- * 本番の Firebase プロジェクト ID。backend/.firebaserc の prod alias に揃える。
- * これと一致するプロジェクトで動く時だけ本番の通知チャンネルへ投稿する
+ * 投稿先の Slack チャンネル。slack-notification-setup skill の規約で作った「サービス名-notification」。
+ * Firebase が起動する関数はテスト用の引数を渡せないため、実行中のプロジェクトを問わず本番のチャンネルに送る
+ * (規約: bannzai/castle の home/.claude/documents/rules/slack-test-notification-channel.md)
  */
-const PROD_PROJECT_ID = "igen-prod";
-
-/**
- * 実行中のプロジェクトに対応する投稿先の Slack チャンネル。
- * 本番のプロジェクトでは slack-notification-setup skill の規約で作った「サービス名-notification」、それ以外 (dev・QA・判定できない時) では
- * 「サービス名-notification-qa」を返し、QA の投稿を本番の通知に混ぜない (規約: bannzai/castle の
- * home/.claude/documents/rules/qa-notifications-to-separate-channel.md)
- */
-export function crashlyticsSlackChannel(projectId: string): string {
-  return projectId === PROD_PROJECT_ID ? "#igen-notification" : "#igen-notification-qa";
-}
+export const CRASHLYTICS_SLACK_CHANNEL = "#igen-notification";
 
 /** slack-notification-setup skill の通知 bot の bot token (chat:write)。Secret Manager から起動時に読む */
 const SLACK_BOT_TOKEN = defineSecret("SLACK_BOT_TOKEN");
@@ -147,7 +138,7 @@ async function postToSlack(text: string): Promise<void> {
       authorization: `Bearer ${SLACK_BOT_TOKEN.value()}`,
       "content-type": "application/json; charset=utf-8",
     },
-    body: JSON.stringify({ channel: crashlyticsSlackChannel(currentProjectId()), text }),
+    body: JSON.stringify({ channel: CRASHLYTICS_SLACK_CHANNEL, text }),
     // 関数の実行時間の上限 (既定 60 秒) より十分に短くし、Slack が応答しない時も失敗として記録できるようにする
     signal: AbortSignal.timeout(SLACK_REQUEST_TIMEOUT_MS),
   });

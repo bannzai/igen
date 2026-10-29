@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  crashlyticsSlackChannel,
+  CRASHLYTICS_SLACK_CHANNEL,
   formatCrashlyticsAlertText,
 } from "./crashlyticsAlert";
 
@@ -12,17 +12,9 @@ const issue = {
   appVersion: "1.0.0 (1)",
 };
 
-describe("crashlyticsSlackChannel", () => {
-  it("本番のプロジェクト ID では本番の通知チャンネル", () => {
-    expect(crashlyticsSlackChannel("igen-prod")).toBe("#igen-notification");
-  });
-
-  it("別のプロジェクト ID では QA の通知チャンネル", () => {
-    expect(crashlyticsSlackChannel("demo-igen")).toBe("#igen-notification-qa");
-  });
-
-  it("プロジェクト ID が空文字では QA の通知チャンネル", () => {
-    expect(crashlyticsSlackChannel("")).toBe("#igen-notification-qa");
+describe("CRASHLYTICS_SLACK_CHANNEL", () => {
+  it("Firebase が起動する関数のため、プロジェクトを問わず本番の通知チャンネル", () => {
+    expect(CRASHLYTICS_SLACK_CHANNEL).toBe("#igen-notification");
   });
 });
 
