@@ -1,7 +1,7 @@
 # iOS Simulator セッションを張る caller workflow。実体は bannzai/simtunnel の session.yml（reusable workflow）。
 # 参照: https://github.com/bannzai/simtunnel の PROJECT.md「各アプリ repo での実行」
 # 前提: この repo が public であること（macOS Runner は public repo で無料。private は消費分数 10 倍のため手動起動しない）。
-# 起動はローカルの simtunnel CLI から行う（この worktree で `~/ghq/github.com/bannzai/simtunnel/local/simtunnel up <session> --wait`）。
+# 起動はローカルの simtunnel CLI から行う（この worktree で `SIMTUNNEL_WAIT_MINUTES=50 ~/ghq/github.com/bannzai/simtunnel/local/simtunnel up <session> --wait`。待ち時間の理由は CLAUDE.md「実装したUIの検証」）。
 name: simulator-session
 # run-name は local/simtunnel CLI が run を特定するキーのためこの形式を維持する
 run-name: "session=${{ inputs.session }} device=${{ inputs.device }}"
