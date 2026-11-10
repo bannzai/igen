@@ -25,7 +25,7 @@ App Store Connect (ASC) と RevenueCat に対する設定は、リポジトリ�
 | サブスクリプション `igen_unlimited_monthly_480yen` | `6806113986` | 同上 |
 | サブスクリプション `igen_unlimited_annual_3800yen` | `6806114165` | 同上 |
 
-各 API の応答の `id` と `productId` (Bundle ID は `identifier`、グループは `referenceName`) がこの表と一致することを 2026-11-10 に確認した。商品を作り直した時は、この表を同じ API の結果で更新する。
+各 API の応答の `id` と `productId` (Bundle ID は `identifier`、グループは `referenceName`) がこの表と一致することを 2026-11-10 に確認した。商品を作り直した時は、この表を同じ API の結果で更新する。consumable だけは、パスが識別子を含むため同じ API では新しい識別子を引けない。同じ日に `/v1/apps/<appId>/inAppPurchasesV2` (`filter[productId]=igen_ticket1_160yen` の有無の両方) を実行した結果は 0 件で、一覧からも引けなかったため、作り直す時は作成した時の API の応答の `id` を控えてこの表に書く。
 
 ## 認証情報
 
