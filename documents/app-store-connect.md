@@ -13,6 +13,20 @@ App Store Connect (ASC) と RevenueCat に対する設定は、リポジトリ�
 | RevenueCat の App・products・entitlement・offering | `fastlane/in_app_purchases/revenuecat.config.json` | `bash ~/.claude/skills/revenuecat-product-setup/scripts/rc_diff_config.sh fastlane/in_app_purchases/revenuecat.config.json` で差分確認 → `rc_apply_config.sh <同じパス>` で適用 (config はパス引数で渡す) |
 | 課金の CLI 検証 (StoreKit Configuration) | `ios/IgenTests/Igen.storekit` (商品 ID・価格は appstore.config.json と一致させる) | 商品解決・購入・entitlement: `xcodebuild test ... -only-testing:IgenTests/StoreKitConfigurationTests`。ペイウォールの価格表示 (実 RevenueCat の offerings + Igen スキームの StoreKit Configuration): `xcodebuild test -project ios/Igen.xcodeproj -scheme Igen -destination 'platform=iOS Simulator,name=<iOS 26.2 以下の simulator>' -skipPackagePluginValidation -only-testing:IgenUITests/PaywallPriceUITests` (`ios/Config.local.xcconfig` に public key が必要。simctl launch には StoreKit Configuration を渡せないため simtunnel では価格が解決されない) |
 
+## ASC が採番した識別子
+
+上の表のコマンドが引数に取る `<IAP_ID>` / `<SUBSCRIPTION_ID>` など、ASC が採番し定義ファイルに現れない識別子。App ID は `fastlane/in_app_purchases/appstore.config.json` の `appId`、RevenueCat の project ID は `fastlane/in_app_purchases/revenuecat.config.json` の `project_id` が正。
+
+| 対象 | 識別子 | 確認に使った API (appstore-in-app-purchase skill の `iap_api.sh GET <パス>`) |
+|---|---|---|
+| Bundle ID `com.bannzai.Igen` のレコード | `9BML9FH554` | `/v1/bundleIds?filter[identifier]=com.bannzai.Igen` |
+| consumable `igen_ticket1_160yen` | `6806110453` | `/v2/inAppPurchases/6806110453` |
+| サブスクリプショングループ「Hoshiyomi」 | `22340448` | `/v1/apps/<appId>/subscriptionGroups?include=subscriptions` |
+| サブスクリプション `igen_unlimited_monthly_480yen` | `6806113986` | 同上 |
+| サブスクリプション `igen_unlimited_annual_3800yen` | `6806114165` | 同上 |
+
+各 API の応答の `id` と `productId` (Bundle ID は `identifier`、グループは `referenceName`) がこの表と一致することを 2026-11-10 に確認した。商品を作り直した時は、この表を同じ API の結果で更新する。consumable だけは、パスが識別子を含むため同じ API では新しい識別子を引けない。同じ日に `/v1/apps/<appId>/inAppPurchasesV2` (`filter[productId]=igen_ticket1_160yen` の有無の両方) を実行した結果は 0 件で、一覧からも引けなかったため、作り直す時は作成した時の API の応答の `id` を控えてこの表に書く。
+
 ## 認証情報
 
 - ASC API キー: 環境変数 `ASC_API_KEY_ID` / `ASC_API_KEY_ISSUER_ID` / `ASC_API_KEY_P8_BASE64` (JWT 認証。Bundle ID 登録・提出前設定・課金商品に使う)
