@@ -24,7 +24,8 @@ jobs:
     # CodeQL の Swift の解析は macOS の runner でしか始まらず、macOS 27・Xcode 27 以上には対応していない。
     # macos-latest が macOS 27 に進んでも解析が止まらないよう、版を固定する
     runs-on: macos-26
-    timeout-minutes: 45
+    # CodeQL の計測の下では Firebase を含む依存のビルドが遅く、テンプレートの既定の上限では余裕が無い
+    timeout-minutes: 75
     permissions:
       contents: read
       security-events: write
