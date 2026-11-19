@@ -1,0 +1,87 @@
+# setup-ci (bannzai/castle) の swift-codeql テンプレートを元にした手動管理の workflow
+# (LicenseList の plugin 用のビルドの引数と、JavaScript・TypeScript の解析の job を足したため)。
+# CodeQL の default setup と併存できない (default setup が有効な間は結果が受け付けられない)。
+# default setup を無効にしてから使い、default setup が見ていた GitHub Actions の workflow の解析もここで行う
+name: CodeQL
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 18 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-swift:
+    # CodeQL の Swift の解析は macOS の runner でしか始まらず、macOS 27・Xcode 27 以上には対応していない。
+    # macos-latest が macOS 27 に進んでも解析が止まらないよう、版を固定する
+    runs-on: macos-26
+    # CodeQL の計測の下では Firebase を含む依存のビルドが遅く、テンプレートの既定の上限では余裕が無い
+    timeout-minutes: 75
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          languages: swift
+          build-mode: manual
+      # -skipPackagePluginValidation: LicenseList の build tool plugin は GUI で一度許可するまで CLI から実行できない（Makefile 参照）
+      - name: アプリをビルドする
+        run: |
+          xcodebuild build -project "ios/Igen.xcodeproj" -scheme "Igen" \
+            -destination 'generic/platform=iOS' \
+            -skipPackagePluginValidation \
+            CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            COMPILATION_CACHE_ENABLE_CACHING=NO SWIFT_ENABLE_COMPILE_CACHE=NO SWIFT_USE_INTEGRATED_DRIVER=NO
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          category: /language:swift
+
+  analyze-actions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          languages: actions
+          build-mode: none
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          category: /language:actions
+
+  # default setup が解析していた backend/functions の TypeScript を引き継ぐ
+  analyze-javascript-typescript:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          languages: javascript-typescript
+          build-mode: none
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          category: /language:javascript-typescript
